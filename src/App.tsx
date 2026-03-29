@@ -40,104 +40,112 @@ function ScrollToTop() {
   return null;
 }
 
-export default function App() {
+function AppContent() {
   const initializeAuth = useAuthStore((state) => state.initialize);
   const isSupabaseMissing = !supabase;
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   useEffect(() => {
     initializeAuth();
   }, [initializeAuth]);
 
   return (
+    <div className="min-h-screen flex flex-col">
+      {isSupabaseMissing && (
+        <div className="bg-red-600 text-white text-center py-2 px-4 sticky top-0 z-[100] text-sm font-medium">
+          Supabase environment variables are missing. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in the Secrets panel.
+        </div>
+      )}
+      {!isAdminRoute && <Navbar />}
+      <main className="flex-grow">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/bulk-enquiry" element={<BulkEnquiry />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          
+          {/* Customer Protected Routes */}
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={
+            <ProtectedRoute>
+              <Checkout />
+            </ProtectedRoute>
+          } />
+          <Route path="/orders" element={
+            <ProtectedRoute>
+              <Orders />
+            </ProtectedRoute>
+          } />
+
+          {/* Admin Protected Routes */}
+          <Route path="/admin" element={
+            <AdminRoute>
+              <AdminLayout>
+                <AdminDashboard />
+              </AdminLayout>
+            </AdminRoute>
+          } />
+          <Route path="/admin/products" element={
+            <AdminRoute>
+              <AdminLayout>
+                <ProductManagement />
+              </AdminLayout>
+            </AdminRoute>
+          } />
+          <Route path="/admin/orders" element={
+            <AdminRoute>
+              <AdminLayout>
+                <OrderManagement />
+              </AdminLayout>
+            </AdminRoute>
+          } />
+          <Route path="/admin/orders/:id" element={
+            <AdminRoute>
+              <AdminLayout>
+                <OrderDetail />
+              </AdminLayout>
+            </AdminRoute>
+          } />
+          <Route path="/admin/customers" element={
+            <AdminRoute>
+              <AdminLayout>
+                <CustomerManagement />
+              </AdminLayout>
+            </AdminRoute>
+          } />
+          <Route path="/admin/settings" element={
+            <AdminRoute>
+              <AdminLayout>
+                <SettingsPage />
+              </AdminLayout>
+            </AdminRoute>
+          } />
+          <Route path="/admin/manage-admins" element={
+            <AdminRoute>
+              <AdminLayout>
+                <AdminManagement />
+              </AdminLayout>
+            </AdminRoute>
+          } />
+        </Routes>
+      </main>
+      {!isAdminRoute && <Footer />}
+      {!isAdminRoute && <WhatsAppButton />}
+    </div>
+  );
+}
+
+export default function App() {
+  return (
     <Router>
       <ScrollToTop />
       <Toaster position="top-center" richColors />
-      <div className="min-h-screen flex flex-col">
-        {isSupabaseMissing && (
-          <div className="bg-red-600 text-white text-center py-2 px-4 sticky top-0 z-[100] text-sm font-medium">
-            Supabase environment variables are missing. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in the Secrets panel.
-          </div>
-        )}
-        <Navbar />
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/products/:id" element={<ProductDetail />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/bulk-enquiry" element={<BulkEnquiry />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            
-            {/* Customer Protected Routes */}
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={
-              <ProtectedRoute>
-                <Checkout />
-              </ProtectedRoute>
-            } />
-            <Route path="/orders" element={
-              <ProtectedRoute>
-                <Orders />
-              </ProtectedRoute>
-            } />
-
-            {/* Admin Protected Routes */}
-            <Route path="/admin" element={
-              <AdminRoute>
-                <AdminLayout>
-                  <AdminDashboard />
-                </AdminLayout>
-              </AdminRoute>
-            } />
-            <Route path="/admin/products" element={
-              <AdminRoute>
-                <AdminLayout>
-                  <ProductManagement />
-                </AdminLayout>
-              </AdminRoute>
-            } />
-            <Route path="/admin/orders" element={
-              <AdminRoute>
-                <AdminLayout>
-                  <OrderManagement />
-                </AdminLayout>
-              </AdminRoute>
-            } />
-            <Route path="/admin/orders/:id" element={
-              <AdminRoute>
-                <AdminLayout>
-                  <OrderDetail />
-                </AdminLayout>
-              </AdminRoute>
-            } />
-            <Route path="/admin/customers" element={
-              <AdminRoute>
-                <AdminLayout>
-                  <CustomerManagement />
-                </AdminLayout>
-              </AdminRoute>
-            } />
-            <Route path="/admin/settings" element={
-              <AdminRoute>
-                <AdminLayout>
-                  <SettingsPage />
-                </AdminLayout>
-              </AdminRoute>
-            } />
-            <Route path="/admin/manage-admins" element={
-              <AdminRoute>
-                <AdminLayout>
-                  <AdminManagement />
-                </AdminLayout>
-              </AdminRoute>
-            } />
-          </Routes>
-        </main>
-        <Footer />
-        <WhatsAppButton />
-      </div>
+      <AppContent />
     </Router>
   );
 }

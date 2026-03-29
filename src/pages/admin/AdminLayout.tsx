@@ -131,11 +131,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <main className="flex-grow flex flex-col min-w-0 overflow-hidden">
         {/* Header */}
         <header className="bg-white/80 backdrop-blur-xl border-b border-brand-brown/5 h-24 flex items-center justify-between px-10 sticky top-0 z-40">
-          <div className="flex items-center gap-8 flex-grow max-w-2xl">
-            <h1 className="text-2xl font-serif text-brand-brown whitespace-nowrap">
+          <div className="flex items-center gap-12 flex-grow">
+            <h1 className="text-2xl font-serif text-brand-brown whitespace-nowrap min-w-fit">
               {menuItems.find(item => item.path === location.pathname)?.label || 'Dashboard'}
             </h1>
-            <div className="relative w-full hidden md:block">
+            <div className="relative w-full max-w-md hidden lg:block">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-charcoal/30" size={16} />
               <input 
                 type="text" 
@@ -145,18 +145,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-6">
             <button className="relative p-3 text-brand-charcoal/40 hover:text-brand-gold hover:bg-brand-gold/5 rounded-2xl transition-all">
               <Bell size={20} strokeWidth={1.5} />
               <span className="absolute top-3 right-3 w-2 h-2 bg-brand-gold rounded-full border-2 border-white shadow-sm"></span>
             </button>
             
-            <div className="flex items-center gap-4 pl-8 border-l border-brand-brown/5">
+            <div className="flex items-center gap-4 pl-6 border-l border-brand-brown/5">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-bold text-brand-brown leading-none mb-1">{profile?.name}</p>
-                <p className="text-[10px] text-brand-gold font-bold uppercase tracking-widest">{profile?.role}</p>
+                <p className="text-sm font-bold text-brand-brown leading-tight">{profile?.name}</p>
+                <p className="text-[10px] text-brand-gold font-bold uppercase tracking-widest mt-0.5">{profile?.role?.replace('_', ' ')}</p>
               </div>
-              <div className="w-12 h-12 bg-brand-gold text-brand-brown rounded-2xl flex items-center justify-center font-serif font-bold text-lg shadow-lg shadow-brand-gold/10">
+              <div className="w-12 h-12 bg-brand-gold text-brand-brown rounded-2xl flex items-center justify-center font-serif font-bold text-lg shadow-lg shadow-brand-gold/10 shrink-0">
                 {profile?.name?.[0]}
               </div>
             </div>
