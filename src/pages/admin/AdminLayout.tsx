@@ -8,13 +8,15 @@ import {
   Settings, 
   LogOut, 
   Menu, 
-  X,
+  ChevronLeft,
   Bell,
-  Search
+  Search,
+  ChevronRight
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
+import { cn } from '../../lib/utils';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -45,88 +47,122 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-brand-cream/20 flex">
       {/* Sidebar */}
-      <aside 
-        className={`bg-brand-brown text-white transition-all duration-300 flex flex-col ${
-          isSidebarOpen ? 'w-64' : 'w-20'
-        }`}
+      <motion.aside 
+        initial={false}
+        animate={{ width: isSidebarOpen ? 280 : 80 }}
+        className="bg-brand-brown text-white flex flex-col relative z-50 shadow-2xl"
       >
-        <div className="p-6 flex items-center justify-between">
+        <div className="p-8 flex items-center justify-between">
           {isSidebarOpen && (
-            <span className="font-serif text-xl font-bold tracking-tight">Admin Panel</span>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex items-center gap-4"
+            >
+              <div className="relative">
+                <img 
+                  src="https://i.ibb.co/C3vGrKVv/Screenshot-2026-03-29-113001-removebg-preview.png" 
+                  alt="Logo" 
+                  className="w-10 h-10 object-contain brightness-0 invert"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute -inset-1 bg-brand-gold/20 rounded-full blur-lg"></div>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-serif font-bold text-sm tracking-tight leading-none">SREE KRISHNA</span>
+                <span className="text-[8px] tracking-[0.4em] text-brand-gold font-bold uppercase mt-1">ADMIN</span>
+              </div>
+            </motion.div>
           )}
           <button 
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            className="p-2 hover:bg-white/10 rounded-xl transition-all duration-300"
           >
-            {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            {isSidebarOpen ? <ChevronLeft size={20} /> : <Menu size={20} />}
           </button>
         </div>
 
-        <nav className="flex-grow px-4 space-y-2">
+        <nav className="flex-grow px-4 py-6 space-y-2 overflow-y-auto">
           {menuItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-4 p-3 rounded-xl transition-all ${
+                className={cn(
+                  "flex items-center gap-4 px-4 py-4 rounded-2xl transition-all duration-500 group relative",
                   isActive 
-                    ? 'bg-brand-gold text-brand-brown font-bold' 
-                    : 'hover:bg-white/10 text-white/70 hover:text-white'
-                }`}
+                    ? "bg-brand-gold text-brand-brown shadow-xl shadow-brand-gold/20" 
+                    : "text-white/40 hover:text-white hover:bg-white/5"
+                )}
               >
-                <item.icon size={20} />
-                {isSidebarOpen && <span>{item.label}</span>}
+                <item.icon size={20} className={cn("shrink-0", isActive ? "text-brand-brown" : "group-hover:text-brand-gold transition-colors")} />
+                {isSidebarOpen && (
+                  <span className="text-[11px] font-bold uppercase tracking-[0.2em]">{item.label}</span>
+                )}
+                {isActive && isSidebarOpen && (
+                  <ChevronRight size={14} className="ml-auto opacity-50" />
+                )}
+                {isActive && !isSidebarOpen && (
+                  <div className="absolute left-0 w-1 h-6 bg-brand-gold rounded-r-full" />
+                )}
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-white/10">
+        <div className="p-6 border-t border-white/5">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all"
+            className={cn(
+              "flex items-center gap-4 px-4 py-4 rounded-2xl text-white/30 hover:text-white hover:bg-red-500/10 transition-all w-full group",
+              !isSidebarOpen && "justify-center"
+            )}
           >
-            <LogOut size={20} />
-            {isSidebarOpen && <span>Logout</span>}
+            <LogOut size={20} className="group-hover:text-red-400 transition-colors" />
+            {isSidebarOpen && <span className="text-[11px] font-bold uppercase tracking-[0.2em]">Sign Out</span>}
           </button>
         </div>
-      </aside>
+      </motion.aside>
 
       {/* Main Content */}
       <main className="flex-grow flex flex-col min-w-0 overflow-hidden">
         {/* Header */}
-        <header className="bg-white border-bottom border-gray-200 h-20 flex items-center justify-between px-8 sticky top-0 z-10">
-          <div className="flex items-center gap-4 flex-grow max-w-xl">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+        <header className="bg-white/80 backdrop-blur-xl border-b border-brand-brown/5 h-24 flex items-center justify-between px-10 sticky top-0 z-40">
+          <div className="flex items-center gap-8 flex-grow max-w-2xl">
+            <h1 className="text-2xl font-serif text-brand-brown whitespace-nowrap">
+              {menuItems.find(item => item.path === location.pathname)?.label || 'Dashboard'}
+            </h1>
+            <div className="relative w-full hidden md:block">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-charcoal/30" size={16} />
               <input 
                 type="text" 
-                placeholder="Search anything..."
-                className="w-full pl-10 pr-4 py-2 bg-gray-100 border-none rounded-xl focus:ring-2 focus:ring-brand-gold transition-all"
+                placeholder="Search analytics, orders, products..."
+                className="w-full pl-12 pr-6 py-3 bg-brand-cream/30 border border-brand-brown/5 rounded-2xl text-sm focus:ring-2 focus:ring-brand-gold/20 focus:bg-white transition-all outline-none"
               />
             </div>
           </div>
 
-          <div className="flex items-center gap-6">
-            <button className="relative p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-all">
-              <Bell size={20} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+          <div className="flex items-center gap-8">
+            <button className="relative p-3 text-brand-charcoal/40 hover:text-brand-gold hover:bg-brand-gold/5 rounded-2xl transition-all">
+              <Bell size={20} strokeWidth={1.5} />
+              <span className="absolute top-3 right-3 w-2 h-2 bg-brand-gold rounded-full border-2 border-white shadow-sm"></span>
             </button>
             
-            <div className="flex items-center gap-3 pl-6 border-l border-gray-200">
+            <div className="flex items-center gap-4 pl-8 border-l border-brand-brown/5">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-bold text-gray-900">{profile?.name}</p>
-                <p className="text-xs text-gray-500 capitalize">{profile?.role}</p>
+                <p className="text-sm font-bold text-brand-brown leading-none mb-1">{profile?.name}</p>
+                <p className="text-[10px] text-brand-gold font-bold uppercase tracking-widest">{profile?.role}</p>
               </div>
-              <div className="w-10 h-10 bg-brand-gold/20 rounded-full flex items-center justify-center text-brand-brown font-bold">
-                {profile?.name?.charAt(0)}
+              <div className="w-12 h-12 bg-brand-gold text-brand-brown rounded-2xl flex items-center justify-center font-serif font-bold text-lg shadow-lg shadow-brand-gold/10">
+                {profile?.name?.[0]}
               </div>
             </div>
           </div>
         </header>
+
 
         {/* Page Content */}
         <div className="p-8 overflow-y-auto">

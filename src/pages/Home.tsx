@@ -42,103 +42,135 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img 
+          <motion.img 
+            initial={{ scale: 1.1 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 10, ease: "easeOut" }}
             src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1920" 
             alt="Luxury Living Room" 
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-brand-brown/40 backdrop-brightness-75"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-brand-brown/60 via-brand-brown/40 to-brand-brown/80"></div>
         </div>
         
-        <div className="relative z-10 text-center px-6 max-w-4xl">
-          <motion.span 
+        <div className="relative z-10 text-center px-6 max-w-5xl">
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-brand-gold font-semibold tracking-[0.3em] uppercase text-sm mb-4 block"
+            className="flex items-center justify-center gap-4 mb-8"
           >
-            Direct from Manufacturer
-          </motion.span>
+            <div className="h-px w-12 bg-brand-gold/50"></div>
+            <span className="text-brand-gold font-bold tracking-[0.5em] uppercase text-[10px]">
+              Est. 1995 • Premium Quality
+            </span>
+            <div className="h-px w-12 bg-brand-gold/50"></div>
+          </motion.div>
+
           <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-5xl md:text-7xl font-serif text-white mb-8 leading-[1.1]"
+            transition={{ delay: 0.2, duration: 0.8 }}
+            className="text-6xl md:text-9xl font-serif text-white mb-10 leading-[0.9] tracking-tighter"
           >
-            Premium Furniture for <br /> <span className="italic font-normal">Modern Living</span>
+            Timeless <br /> 
+            <span className="italic font-normal text-brand-gold">Elegance</span>
           </motion.h1>
+
           <motion.p 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="text-white/80 text-lg md:text-xl mb-10 max-w-2xl mx-auto font-light"
+            transition={{ delay: 0.4, duration: 0.8 }}
+            className="text-white/70 text-lg md:text-xl mb-12 max-w-xl mx-auto font-light leading-relaxed"
           >
-            Crafting elegance and durability with high-grade steel and premium wood. Transform your home with Sree Krishna Steels.
+            Crafting the finest steel and wood furniture for those who appreciate the art of living well.
           </motion.p>
+
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            transition={{ delay: 0.6, duration: 0.8 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-8"
           >
-            <Link to="/products" className="bg-brand-gold text-brand-brown px-10 py-4 rounded-full font-bold text-lg hover:bg-white transition-all flex items-center gap-2 group">
-              Explore Collection <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+            <Link to="/products" className="group relative px-12 py-5 overflow-hidden rounded-full bg-brand-gold text-brand-brown font-bold text-sm uppercase tracking-[0.2em] transition-all duration-500 hover:bg-white">
+              <span className="relative z-10 flex items-center gap-3">
+                Shop Collection <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform duration-500" />
+              </span>
             </Link>
             <a 
               href="https://wa.me/919949666666?text=Hello%20Sree%20Krishna%20Steels,%20I'd%20like%20to%20get%20a%20quote%20for%20some%20furniture."
               target="_blank"
               rel="noopener noreferrer"
-              className="border border-white/30 backdrop-blur-sm text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/10 transition-all"
+              className="text-white font-bold text-sm uppercase tracking-[0.2em] hover:text-brand-gold transition-colors duration-300 flex items-center gap-3 group"
             >
-              Get a Quote
+              Get a Quote <div className="w-8 h-px bg-white/30 group-hover:w-12 group-hover:bg-brand-gold transition-all duration-300"></div>
             </a>
           </motion.div>
         </div>
         
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce text-white/50">
-          <div className="w-px h-12 bg-white/30 mx-auto"></div>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 1 }}
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4"
+        >
+          <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-bold">Scroll</span>
+          <div className="w-px h-16 bg-gradient-to-b from-brand-gold/50 to-transparent"></div>
+        </motion.div>
       </section>
 
       {/* Featured Products */}
-      <section className="py-24 px-6 max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-          <div>
-            <h2 className="text-4xl md:text-5xl font-serif text-brand-brown mb-4">Best Sellers</h2>
-            <p className="text-brand-charcoal/60 max-w-md">Our most loved pieces, crafted with precision and designed for comfort.</p>
+      <section className="py-32 px-8 max-w-[1400px] mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-baseline mb-24 gap-8">
+          <div className="max-w-2xl">
+            <motion.span 
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              className="text-brand-gold font-bold tracking-[0.3em] uppercase text-[10px] mb-4 block"
+            >
+              Curated Selection
+            </motion.span>
+            <h2 className="text-5xl md:text-7xl font-serif text-brand-brown mb-6 leading-tight">The Signature <br /><span className="italic font-normal">Collection</span></h2>
           </div>
-          <Link to="/products" className="text-brand-gold font-semibold flex items-center gap-2 hover:gap-3 transition-all">
-            View All Products <ArrowRight size={20} />
+          <Link to="/products" className="group flex items-center gap-4 text-sm font-bold uppercase tracking-[0.2em] text-brand-charcoal hover:text-brand-gold transition-colors">
+            View All <div className="w-12 h-px bg-brand-charcoal/20 group-hover:w-20 group-hover:bg-brand-gold transition-all duration-500"></div>
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
           {featuredProducts.map((product, idx) => (
             <motion.div 
               key={product.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
+              transition={{ delay: idx * 0.1, duration: 0.8 }}
               viewport={{ once: true }}
-              className="group cursor-pointer"
+              className="group"
             >
               <Link to={`/products/${product.id}`}>
-                <div className="relative aspect-[4/5] overflow-hidden rounded-2xl mb-6">
+                <div className="relative aspect-[3/4] overflow-hidden rounded-[2rem] mb-8 bg-brand-cream shadow-2xl shadow-brand-brown/5">
                   <img 
                     src={product.image_url || product.images?.[0]} 
                     alt={product.title || product.name} 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute top-4 left-4 bg-brand-gold text-brand-brown px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                    Best Seller
+                  <div className="absolute inset-0 bg-brand-brown/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute top-6 left-6">
+                    <span className="bg-white/90 backdrop-blur-md text-brand-brown px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm">
+                      Best Seller
+                    </span>
                   </div>
                 </div>
-                <h3 className="text-2xl font-serif text-brand-brown mb-2">{product.title || product.name}</h3>
-                <p className="text-brand-charcoal/60 text-sm mb-4 line-clamp-2">{product.description}</p>
-                <p className="text-brand-gold font-bold text-lg">
-                  {typeof product.price === 'number' ? `₹${product.price.toLocaleString()}` : product.price}
-                </p>
+                <div className="space-y-3 px-2">
+                  <div className="flex justify-between items-baseline gap-4">
+                    <h3 className="text-3xl font-serif text-brand-brown group-hover:text-brand-gold transition-colors duration-300">{product.title || product.name}</h3>
+                    <p className="text-brand-gold font-bold text-xl">
+                      {typeof product.price === 'number' ? `₹${product.price.toLocaleString()}` : product.price}
+                    </p>
+                  </div>
+                  <p className="text-brand-charcoal/50 text-sm leading-relaxed line-clamp-2 font-light">{product.description}</p>
+                </div>
               </Link>
             </motion.div>
           ))}

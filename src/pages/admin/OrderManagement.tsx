@@ -139,92 +139,99 @@ export default function OrderManagement() {
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-serif text-brand-brown mb-2">Order Management</h1>
-        <p className="text-gray-500">Track and manage customer orders and fulfillment.</p>
+    <div className="space-y-10 pb-20">
+      <div className="space-y-1">
+        <h1 className="text-4xl font-serif text-brand-brown tracking-tight">Orders</h1>
+        <p className="text-gray-500 font-medium">Track and fulfill your premium client requests.</p>
       </div>
 
-      <div className="flex flex-wrap gap-4 bg-white p-6 rounded-3xl border border-gray-200 shadow-sm">
-        <div className="relative flex-grow max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+      <div className="flex flex-col md:flex-row gap-4 bg-white/50 backdrop-blur-md p-2 rounded-[2rem] border border-brand-brown/5 shadow-sm">
+        <div className="relative flex-grow">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-brown/30" size={20} />
           <input
             type="text"
             placeholder="Search by Order ID, Name, or Phone..."
-            className="w-full pl-10 pr-4 py-2 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-brand-gold transition-all"
+            className="w-full pl-14 pr-6 py-4 bg-transparent border-none rounded-2xl focus:ring-0 text-brand-brown font-medium placeholder:text-brand-brown/30"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-2">
-          <Filter size={18} className="text-gray-400" />
-          <select
-            className="bg-transparent border-none focus:ring-0 text-sm font-bold text-gray-700 outline-none"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="shipped">Shipped</option>
-            <option value="delivered">Delivered</option>
-          </select>
-        </div>
-        <div className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-2">
-          <CreditCard size={18} className="text-gray-400" />
-          <select
-            className="bg-transparent border-none focus:ring-0 text-sm font-bold text-gray-700 outline-none"
-            value={paymentFilter}
-            onChange={(e) => setPaymentFilter(e.target.value)}
-          >
-            <option value="all">All Payments</option>
-            <option value="pending">Pending</option>
-            <option value="paid">Paid</option>
-            <option value="failed">Failed</option>
-          </select>
+        <div className="flex flex-wrap gap-3 p-1">
+          <div className="flex items-center gap-3 bg-white rounded-[1.5rem] px-6 py-2 border border-brand-brown/5 shadow-sm min-w-[160px]">
+            <Filter size={18} className="text-brand-brown/40" />
+            <select
+              className="bg-transparent border-none focus:ring-0 text-sm font-bold text-brand-brown outline-none w-full cursor-pointer"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">Fulfillment</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-3 bg-white rounded-[1.5rem] px-6 py-2 border border-brand-brown/5 shadow-sm min-w-[160px]">
+            <CreditCard size={18} className="text-brand-brown/40" />
+            <select
+              className="bg-transparent border-none focus:ring-0 text-sm font-bold text-brand-brown outline-none w-full cursor-pointer"
+              value={paymentFilter}
+              onChange={(e) => setPaymentFilter(e.target.value)}
+            >
+              <option value="all">Payment</option>
+              <option value="pending">Pending</option>
+              <option value="paid">Paid</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <div className="space-y-4">
-        <AnimatePresence>
+      <div className="space-y-6">
+        <AnimatePresence mode="popLayout">
           {filteredOrders.map((order) => (
             <motion.div
               key={order.id}
               layout
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden"
+              className="bg-white rounded-[2.5rem] shadow-sm border border-brand-brown/5 overflow-hidden hover:shadow-xl hover:shadow-brand-brown/5 transition-all duration-500"
             >
               <div 
-                className="p-6 flex flex-wrap justify-between items-center gap-6 cursor-pointer hover:bg-gray-50 transition-colors"
+                className="p-8 flex flex-wrap justify-between items-center gap-8 cursor-pointer hover:bg-brand-cream/10 transition-colors"
                 onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
               >
-                <div className="flex items-center gap-4">
-                  <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", getStatusColor(order.status))}>
+                <div className="flex items-center gap-6">
+                  <div className={cn("w-14 h-14 rounded-[1.25rem] flex items-center justify-center shadow-inner", getStatusColor(order.status))}>
                     {getStatusIcon(order.status)}
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Order ID</p>
-                    <p className="font-mono text-sm font-bold text-gray-900">#{order.id.slice(-8).toUpperCase()}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/30 mb-1">Order ID</p>
+                    <p className="font-mono text-sm font-bold text-brand-brown">#{order.id.slice(-8).toUpperCase()}</p>
                   </div>
                 </div>
 
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Customer</p>
-                  <p className="font-bold text-gray-900">{order.customer_name}</p>
+                <div className="min-w-[150px]">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/30 mb-1">Customer</p>
+                  <p className="font-serif text-lg text-brand-brown">{order.customer_name}</p>
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Amount</p>
-                  <p className="font-bold text-gray-900">₹{order.total_amount.toLocaleString()}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/30 mb-1">Total Value</p>
+                  <p className="font-bold text-brand-gold text-lg">₹{order.total_amount.toLocaleString()}</p>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <span className={cn("px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider", getPaymentStatusColor(order.payment_status || 'pending'))}>
-                    {order.payment_status || 'pending'}
-                  </span>
-                  <div className="h-8 w-px bg-gray-100 mx-2" />
-                  {expandedOrder === order.id ? <ChevronUp size={18} className="text-gray-400" /> : <ChevronDown size={18} className="text-gray-400" />}
+                <div className="flex items-center gap-6">
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/30">Payment</p>
+                    <span className={cn("px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm", getPaymentStatusColor(order.payment_status || 'pending'))}>
+                      {order.payment_status || 'pending'}
+                    </span>
+                  </div>
+                  <div className="h-10 w-px bg-brand-brown/5 mx-2" />
+                  <div className={cn("p-2 rounded-xl bg-brand-brown/5 transition-transform duration-300", expandedOrder === order.id ? "rotate-180" : "")}>
+                    <ChevronDown size={20} className="text-brand-brown/40" />
+                  </div>
                 </div>
               </div>
 
@@ -234,44 +241,54 @@ export default function OrderManagement() {
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    className="border-t border-gray-100 bg-gray-50/50"
+                    className="border-t border-brand-brown/5 bg-brand-cream/5"
                   >
-                    <div className="p-8">
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                        <div className="space-y-8">
-                          <div>
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 flex items-center justify-between">
-                              <span className="flex items-center gap-2"><User size={14} /> Customer Information</span>
+                    <div className="p-10">
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
+                        <div className="space-y-10">
+                          <div className="space-y-6">
+                            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 flex items-center justify-between">
+                              <span className="flex items-center gap-2"><User size={14} /> Client Profile</span>
                               <Link 
                                 to={`/admin/orders/${order.id}`}
-                                className="text-brand-gold hover:underline flex items-center gap-1 normal-case tracking-normal"
+                                className="text-brand-gold hover:underline flex items-center gap-1 normal-case tracking-normal font-bold"
                               >
-                                Full Details <ExternalLink size={12} />
+                                View Full Dossier <ExternalLink size={12} />
                               </Link>
                             </h3>
-                            <div className="space-y-3 bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
-                              <p className="text-sm font-bold text-gray-900">{order.customer_name}</p>
-                              <p className="flex items-center gap-3 text-sm text-gray-600">
-                                <Phone size={14} className="text-brand-gold" /> {order.customer_phone}
-                              </p>
-                              <p className="flex items-start gap-3 text-sm text-gray-600">
-                                <MapPin size={14} className="text-brand-gold mt-1 shrink-0" /> {order.address}
-                              </p>
+                            <div className="space-y-4 bg-white p-6 rounded-[2rem] border border-brand-brown/5 shadow-sm">
+                              <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-full bg-brand-cream flex items-center justify-center text-brand-brown font-serif text-xl">
+                                  {order.customer_name.charAt(0)}
+                                </div>
+                                <div>
+                                  <p className="text-lg font-serif text-brand-brown">{order.customer_name}</p>
+                                  <p className="text-xs text-brand-brown/40 font-medium">Verified Customer</p>
+                                </div>
+                              </div>
+                              <div className="pt-4 border-t border-brand-brown/5 space-y-3">
+                                <p className="flex items-center gap-3 text-sm text-brand-brown/70 font-medium">
+                                  <Phone size={16} className="text-brand-gold" /> {order.customer_phone}
+                                </p>
+                                <p className="flex items-start gap-3 text-sm text-brand-brown/70 font-medium leading-relaxed">
+                                  <MapPin size={16} className="text-brand-gold mt-1 shrink-0" /> {order.address}
+                                </p>
+                              </div>
                             </div>
                           </div>
 
-                          <div>
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
-                              <CreditCard size={14} /> Payment & Fulfillment
+                          <div className="space-y-6">
+                            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 flex items-center gap-2">
+                              <CreditCard size={14} /> Status Management
                             </h3>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-4">
                               <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Order Status</label>
+                                <label className="text-[10px] font-bold text-brand-brown/30 uppercase tracking-[0.2em] ml-1">Fulfillment Stage</label>
                                 <select
                                   onClick={(e) => e.stopPropagation()}
                                   onChange={(e) => updateStatus(order.id, e.target.value)}
                                   value={order.status}
-                                  className={cn("w-full px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider outline-none border-none focus:ring-2 focus:ring-brand-gold", getStatusColor(order.status))}
+                                  className={cn("w-full px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-[0.2em] outline-none border border-brand-brown/5 focus:ring-2 focus:ring-brand-gold shadow-sm transition-all cursor-pointer", getStatusColor(order.status))}
                                 >
                                   <option value="pending">Pending</option>
                                   <option value="confirmed">Confirmed</option>
@@ -280,12 +297,12 @@ export default function OrderManagement() {
                                 </select>
                               </div>
                               <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Payment Status</label>
+                                <label className="text-[10px] font-bold text-brand-brown/30 uppercase tracking-[0.2em] ml-1">Payment Verification</label>
                                 <select
                                   onClick={(e) => e.stopPropagation()}
                                   onChange={(e) => updatePaymentStatus(order.id, e.target.value)}
                                   value={order.payment_status || 'pending'}
-                                  className={cn("w-full px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider outline-none border-none focus:ring-2 focus:ring-brand-gold", getPaymentStatusColor(order.payment_status || 'pending'))}
+                                  className={cn("w-full px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-[0.2em] outline-none border border-brand-brown/5 focus:ring-2 focus:ring-brand-gold shadow-sm transition-all cursor-pointer", getPaymentStatusColor(order.payment_status || 'pending'))}
                                 >
                                   <option value="pending">Pending</option>
                                   <option value="paid">Paid</option>
@@ -296,54 +313,67 @@ export default function OrderManagement() {
                           </div>
                         </div>
 
-                        <div className="lg:col-span-2">
-                          <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
-                            <Package size={14} /> Order Items
-                          </h3>
-                          <div className="space-y-3">
-                            {order.order_items.map((item, idx) => (
-                              <div key={idx} className="flex items-center gap-4 bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
-                                <img
-                                  src={item.image_url}
-                                  alt={item.title}
-                                  className="w-16 h-16 object-cover rounded-xl"
-                                  referrerPolicy="no-referrer"
-                                />
-                                <div className="flex-grow">
-                                  <p className="font-bold text-gray-900">{item.title}</p>
-                                  <p className="text-xs text-gray-500">Quantity: {item.quantity} × ₹{item.price.toLocaleString()}</p>
+                        <div className="lg:col-span-2 space-y-10">
+                          <div className="space-y-6">
+                            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 flex items-center gap-2">
+                              <Package size={14} /> Manifest
+                            </h3>
+                            <div className="space-y-4">
+                              {order.order_items.map((item, idx) => (
+                                <div key={idx} className="flex items-center gap-6 bg-white p-5 rounded-[2rem] border border-brand-brown/5 shadow-sm group hover:shadow-md transition-all duration-300">
+                                  <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-inner">
+                                    <img
+                                      src={item.image_url}
+                                      alt={item.title}
+                                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                      referrerPolicy="no-referrer"
+                                    />
+                                  </div>
+                                  <div className="flex-grow">
+                                    <p className="font-serif text-lg text-brand-brown">{item.title}</p>
+                                    <p className="text-xs font-bold text-brand-brown/40 uppercase tracking-widest mt-1">
+                                      QTY: {item.quantity} <span className="mx-2">×</span> ₹{item.price.toLocaleString()}
+                                    </p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="font-bold text-brand-gold text-lg">₹{(item.price * item.quantity).toLocaleString()}</p>
+                                  </div>
                                 </div>
-                                <div className="text-right">
-                                  <p className="font-bold text-gray-900">₹{(item.price * item.quantity).toLocaleString()}</p>
+                              ))}
+                              
+                              <div className="mt-10 pt-8 border-t border-brand-brown/5 flex justify-between items-center px-6">
+                                <div className="space-y-1">
+                                  <span className="text-brand-brown/30 font-bold uppercase text-[10px] tracking-[0.3em]">Total Investment</span>
+                                  <p className="text-xs text-brand-brown/40 font-medium italic">Including all premium services and taxes</p>
                                 </div>
+                                <span className="text-4xl font-serif text-brand-brown">₹{order.total_amount.toLocaleString()}</span>
                               </div>
-                            ))}
-                            <div className="mt-6 pt-6 border-t border-gray-200 flex justify-between items-center px-4">
-                              <span className="text-gray-500 font-bold uppercase text-xs tracking-widest">Total Amount</span>
-                              <span className="text-2xl font-serif text-brand-brown">₹{order.total_amount.toLocaleString()}</span>
                             </div>
                           </div>
 
-                          <div className="mt-12">
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-2">
-                              <Calendar size={14} /> Fulfillment Timeline
+                          <div className="space-y-8">
+                            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 flex items-center gap-2">
+                              <Calendar size={14} /> Fulfillment Journey
                             </h3>
-                            <div className="relative pl-8 space-y-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200">
+                            <div className="relative pl-10 space-y-10 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-brand-brown/5">
                               {[
-                                { status: 'pending', label: 'Order Placed', date: order.created_at },
-                                { status: 'confirmed', label: 'Confirmed', date: null },
-                                { status: 'shipped', label: 'Shipped', date: null },
-                                { status: 'delivered', label: 'Delivered', date: null },
+                                { status: 'pending', label: 'Order Initiated', desc: 'Client submitted the request' },
+                                { status: 'confirmed', label: 'Quality Verification', desc: 'Order confirmed and items allocated' },
+                                { status: 'shipped', label: 'In Transit', desc: 'Dispatched via premium courier' },
+                                { status: 'delivered', label: 'Handover Complete', desc: 'Successfully delivered to client' },
                               ].map((step, idx) => {
                                 const isCompleted = ['pending', 'confirmed', 'shipped', 'delivered'].indexOf(order.status) >= ['pending', 'confirmed', 'shipped', 'delivered'].indexOf(step.status);
                                 return (
                                   <div key={step.status} className="relative">
-                                    <div className={`absolute -left-8 w-6 h-6 rounded-full border-4 border-white shadow-sm z-10 transition-colors ${isCompleted ? 'bg-brand-gold' : 'bg-gray-200'}`} />
-                                    <div>
-                                      <p className={`text-sm font-bold ${isCompleted ? 'text-gray-900' : 'text-gray-400'}`}>{step.label}</p>
-                                      <p className="text-xs text-gray-500">
-                                        {step.date ? new Date(step.date).toLocaleString() : (isCompleted ? 'Updated just now' : 'Waiting...')}
-                                      </p>
+                                    <div className={`absolute -left-10 w-6 h-6 rounded-full border-4 border-white shadow-xl z-10 transition-all duration-500 ${isCompleted ? 'bg-brand-gold scale-110' : 'bg-brand-brown/5'}`} />
+                                    <div className="space-y-1">
+                                      <p className={`text-sm font-bold uppercase tracking-widest ${isCompleted ? 'text-brand-brown' : 'text-brand-brown/30'}`}>{step.label}</p>
+                                      <p className="text-xs text-brand-brown/40 font-medium">{step.desc}</p>
+                                      {isCompleted && step.status === 'pending' && (
+                                        <p className="text-[10px] text-brand-gold font-bold mt-1">
+                                          {new Date(order.created_at).toLocaleString()}
+                                        </p>
+                                      )}
                                     </div>
                                   </div>
                                 );

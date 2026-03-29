@@ -46,99 +46,108 @@ export default function Navbar() {
 
   return (
     <nav className={cn(
-      "fixed w-full z-50 transition-all duration-300 px-6 py-4",
-      scrolled ? "bg-brand-cream/90 backdrop-blur-md shadow-sm py-3" : "bg-transparent"
+      "fixed w-full z-50 transition-all duration-500 px-8 py-6",
+      scrolled ? "bg-white/80 backdrop-blur-xl shadow-sm py-4" : "bg-transparent"
     )}>
-      <div className="max-w-7xl mx-auto flex justify-between items-center gap-8">
+      <div className="max-w-[1400px] mx-auto flex justify-between items-center">
         <Link 
           to="/" 
           onClick={() => window.scrollTo(0, 0)}
-          className="flex items-center gap-4 shrink-0"
+          className="flex items-center gap-5 shrink-0 group"
         >
-          <img 
-            src="https://i.ibb.co/C3vGrKVv/Screenshot-2026-03-29-113001-removebg-preview.png" 
-            alt="Sree Krishna Steels Logo" 
-            className="w-16 h-16 object-contain transition-all duration-300"
-            referrerPolicy="no-referrer"
-          />
+          <div className="relative">
+            <img 
+              src="https://i.ibb.co/C3vGrKVv/Screenshot-2026-03-29-113001-removebg-preview.png" 
+              alt="Sree Krishna Steels Logo" 
+              className="w-14 h-14 object-contain transition-transform duration-500 group-hover:scale-110"
+              referrerPolicy="no-referrer"
+            />
+            <div className="absolute -inset-2 bg-brand-gold/5 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          </div>
           <div className="flex flex-col">
             <span className={cn(
-              "text-2xl font-serif font-bold tracking-tighter leading-none transition-colors duration-300 whitespace-nowrap",
+              "text-2xl font-serif font-bold tracking-tight leading-none transition-colors duration-500 whitespace-nowrap",
               textColor
             )}>SREE KRISHNA</span>
-            <span className="text-xs font-sans tracking-[0.3em] text-brand-gold font-semibold">STEELS</span>
+            <span className="text-[10px] font-sans tracking-[0.4em] text-brand-gold font-bold uppercase mt-1">STEELS</span>
           </div>
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
-          {navLinks.map((link) => (
-            <Link
-              key={link.path}
-              to={link.path}
-              onClick={() => window.scrollTo(0, 0)}
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-brand-gold uppercase tracking-wider whitespace-nowrap",
-                location.pathname === link.path 
-                  ? "text-brand-gold" 
-                  : (scrolled ? "text-brand-charcoal" : (isHome ? "text-white" : "text-brand-charcoal"))
-              )}
-            >
-              {link.name}
-            </Link>
-          ))}
+        <div className="hidden lg:flex items-center space-x-10">
+          <div className="flex items-center space-x-8">
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                onClick={() => window.scrollTo(0, 0)}
+                className={cn(
+                  "text-[11px] font-bold uppercase tracking-[0.2em] transition-all duration-300 hover:text-brand-gold relative group py-2",
+                  location.pathname === link.path 
+                    ? "text-brand-gold" 
+                    : (scrolled ? "text-brand-charcoal" : (isHome ? "text-white" : "text-brand-charcoal"))
+                )}
+              >
+                {link.name}
+                <span className={cn(
+                  "absolute bottom-0 left-0 w-0 h-px bg-brand-gold transition-all duration-300 group-hover:w-full",
+                  location.pathname === link.path ? "w-full" : ""
+                )}></span>
+              </Link>
+            ))}
+          </div>
           
-          <div className="h-6 w-px bg-brand-gold/20 mx-2"></div>
+          <div className="h-4 w-px bg-brand-gold/20"></div>
 
-          <Link
-            to="/cart"
-            className={cn("relative p-2 transition-colors hover:text-brand-gold", textColor)}
-          >
-            <ShoppingCart size={22} />
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-brand-gold text-brand-brown text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
-                {cartCount}
-              </span>
-            )}
-          </Link>
+          <div className="flex items-center gap-6">
+            <Link
+              to="/cart"
+              className={cn("relative p-2 transition-transform duration-300 hover:scale-110", textColor)}
+            >
+              <ShoppingCart size={20} strokeWidth={1.5} />
+              {cartCount > 0 && (
+                <span className="absolute top-0 right-0 bg-brand-gold text-brand-brown text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
 
-          {user && (profile?.role === 'admin' || profile?.role === 'super_admin' || profile?.role === 'staff') && (
-            <div className="flex items-center gap-4">
+            {user && (profile?.role === 'admin' || profile?.role === 'super_admin' || profile?.role === 'staff') && (
               <Link
                 to="/admin"
-                className={cn("p-2 transition-colors hover:text-brand-gold", textColor)}
+                className={cn("p-2 transition-transform duration-300 hover:scale-110", textColor)}
                 title="Admin Dashboard"
               >
-                <LayoutDashboard size={22} />
+                <LayoutDashboard size={20} strokeWidth={1.5} />
               </Link>
-            </div>
-          )}
+            )}
 
-          {user ? (
-            <div className="flex items-center gap-4">
+            {user ? (
+              <div className="flex items-center gap-4">
+                <Link
+                  to="/orders"
+                  className={cn("p-2 transition-transform duration-300 hover:scale-110", textColor)}
+                  title="My Orders"
+                >
+                  <User size={20} strokeWidth={1.5} />
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className={cn("p-2 transition-transform duration-300 hover:scale-110", textColor)}
+                  title="Logout"
+                >
+                  <LogOut size={20} strokeWidth={1.5} />
+                </button>
+              </div>
+            ) : (
               <Link
-                to="/orders"
-                className={cn("p-2 transition-colors hover:text-brand-gold", textColor)}
-                title="My Orders"
+                to="/login"
+                className="bg-brand-brown text-white px-8 py-3 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-brand-gold hover:text-brand-brown transition-all duration-500 shadow-xl shadow-brand-brown/10"
               >
-                <User size={22} />
+                Login
               </Link>
-              <button
-                onClick={handleLogout}
-                className={cn("p-2 transition-colors hover:text-brand-gold", textColor)}
-                title="Logout"
-              >
-                <LogOut size={22} />
-              </button>
-            </div>
-          ) : (
-            <Link
-              to="/login"
-              className="bg-brand-brown text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-brand-gold transition-colors shadow-lg shadow-brand-brown/20 whitespace-nowrap"
-            >
-              Login
-            </Link>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Mobile Toggle */}

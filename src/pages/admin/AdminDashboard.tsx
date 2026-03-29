@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase, handleSupabaseError } from '../../lib/supabase';
+import { cn } from '../../lib/utils';
 import { 
   Package, 
   ShoppingBag, 
@@ -8,7 +10,8 @@ import {
   Clock, 
   ArrowUpRight, 
   ArrowDownRight,
-  Calendar
+  Calendar,
+  ChevronRight
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { 
@@ -44,8 +47,10 @@ export default function AdminDashboard() {
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     const fetchData = async () => {
       try {
         // Fetch Products Count
@@ -158,32 +163,32 @@ export default function AdminDashboard() {
       value: `₹${stats.totalRevenue.toLocaleString()}`, 
       change: stats.revenueChange,
       icon: TrendingUp, 
-      color: 'text-emerald-600', 
-      bg: 'bg-emerald-50' 
+      color: 'text-brand-gold', 
+      bg: 'bg-brand-gold/10' 
     },
     { 
       title: 'Total Orders', 
-      value: stats.totalOrders, 
+      value: stats.totalOrders.toLocaleString(), 
       change: stats.ordersChange,
       icon: ShoppingBag, 
-      color: 'text-blue-600', 
-      bg: 'bg-blue-50' 
+      color: 'text-brand-brown', 
+      bg: 'bg-brand-brown/10' 
     },
     { 
       title: 'Total Products', 
-      value: stats.totalProducts, 
+      value: stats.totalProducts.toLocaleString(), 
       change: 0,
       icon: Package, 
-      color: 'text-amber-600', 
-      bg: 'bg-amber-50' 
+      color: 'text-brand-charcoal', 
+      bg: 'bg-brand-charcoal/10' 
     },
     { 
       title: 'Total Customers', 
-      value: stats.totalCustomers, 
+      value: stats.totalCustomers.toLocaleString(), 
       change: 5.2,
       icon: Users, 
-      color: 'text-indigo-600', 
-      bg: 'bg-indigo-50' 
+      color: 'text-brand-gold', 
+      bg: 'bg-brand-gold/10' 
     },
   ];
 
@@ -209,119 +214,195 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {statCards.map((stat, idx) => (
           <motion.div
             key={idx}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1 }}
-            className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+            className="bg-white p-8 rounded-[2rem] border border-brand-brown/5 shadow-xl shadow-brand-brown/5 hover:shadow-2xl hover:border-brand-gold/50 transition-all duration-500 group"
           >
-            <div className="flex justify-between items-start mb-4">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${stat.bg}`}>
-                <stat.icon className={stat.color} size={24} />
+            <div className="flex justify-between items-start mb-6">
+              <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:scale-110", stat.bg)}>
+                <stat.icon className={stat.color} size={28} strokeWidth={1.5} />
               </div>
               {stat.change !== 0 && (
-                <div className={`flex items-center gap-1 text-xs font-bold ${stat.change > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                  {stat.change > 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+                <div className={cn(
+                  "flex items-center gap-1 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest",
+                  stat.change > 0 ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50'
+                )}>
+                  {stat.change > 0 ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
                   {Math.abs(stat.change)}%
                 </div>
               )}
             </div>
-            <p className="text-sm font-medium text-gray-500 mb-1">{stat.title}</p>
-            <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+            <p className="text-[10px] font-bold text-brand-charcoal/40 uppercase tracking-[0.2em] mb-1">{stat.title}</p>
+            <p className="text-3xl font-serif text-brand-brown tracking-tight">{stat.value}</p>
           </motion.div>
         ))}
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-xl font-bold text-gray-900">Revenue Trends</h2>
-            <select className="bg-gray-50 border-none text-sm font-bold rounded-lg px-3 py-1 focus:ring-2 focus:ring-brand-gold">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white p-10 rounded-[3rem] border border-brand-brown/5 shadow-2xl shadow-brand-brown/5"
+        >
+          <div className="flex justify-between items-center mb-10">
+            <div>
+              <h2 className="text-2xl font-serif text-brand-brown mb-1">Revenue Overview</h2>
+              <p className="text-[10px] font-bold text-brand-charcoal/40 uppercase tracking-widest">Monthly performance analytics</p>
+            </div>
+            <select className="bg-brand-cream/30 border-none text-[10px] font-bold uppercase tracking-widest rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all">
               <option>Last 7 Days</option>
               <option>Last 30 Days</option>
             </select>
           </div>
-          <div className="h-80 min-h-[320px]">
-            <ResponsiveContainer width="100%" height="100%" minHeight={320}>
-              <AreaChart data={chartData}>
-                <defs>
-                  <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#D4AF37" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} />
-                <Tooltip 
-                  contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)'}}
-                  itemStyle={{fontWeight: 'bold', color: '#5D4037'}}
-                />
-                <Area type="monotone" dataKey="total" stroke="#D4AF37" strokeWidth={3} fillOpacity={1} fill="url(#colorTotal)" />
-              </AreaChart>
-            </ResponsiveContainer>
+          <div className="h-[400px] w-full">
+            {isMounted && (
+              <ResponsiveContainer width="100%" height="100%" minHeight={320}>
+                <AreaChart data={chartData}>
+                  <defs>
+                    <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#D4AF37" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F5F5F0" />
+                  <XAxis 
+                    dataKey="name" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{fill: '#8E9299', fontSize: 10, fontWeight: 600}} 
+                    dy={10} 
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{fill: '#8E9299', fontSize: 10, fontWeight: 600}} 
+                    tickFormatter={(value) => `₹${value}`}
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: '#1A1A1A', 
+                      borderRadius: '16px', 
+                      border: 'none', 
+                      boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+                      color: '#FFF',
+                      fontSize: '12px',
+                      padding: '12px 16px'
+                    }}
+                    itemStyle={{fontWeight: 'bold', color: '#D4AF37'}}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="total" 
+                    stroke="#D4AF37" 
+                    strokeWidth={4} 
+                    fillOpacity={1} 
+                    fill="url(#colorTotal)" 
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-xl font-bold text-gray-900">Orders by Day</h2>
-            <select className="bg-gray-50 border-none text-sm font-bold rounded-lg px-3 py-1 focus:ring-2 focus:ring-brand-gold">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white p-10 rounded-[3rem] border border-brand-brown/5 shadow-2xl shadow-brand-brown/5"
+        >
+          <div className="flex justify-between items-center mb-10">
+            <div>
+              <h2 className="text-2xl font-serif text-brand-brown mb-1">Orders by Day</h2>
+              <p className="text-[10px] font-bold text-brand-charcoal/40 uppercase tracking-widest">Daily transaction volume</p>
+            </div>
+            <select className="bg-brand-cream/30 border-none text-[10px] font-bold uppercase tracking-widest rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all">
               <option>Last 7 Days</option>
               <option>Last 30 Days</option>
             </select>
           </div>
-          <div className="h-80 min-h-[320px]">
-            <ResponsiveContainer width="100%" height="100%" minHeight={320}>
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} />
-                <Tooltip 
-                  cursor={{fill: '#f9fafb'}}
-                  contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)'}}
-                  itemStyle={{fontWeight: 'bold', color: '#5D4037'}}
-                />
-                <Bar dataKey="total" fill="#5D4037" radius={[6, 6, 0, 0]} barSize={40} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="h-[400px] w-full">
+            {isMounted && (
+              <ResponsiveContainer width="100%" height="100%" minHeight={320}>
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F5F5F0" />
+                  <XAxis 
+                    dataKey="name" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{fill: '#8E9299', fontSize: 10, fontWeight: 600}} 
+                    dy={10} 
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{fill: '#8E9299', fontSize: 10, fontWeight: 600}} 
+                  />
+                  <Tooltip 
+                    cursor={{fill: '#F5F5F0', radius: 12}}
+                    contentStyle={{
+                      backgroundColor: '#1A1A1A', 
+                      borderRadius: '16px', 
+                      border: 'none', 
+                      boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+                      color: '#FFF',
+                      fontSize: '12px',
+                      padding: '12px 16px'
+                    }}
+                    itemStyle={{fontWeight: 'bold', color: '#D4AF37'}}
+                  />
+                  <Bar dataKey="total" fill="#3D2B1F" radius={[12, 12, 0, 0]} barSize={40} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Recent Orders & Top Products */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         {/* Recent Orders Table */}
-        <div className="lg:col-span-2 bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
-          <div className="p-8 border-b border-gray-100 flex justify-between items-center">
-            <h2 className="text-xl font-bold text-gray-900">Recent Orders</h2>
-            <button className="text-brand-gold font-bold text-sm hover:underline">View All Orders</button>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="lg:col-span-2 bg-white rounded-[3rem] border border-brand-brown/5 shadow-2xl shadow-brand-brown/5 overflow-hidden"
+        >
+          <div className="p-10 border-b border-brand-brown/5 flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-serif text-brand-brown mb-1">Recent Orders</h2>
+              <p className="text-[10px] font-bold text-brand-charcoal/40 uppercase tracking-widest">Latest transactions across all channels</p>
+            </div>
+            <Link to="/admin/orders" className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-gold hover:text-brand-brown transition-colors">View All Orders</Link>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="bg-gray-50">
-                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-gray-400">Order ID</th>
-                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-gray-400">Customer</th>
-                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-gray-400">Amount</th>
-                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-gray-400">Status</th>
+                <tr className="bg-brand-cream/30">
+                  <th className="px-10 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-brand-charcoal/40">Order ID</th>
+                  <th className="px-10 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-brand-charcoal/40">Customer</th>
+                  <th className="px-10 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-brand-charcoal/40">Amount</th>
+                  <th className="px-10 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-brand-charcoal/40">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-brand-brown/5">
                 {recentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-8 py-4 font-mono text-sm font-bold text-brand-brown">#{order.id.slice(-8).toUpperCase()}</td>
-                    <td className="px-8 py-4">
-                      <p className="font-bold text-gray-900">{order.customer_name || 'Customer'}</p>
-                      <p className="text-xs text-gray-500">{order.customer_phone}</p>
+                  <tr key={order.id} className="hover:bg-brand-cream/10 transition-colors group">
+                    <td className="px-10 py-6 font-mono text-xs font-bold text-brand-gold">#{order.id.slice(-8).toUpperCase()}</td>
+                    <td className="px-10 py-6">
+                      <p className="font-bold text-brand-brown text-sm">{order.customer_name || 'Customer'}</p>
+                      <p className="text-[10px] text-brand-charcoal/40 font-medium">{order.customer_phone}</p>
                     </td>
-                    <td className="px-8 py-4 font-bold text-gray-900">₹{order.total_amount.toLocaleString()}</td>
-                    <td className="px-8 py-4">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusColor(order.status)}`}>
+                    <td className="px-10 py-6 font-bold text-brand-brown text-sm">₹{order.total_amount.toLocaleString()}</td>
+                    <td className="px-10 py-6">
+                      <span className={cn(
+                        "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm",
+                        getStatusColor(order.status)
+                      )}>
                         {order.status}
                       </span>
                     </td>
@@ -330,56 +411,68 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
-        </div>
+        </motion.div>
 
         {/* Top Selling Products */}
-        <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
-          <div className="p-8 border-b border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900">Top Products</h2>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white rounded-[3rem] border border-brand-brown/5 shadow-2xl shadow-brand-brown/5 overflow-hidden"
+        >
+          <div className="p-10 border-b border-brand-brown/5">
+            <h2 className="text-2xl font-serif text-brand-brown mb-1">Top Products</h2>
+            <p className="text-[10px] font-bold text-brand-charcoal/40 uppercase tracking-widest">Most popular items this month</p>
           </div>
-          <div className="p-6 space-y-6">
+          <div className="p-8 space-y-8">
             {topProducts.map((product, idx) => (
-              <div key={idx} className="flex items-center gap-4">
-                <div className="relative">
-                  <img 
-                    src={product.image_url} 
-                    alt={product.title} 
-                    className="w-12 h-12 rounded-xl object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute -top-2 -left-2 w-5 h-5 bg-brand-gold text-brand-brown text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
+              <div key={idx} className="flex items-center gap-6 group">
+                <div className="relative shrink-0">
+                  <div className="w-16 h-16 rounded-2xl overflow-hidden bg-brand-cream border border-brand-brown/5 shadow-lg shadow-brand-brown/5 group-hover:scale-105 transition-transform duration-500">
+                    <img 
+                      src={product.image_url} 
+                      alt={product.title} 
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  <div className="absolute -top-2 -left-2 w-6 h-6 bg-brand-gold text-brand-brown text-[10px] font-black rounded-lg flex items-center justify-center border-2 border-white shadow-md">
                     {idx + 1}
                   </div>
                 </div>
                 <div className="flex-grow min-w-0">
-                  <p className="font-bold text-gray-900 truncate">{product.title}</p>
-                  <p className="text-xs text-gray-500">{product.total_sold} units sold</p>
+                  <p className="font-bold text-brand-brown text-sm truncate group-hover:text-brand-gold transition-colors">{product.title}</p>
+                  <p className="text-[10px] text-brand-charcoal/40 font-bold uppercase tracking-widest mt-1">{product.total_sold} units sold</p>
                 </div>
-                <div className="text-right">
-                  <p className="font-bold text-brand-brown">₹{product.price.toLocaleString()}</p>
+                <div className="text-right shrink-0">
+                  <p className="font-bold text-brand-gold text-sm">₹{product.price.toLocaleString()}</p>
                 </div>
               </div>
             ))}
             {topProducts.length === 0 && (
-              <div className="text-center py-8 text-gray-500 italic">
-                No sales data yet
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-brand-cream rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Package size={24} className="text-brand-charcoal/20" />
+                </div>
+                <p className="text-brand-charcoal/40 text-[10px] font-bold uppercase tracking-widest">No sales data yet</p>
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
+
     </div>
   );
 }
 
 function getStatusColor(status: string) {
   switch (status.toLowerCase()) {
-    case 'pending': return 'bg-orange-100 text-orange-700';
-    case 'processing': return 'bg-blue-100 text-blue-700';
-    case 'shipped': return 'bg-purple-100 text-purple-700';
-    case 'delivered': return 'bg-emerald-100 text-emerald-700';
-    case 'cancelled': return 'bg-red-100 text-red-700';
-    default: return 'bg-gray-100 text-gray-700';
+    case 'pending': return 'bg-amber-50 text-amber-700 border border-amber-100';
+    case 'processing': return 'bg-blue-50 text-blue-700 border border-blue-100';
+    case 'shipped': return 'bg-indigo-50 text-indigo-700 border border-indigo-100';
+    case 'delivered': return 'bg-emerald-50 text-emerald-700 border border-emerald-100';
+    case 'cancelled': return 'bg-red-50 text-red-700 border border-red-100';
+    default: return 'bg-gray-50 text-gray-700 border border-gray-100';
   }
 }
 
