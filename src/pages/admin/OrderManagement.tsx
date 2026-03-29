@@ -68,8 +68,9 @@ export default function OrderManagement() {
 
       if (error) throw error;
       toast.success(`Order status updated to ${newStatus}`);
-    } catch (error) {
-      handleSupabaseError(error, 'updateStatus');
+    } catch (error: any) {
+      toast.error('Failed to update status: ' + (error.message || 'Unknown error'));
+      console.error('Update Status Error:', error);
     }
   };
 
@@ -82,8 +83,9 @@ export default function OrderManagement() {
 
       if (error) throw error;
       toast.success(`Payment status updated to ${newStatus}`);
-    } catch (error) {
-      handleSupabaseError(error, 'updatePaymentStatus');
+    } catch (error: any) {
+      toast.error('Failed to update payment status: ' + (error.message || 'Unknown error'));
+      console.error('Update Payment Status Error:', error);
     }
   };
 

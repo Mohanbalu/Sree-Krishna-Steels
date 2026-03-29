@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { supabase, handleSupabaseError } from '../../lib/supabase';
-import { Search, UserPlus, Trash2, Shield, Mail, UserCheck } from 'lucide-react';
+import { Search, UserPlus, Trash2, Shield, Mail, UserCheck, AlertTriangle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAuthStore } from '../../store/authStore';
+import { toast } from 'sonner';
 
 export default function AdminManagement() {
   const [admins, setAdmins] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddingAdmin, setIsAddingAdmin] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [newAdminRole, setNewAdminRole] = useState<'admin' | 'staff'>('staff');
   const { profile } = useAuthStore();
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [adminToRemove, setAdminToRemove] = useState<{id: string, email: string} | null>(null);
 
   useEffect(() => {
     const fetchAdmins = async () => {
@@ -35,10 +40,16 @@ export default function AdminManagement() {
 
   const handleAddAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!supabase) {
+      toast.error('Database connection not initialized.');
+      return;
+    }
+    if (!newAdminEmail.trim()) {
+      toast.error('Please enter an email address.');
+      return;
+    }
+    setSubmitting(true);
     try {
-      // In a real app, we would use a Supabase Edge Function to invite the user
-      // and set their role. For now, we'll try to find an existing user by email
-      // and update their role.
       const { data, error } = await supabase
         .from('profiles')
         .update({ role: newAdminRole })
@@ -51,33 +62,47 @@ export default function AdminManagement() {
         setAdmins([data[0], ...admins.filter(a => a.email !== newAdminEmail)]);
         setIsAddingAdmin(false);
         setNewAdminEmail('');
+        toast.success('Admin added successfully!');
       } else {
-        alert('User with this email not found. They must sign up first.');
+        toast.error('User with this email not found. They must sign up first.');
       }
-    } catch (error) {
-      handleSupabaseError(error, 'handleAddAdmin');
+    } catch (error: any) {
+      toast.error('Failed to add admin: ' + (error.message || 'Unknown error'));
+      console.error('Add Admin Error:', error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleRemoveAdmin = async (id: string, email: string) => {
-    if (email === profile?.email) {
-      alert('You cannot remove yourself.');
+  const handleRemoveAdmin = async () => {
+    if (!adminToRemove) return;
+    
+    if (adminToRemove.email === profile?.email) {
+      toast.error('You cannot remove yourself.');
+      setIsDeleteModalOpen(false);
       return;
     }
-
-    if (!confirm('Are you sure you want to remove this admin? Their role will be reset to customer.')) return;
 
     try {
       const { error } = await supabase
         .from('profiles')
         .update({ role: 'customer' })
-        .eq('id', id);
+        .eq('id', adminToRemove.id);
 
       if (error) throw error;
-      setAdmins(admins.filter(a => a.id !== id));
-    } catch (error) {
-      handleSupabaseError(error, 'handleRemoveAdmin');
+      setAdmins(admins.filter(a => a.id !== adminToRemove.id));
+      toast.success('Admin removed successfully');
+      setIsDeleteModalOpen(false);
+      setAdminToRemove(null);
+    } catch (error: any) {
+      toast.error('Failed to remove admin: ' + (error.message || 'Unknown error'));
+      console.error('Remove Admin Error:', error);
     }
+  };
+
+  const confirmRemove = (id: string, email: string) => {
+    setAdminToRemove({ id, email });
+    setIsDeleteModalOpen(true);
   };
 
   const filteredAdmins = admins.filter(admin => 
@@ -152,14 +177,23 @@ export default function AdminManagement() {
             <div className="flex items-end gap-3">
               <button 
                 type="submit"
-                className="flex-1 bg-brand-brown text-white py-3 rounded-xl font-bold hover:bg-brand-brown/90 transition-all"
+                disabled={submitting}
+                className="flex-1 bg-brand-brown text-white py-3 rounded-xl font-bold hover:bg-brand-brown/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Add Member
+                {submitting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
+                    <span>Adding...</span>
+                  </>
+                ) : (
+                  'Add Member'
+                )}
               </button>
               <button 
                 type="button"
+                disabled={submitting}
                 onClick={() => setIsAddingAdmin(false)}
-                className="px-6 py-3 border border-gray-200 rounded-xl font-bold hover:bg-gray-50 transition-all"
+                className="px-6 py-3 border border-gray-200 rounded-xl font-bold hover:bg-gray-50 transition-all disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -225,7 +259,7 @@ export default function AdminManagement() {
                 <td className="px-6 py-4 text-right">
                   {admin.role !== 'super_admin' && (
                     <button 
-                      onClick={() => handleRemoveAdmin(admin.id, admin.email)}
+                      onClick={() => confirmRemove(admin.id, admin.email)}
                       className="p-2 text-gray-400 hover:text-red-600 transition-colors"
                       title="Remove Admin"
                     >
@@ -238,6 +272,36 @@ export default function AdminManagement() {
           </tbody>
         </table>
       </div>
+
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-brand-charcoal/80 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white w-full max-w-md rounded-[2rem] p-8 shadow-2xl text-center"
+          >
+            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertTriangle size={40} className="text-red-500" />
+            </div>
+            <h2 className="text-2xl font-serif text-brand-brown mb-4">Remove Admin?</h2>
+            <p className="text-gray-500 mb-8">Are you sure you want to remove this admin? Their role will be reset to customer.</p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="flex-1 px-6 py-4 border border-gray-200 rounded-xl font-bold hover:bg-gray-50 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRemoveAdmin}
+                className="flex-1 px-6 py-4 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-500/20"
+              >
+                Remove
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
