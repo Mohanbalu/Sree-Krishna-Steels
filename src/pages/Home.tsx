@@ -2,8 +2,41 @@ import { motion } from 'motion/react';
 import { ArrowRight, Star, Shield, Truck, Settings, Phone, Quote } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PRODUCTS, REFERENCES } from '@/src/constants';
+import { useState, useEffect, useMemo } from 'react';
+import { supabase, handleSupabaseError } from '../lib/supabase';
 
 export default function Home() {
+  const [dbFeatured, setDbFeatured] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      if (!supabase) return;
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('is_best_seller', true)
+          .limit(3);
+
+        if (error) throw error;
+        setDbFeatured(data || []);
+      } catch (error) {
+        handleSupabaseError(error, 'fetchFeatured');
+      }
+    };
+
+    fetchFeatured();
+  }, []);
+
+  const featuredProducts = useMemo(() => {
+    if (dbFeatured.length > 0) return dbFeatured;
+    return PRODUCTS.filter(p => p.isBestSeller).map(p => ({
+      ...p,
+      title: p.name,
+      image_url: p.images[0]
+    }));
+  }, [dbFeatured]);
+
   return (
     <div className="pt-0">
       {/* Hero Section */}
@@ -52,7 +85,7 @@ export default function Home() {
               Explore Collection <ArrowRight className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <a 
-              href="https://wa.me/919848082209?text=Hello%20Sree%20Krishna%20Steels,%20I'd%20like%20to%20get%20a%20quote%20for%20some%20furniture."
+              href="https://wa.me/919949666666?text=Hello%20Sree%20Krishna%20Steels,%20I'd%20like%20to%20get%20a%20quote%20for%20some%20furniture."
               target="_blank"
               rel="noopener noreferrer"
               className="border border-white/30 backdrop-blur-sm text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/10 transition-all"
@@ -80,7 +113,7 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {PRODUCTS.filter(p => p.isBestSeller).map((product, idx) => (
+          {featuredProducts.map((product, idx) => (
             <motion.div 
               key={product.id}
               initial={{ opacity: 0, y: 20 }}
@@ -92,8 +125,8 @@ export default function Home() {
               <Link to={`/products/${product.id}`}>
                 <div className="relative aspect-[4/5] overflow-hidden rounded-2xl mb-6">
                   <img 
-                    src={product.images[0]} 
-                    alt={product.name} 
+                    src={product.image_url || product.images?.[0]} 
+                    alt={product.title || product.name} 
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     referrerPolicy="no-referrer"
                   />
@@ -101,9 +134,11 @@ export default function Home() {
                     Best Seller
                   </div>
                 </div>
-                <h3 className="text-2xl font-serif text-brand-brown mb-2">{product.name}</h3>
+                <h3 className="text-2xl font-serif text-brand-brown mb-2">{product.title || product.name}</h3>
                 <p className="text-brand-charcoal/60 text-sm mb-4 line-clamp-2">{product.description}</p>
-                <p className="text-brand-gold font-bold text-lg">{product.price}</p>
+                <p className="text-brand-gold font-bold text-lg">
+                  {typeof product.price === 'number' ? `₹${product.price.toLocaleString()}` : product.price}
+                </p>
               </Link>
             </motion.div>
           ))}
@@ -182,15 +217,15 @@ export default function Home() {
             <p className="text-brand-brown/70 text-lg mb-12 max-w-xl mx-auto">Get a free consultation and a personalized quote for your dream furniture today.</p>
             <div className="flex flex-col sm:flex-row justify-center gap-6">
               <a 
-                href="https://wa.me/919848082209?text=Hello%20Sree%20Krishna%20Steels,%20I'm%20interested%20in%20upgrading%20my%20home%20furniture.%20Please%20provide%20more%20details."
+                href="https://wa.me/919949666666?text=Hello%20Sree%20Krishna%20Steels,%20I'm%20interested%20in%20upgrading%20my%20home%20furniture.%20Please%20provide%20more%20details."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-brand-brown text-white px-12 py-5 rounded-full font-bold text-xl hover:shadow-2xl transition-all"
               >
                 Enquire Now
               </a>
-              <a href="tel:+919848082209" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-xl hover:underline">
-                <Phone /> +91 98480 82209
+              <a href="tel:+919949666666" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-xl hover:underline">
+                <Phone /> +91 99496 66666
               </a>
             </div>
           </div>

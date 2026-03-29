@@ -5,6 +5,7 @@
 
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
+import { Toaster } from 'sonner';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
@@ -14,6 +15,17 @@ import ProductDetail from './pages/ProductDetail';
 import About from './pages/About';
 import BulkEnquiry from './pages/BulkEnquiry';
 import Contact from './pages/Contact';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import Orders from './pages/Orders';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import ProductManagement from './pages/admin/ProductManagement';
+import OrderManagement from './pages/admin/OrderManagement';
+import { ProtectedRoute, AdminRoute } from './components/AuthRoutes';
+import { useAuthStore } from './store/authStore';
+import { supabase } from './lib/supabase';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -24,10 +36,23 @@ function ScrollToTop() {
 }
 
 export default function App() {
+  const initializeAuth = useAuthStore((state) => state.initialize);
+  const isSupabaseMissing = !supabase;
+
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
+
   return (
     <Router>
       <ScrollToTop />
+      <Toaster position="top-center" richColors />
       <div className="min-h-screen flex flex-col">
+        {isSupabaseMissing && (
+          <div className="bg-red-600 text-white text-center py-2 px-4 sticky top-0 z-[100] text-sm font-medium">
+            Supabase environment variables are missing. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in the Secrets panel.
+          </div>
+        )}
         <Navbar />
         <main className="flex-grow">
           <Routes>
@@ -37,6 +62,38 @@ export default function App() {
             <Route path="/about" element={<About />} />
             <Route path="/bulk-enquiry" element={<BulkEnquiry />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            
+            {/* Customer Protected Routes */}
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={
+              <ProtectedRoute>
+                <Checkout />
+              </ProtectedRoute>
+            } />
+            <Route path="/orders" element={
+              <ProtectedRoute>
+                <Orders />
+              </ProtectedRoute>
+            } />
+
+            {/* Admin Protected Routes */}
+            <Route path="/admin" element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            } />
+            <Route path="/admin/products" element={
+              <AdminRoute>
+                <ProductManagement />
+              </AdminRoute>
+            } />
+            <Route path="/admin/orders" element={
+              <AdminRoute>
+                <OrderManagement />
+              </AdminRoute>
+            } />
           </Routes>
         </main>
         <Footer />

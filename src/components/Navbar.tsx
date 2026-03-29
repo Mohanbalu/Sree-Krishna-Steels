@@ -1,13 +1,21 @@
 import { motion } from 'motion/react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Phone, MessageSquare } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, ShoppingCart, User, LogOut, LayoutDashboard } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/src/lib/utils';
+import { useAuthStore } from '../store/authStore';
+import { useCartStore } from '../store/cartStore';
+import { supabase } from '../lib/supabase';
+import { toast } from 'sonner';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, profile } = useAuthStore();
+  const cartItems = useCartStore((state) => state.items);
+  const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -15,13 +23,26 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      toast.success('Logged out successfully');
+      navigate('/');
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Products', path: '/products' },
     { name: 'About Us', path: '/about' },
     { name: 'Bulk Enquiry', path: '/bulk-enquiry' },
-    { name: 'Contact', path: '/contact' },
   ];
+
+  const isHome = location.pathname === '/';
+  const textColor = scrolled ? "text-brand-brown" : (isHome ? "text-white" : "text-brand-brown");
 
   return (
     <nav className={cn(
@@ -43,14 +64,14 @@ export default function Navbar() {
           <div className="flex flex-col">
             <span className={cn(
               "text-2xl font-serif font-bold tracking-tighter leading-none transition-colors duration-300 whitespace-nowrap",
-              scrolled ? "text-brand-brown" : (location.pathname === '/' ? "text-white" : "text-brand-brown")
+              textColor
             )}>SREE KRISHNA</span>
             <span className="text-xs font-sans tracking-[0.3em] text-brand-gold font-semibold">STEELS</span>
           </div>
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden lg:flex items-center space-x-6 xl:space-x-10">
+        <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
           {navLinks.map((link) => (
             <Link
               key={link.path}
@@ -60,31 +81,83 @@ export default function Navbar() {
                 "text-sm font-medium transition-colors hover:text-brand-gold uppercase tracking-wider whitespace-nowrap",
                 location.pathname === link.path 
                   ? "text-brand-gold" 
-                  : (scrolled ? "text-brand-charcoal" : (location.pathname === '/' ? "text-white" : "text-brand-charcoal"))
+                  : (scrolled ? "text-brand-charcoal" : (isHome ? "text-white" : "text-brand-charcoal"))
               )}
             >
               {link.name}
             </Link>
           ))}
+          
+          <div className="h-6 w-px bg-brand-gold/20 mx-2"></div>
+
           <Link
-            to="/contact"
-            onClick={() => window.scrollTo(0, 0)}
-            className="bg-brand-brown text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-brand-gold transition-colors shadow-lg shadow-brand-brown/20 whitespace-nowrap"
+            to="/cart"
+            className={cn("relative p-2 transition-colors hover:text-brand-gold", textColor)}
           >
-            Enquire Now
+            <ShoppingCart size={22} />
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-brand-gold text-brand-brown text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+                {cartCount}
+              </span>
+            )}
           </Link>
+
+          {user ? (
+            <div className="flex items-center gap-4">
+              {profile?.role === 'admin' && (
+                <Link
+                  to="/admin"
+                  className={cn("p-2 transition-colors hover:text-brand-gold", textColor)}
+                  title="Admin Dashboard"
+                >
+                  <LayoutDashboard size={22} />
+                </Link>
+              )}
+              <Link
+                to="/orders"
+                className={cn("p-2 transition-colors hover:text-brand-gold", textColor)}
+                title="My Orders"
+              >
+                <User size={22} />
+              </Link>
+              <button
+                onClick={handleLogout}
+                className={cn("p-2 transition-colors hover:text-brand-gold", textColor)}
+                title="Logout"
+              >
+                <LogOut size={22} />
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              className="bg-brand-brown text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-brand-gold transition-colors shadow-lg shadow-brand-brown/20 whitespace-nowrap"
+            >
+              Login
+            </Link>
+          )}
         </div>
 
         {/* Mobile Toggle */}
-        <button 
-          className={cn(
-            "lg:hidden transition-colors duration-300",
-            scrolled ? "text-brand-brown" : (location.pathname === '/' ? "text-white" : "text-brand-brown")
-          )} 
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
+        <div className="flex items-center gap-4 lg:hidden">
+          <Link
+            to="/cart"
+            className={cn("relative p-2", textColor)}
+          >
+            <ShoppingCart size={24} />
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-brand-gold text-brand-brown text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
+          </Link>
+          <button 
+            className={cn("transition-colors duration-300", textColor)} 
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {isOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
@@ -107,16 +180,46 @@ export default function Navbar() {
               {link.name}
             </Link>
           ))}
-          <Link
-            to="/contact"
-            onClick={() => {
-              setIsOpen(false);
-              window.scrollTo(0, 0);
-            }}
-            className="bg-brand-brown text-white text-center py-3 rounded-lg font-semibold"
-          >
-            Enquire Now
-          </Link>
+          
+          <div className="h-px w-full bg-brand-gold/10 my-2"></div>
+
+          {user ? (
+            <>
+              {profile?.role === 'admin' && (
+                <Link
+                  to="/admin"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-3 text-lg font-medium text-brand-charcoal hover:text-brand-gold"
+                >
+                  <LayoutDashboard size={20} /> Admin Dashboard
+                </Link>
+              )}
+              <Link
+                to="/orders"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 text-lg font-medium text-brand-charcoal hover:text-brand-gold"
+              >
+                <User size={20} /> My Orders
+              </Link>
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setIsOpen(false);
+                }}
+                className="flex items-center gap-3 text-lg font-medium text-brand-charcoal hover:text-brand-gold text-left"
+              >
+                <LogOut size={20} /> Logout
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              onClick={() => setIsOpen(false)}
+              className="bg-brand-brown text-white text-center py-3 rounded-lg font-semibold"
+            >
+              Login
+            </Link>
+          )}
         </motion.div>
       )}
     </nav>
