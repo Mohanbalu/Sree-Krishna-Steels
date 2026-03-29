@@ -23,7 +23,12 @@ import Orders from './pages/Orders';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProductManagement from './pages/admin/ProductManagement';
 import OrderManagement from './pages/admin/OrderManagement';
+import CustomerManagement from './pages/admin/CustomerManagement';
+import AdminManagement from './pages/admin/AdminManagement';
+import SettingsPage from './pages/admin/SettingsPage';
+import OrderDetail from './pages/admin/OrderDetail';
 import { ProtectedRoute, AdminRoute } from './components/AuthRoutes';
+import AdminLayout from './pages/admin/AdminLayout';
 import { useAuthStore } from './store/authStore';
 import { supabase } from './lib/supabase';
 
@@ -81,17 +86,51 @@ export default function App() {
             {/* Admin Protected Routes */}
             <Route path="/admin" element={
               <AdminRoute>
-                <AdminDashboard />
+                <AdminLayout>
+                  <AdminDashboard />
+                </AdminLayout>
               </AdminRoute>
             } />
             <Route path="/admin/products" element={
               <AdminRoute>
-                <ProductManagement />
+                <AdminLayout>
+                  <ProductManagement />
+                </AdminLayout>
               </AdminRoute>
             } />
             <Route path="/admin/orders" element={
               <AdminRoute>
-                <OrderManagement />
+                <AdminLayout>
+                  <OrderManagement />
+                </AdminLayout>
+              </AdminRoute>
+            } />
+            <Route path="/admin/orders/:id" element={
+              <AdminRoute>
+                <AdminLayout>
+                  <OrderDetail />
+                </AdminLayout>
+              </AdminRoute>
+            } />
+            <Route path="/admin/customers" element={
+              <AdminRoute>
+                <AdminLayout>
+                  <CustomerManagement />
+                </AdminLayout>
+              </AdminRoute>
+            } />
+            <Route path="/admin/settings" element={
+              <AdminRoute>
+                <AdminLayout>
+                  <SettingsPage />
+                </AdminLayout>
+              </AdminRoute>
+            } />
+            <Route path="/admin/manage-admins" element={
+              <AdminRoute>
+                <AdminLayout>
+                  <AdminManagement />
+                </AdminLayout>
               </AdminRoute>
             } />
           </Routes>
@@ -102,3 +141,5 @@ export default function App() {
     </Router>
   );
 }
+
+// Placeholder components for new routes

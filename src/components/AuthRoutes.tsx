@@ -16,8 +16,10 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
   const { profile, loading, initialized } = useAuthStore();
   const location = useLocation();
 
+  const isAdmin = profile?.role === 'super_admin' || profile?.role === 'admin' || profile?.role === 'staff';
+
   if (!initialized || loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  if (profile?.role !== 'admin') return <Navigate to="/" replace />;
+  if (!isAdmin) return <Navigate to="/" replace />;
 
   return <>{children}</>;
 }
