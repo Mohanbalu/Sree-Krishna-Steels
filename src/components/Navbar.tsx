@@ -29,9 +29,17 @@ export default function Navbar() {
       scrolled ? "bg-brand-cream/90 backdrop-blur-md shadow-sm py-3" : "bg-transparent"
     )}>
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <Link to="/" className="flex flex-col">
-          <span className="text-2xl font-serif font-bold tracking-tighter text-brand-brown leading-none">SREE KRISHNA</span>
-          <span className="text-xs font-sans tracking-[0.3em] text-brand-gold font-semibold">STEELS</span>
+        <Link to="/" className="flex items-center gap-3">
+          <img 
+            src="https://i.ibb.co/BVjLWjRd/Screenshot-2026-03-29-113001.png" 
+            alt="Sree Krishna Steels Logo" 
+            className="w-10 h-10 object-contain"
+            referrerPolicy="no-referrer"
+          />
+          <div className="flex flex-col">
+            <span className="text-2xl font-serif font-bold tracking-tighter text-brand-brown leading-none">SREE KRISHNA</span>
+            <span className="text-xs font-sans tracking-[0.3em] text-brand-gold font-semibold">STEELS</span>
+          </div>
         </Link>
 
         {/* Desktop Nav */}

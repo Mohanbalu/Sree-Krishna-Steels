@@ -6,9 +6,17 @@ export default function Footer() {
     <footer className="bg-brand-brown text-brand-cream pt-20 pb-10 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
         <div className="space-y-6">
-          <Link to="/" className="flex flex-col">
-            <span className="text-2xl font-serif font-bold tracking-tighter text-white leading-none">SREE KRISHNA</span>
-            <span className="text-xs font-sans tracking-[0.3em] text-brand-gold font-semibold">STEELS</span>
+          <Link to="/" className="flex items-center gap-3">
+            <img 
+              src="https://i.ibb.co/BVjLWjRd/Screenshot-2026-03-29-113001.png" 
+              alt="Sree Krishna Steels Logo" 
+              className="w-10 h-10 object-contain brightness-0 invert"
+              referrerPolicy="no-referrer"
+            />
+            <div className="flex flex-col">
+              <span className="text-2xl font-serif font-bold tracking-tighter text-white leading-none">SREE KRISHNA</span>
+              <span className="text-xs font-sans tracking-[0.3em] text-brand-gold font-semibold">STEELS</span>
+            </div>
           </Link>
           <p className="text-brand-cream/70 text-sm leading-relaxed">
             Premium furniture manufacturers dedicated to bringing elegance and durability to your modern living spaces. Direct from factory to your home.
