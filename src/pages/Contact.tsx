@@ -4,9 +4,21 @@ import { Phone, Mail, MapPin, Clock, Send, CheckCircle2 } from 'lucide-react';
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const whatsappNumber = '919848082209';
+    const text = `Hello Sree Krishna Steels,\n\nI have a quick enquiry:\n\n*Name:* ${formData.name}\n*Email:* ${formData.email}\n*Message:* ${formData.message}`;
+    const encodedText = encodeURIComponent(text);
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedText}`;
+    
+    window.open(whatsappUrl, '_blank');
     setSubmitted(true);
   };
 
@@ -40,8 +52,8 @@ export default function Contact() {
               <MapPin className="text-brand-gold" size={32} />
             </div>
             <h3 className="text-xl font-serif text-brand-brown mb-4">Visit Us</h3>
-            <p className="text-brand-charcoal/60 mb-2">123 Industrial Estate, Furniture Hub</p>
-            <p className="text-brand-charcoal/60">Coimbatore, Tamil Nadu - 641001</p>
+            <p className="text-brand-charcoal/60 mb-2">Main Road, Jaggaiahpet</p>
+            <p className="text-brand-charcoal/60">NTR District, Andhra Pradesh - 521175</p>
           </div>
         </div>
 
@@ -58,7 +70,7 @@ export default function Contact() {
               >
                 <CheckCircle2 className="text-brand-gold mx-auto mb-6" size={80} />
                 <h2 className="text-3xl font-serif text-white mb-4">Message Sent!</h2>
-                <p className="text-brand-cream/60">Thank you for reaching out. We'll get back to you shortly.</p>
+                <p className="text-brand-cream/60">Thank you for reaching out. We've redirected you to WhatsApp.</p>
                 <button 
                   onClick={() => setSubmitted(false)}
                   className="mt-8 text-brand-gold font-bold hover:underline"
@@ -72,15 +84,36 @@ export default function Contact() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-widest text-brand-cream/40">Full Name</label>
-                    <input required type="text" className="w-full bg-white/10 border-none rounded-xl p-4 text-white focus:ring-2 focus:ring-brand-gold outline-none placeholder:text-white/20" placeholder="Your Name" />
+                    <input 
+                      required 
+                      type="text" 
+                      className="w-full bg-white/10 border-none rounded-xl p-4 text-white focus:ring-2 focus:ring-brand-gold outline-none placeholder:text-white/20" 
+                      placeholder="Your Name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-widest text-brand-cream/40">Email Address</label>
-                    <input required type="email" className="w-full bg-white/10 border-none rounded-xl p-4 text-white focus:ring-2 focus:ring-brand-gold outline-none placeholder:text-white/20" placeholder="email@example.com" />
+                    <input 
+                      required 
+                      type="email" 
+                      className="w-full bg-white/10 border-none rounded-xl p-4 text-white focus:ring-2 focus:ring-brand-gold outline-none placeholder:text-white/20" 
+                      placeholder="email@example.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-widest text-brand-cream/40">Message</label>
-                    <textarea required rows={4} className="w-full bg-white/10 border-none rounded-xl p-4 text-white focus:ring-2 focus:ring-brand-gold outline-none resize-none placeholder:text-white/20" placeholder="How can we help you?"></textarea>
+                    <textarea 
+                      required 
+                      rows={4} 
+                      className="w-full bg-white/10 border-none rounded-xl p-4 text-white focus:ring-2 focus:ring-brand-gold outline-none resize-none placeholder:text-white/20" 
+                      placeholder="How can we help you?"
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    ></textarea>
                   </div>
                   <button type="submit" className="w-full bg-brand-gold text-brand-brown py-5 rounded-xl font-bold text-lg hover:bg-white transition-all flex items-center justify-center gap-2">
                     Send Message <Send size={20} />
@@ -102,9 +135,9 @@ export default function Contact() {
               <div className="bg-white p-8 rounded-3xl shadow-2xl text-center max-w-xs">
                 <MapPin className="text-brand-gold mx-auto mb-4" size={40} />
                 <h4 className="font-serif text-xl text-brand-brown mb-2">Our Showroom</h4>
-                <p className="text-brand-charcoal/60 text-sm mb-6">Visit us to experience our premium collection in person.</p>
+                <p className="text-brand-charcoal/60 text-sm mb-6">Visit us to experience our premium collection in person at Jaggaiahpet.</p>
                 <a 
-                  href="https://maps.google.com" 
+                  href="https://www.google.com/maps/place/Jaggaiahpet,+Andhra+Pradesh/@16.8985619,80.1032325,16.88z/data=!4m6!3m5!1s0x3a35a827dab5b061:0xe71bc8a82fcc172a!8m2!3d16.898534!4d80.103347!16zL20vMGY0X3hz" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="inline-block bg-brand-brown text-white px-6 py-2 rounded-full text-sm font-bold"

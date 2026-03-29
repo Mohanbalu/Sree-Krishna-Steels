@@ -4,9 +4,24 @@ import { Send, CheckCircle2, Briefcase, TrendingUp, Handshake } from 'lucide-rea
 
 export default function BulkEnquiry() {
   const [submitted, setSubmitted] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    businessName: '',
+    email: '',
+    phone: '',
+    enquiryType: 'New Dealership',
+    requirement: ''
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const whatsappNumber = '919848082209';
+    const text = `Hello Sree Krishna Steels,\n\nI am interested in a *Bulk/Dealer Enquiry*:\n\n*Name:* ${formData.name}\n*Business:* ${formData.businessName}\n*Email:* ${formData.email}\n*Phone:* ${formData.phone}\n*Type:* ${formData.enquiryType}\n*Requirement:* ${formData.requirement}`;
+    const encodedText = encodeURIComponent(text);
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedText}`;
+    
+    window.open(whatsappUrl, '_blank');
     setSubmitted(true);
   };
 
@@ -61,7 +76,7 @@ export default function BulkEnquiry() {
               >
                 <CheckCircle2 className="text-brand-gold mx-auto mb-6" size={80} />
                 <h2 className="text-3xl font-serif text-brand-brown mb-4">Thank You!</h2>
-                <p className="text-brand-charcoal/60">Our partnership team will get in touch with you within 24-48 hours.</p>
+                <p className="text-brand-charcoal/60">Our partnership team will get in touch with you within 24-48 hours. We've redirected you to WhatsApp.</p>
                 <button 
                   onClick={() => setSubmitted(false)}
                   className="mt-8 text-brand-gold font-bold hover:underline"
@@ -76,26 +91,58 @@ export default function BulkEnquiry() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-xs font-bold uppercase tracking-widest text-brand-charcoal/40">Full Name</label>
-                      <input required type="text" className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none" placeholder="John Doe" />
+                      <input 
+                        required 
+                        type="text" 
+                        className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none" 
+                        placeholder="John Doe"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold uppercase tracking-widest text-brand-charcoal/40">Business Name</label>
-                      <input required type="text" className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none" placeholder="Furniture Mart" />
+                      <input 
+                        required 
+                        type="text" 
+                        className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none" 
+                        placeholder="Furniture Mart"
+                        value={formData.businessName}
+                        onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
+                      />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-xs font-bold uppercase tracking-widest text-brand-charcoal/40">Email Address</label>
-                      <input required type="email" className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none" placeholder="john@example.com" />
+                      <input 
+                        required 
+                        type="email" 
+                        className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none" 
+                        placeholder="john@example.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold uppercase tracking-widest text-brand-charcoal/40">Phone Number</label>
-                      <input required type="tel" className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none" placeholder="+91 98765 43210" />
+                      <input 
+                        required 
+                        type="tel" 
+                        className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none" 
+                        placeholder="+91 98765 43210"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-widest text-brand-charcoal/40">Enquiry Type</label>
-                    <select className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none appearance-none">
+                    <select 
+                      className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none appearance-none"
+                      value={formData.enquiryType}
+                      onChange={(e) => setFormData({ ...formData, enquiryType: e.target.value })}
+                    >
                       <option>New Dealership</option>
                       <option>Bulk Order for Project</option>
                       <option>Interior Designer Partnership</option>
@@ -104,7 +151,14 @@ export default function BulkEnquiry() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-widest text-brand-charcoal/40">Your Requirement</label>
-                    <textarea required rows={4} className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none resize-none" placeholder="Tell us about your requirement..."></textarea>
+                    <textarea 
+                      required 
+                      rows={4} 
+                      className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none resize-none" 
+                      placeholder="Tell us about your requirement..."
+                      value={formData.requirement}
+                      onChange={(e) => setFormData({ ...formData, requirement: e.target.value })}
+                    ></textarea>
                   </div>
                   <button type="submit" className="w-full bg-brand-brown text-white py-5 rounded-xl font-bold text-lg hover:bg-brand-charcoal transition-colors flex items-center justify-center gap-2">
                     Submit Enquiry <Send size={20} />

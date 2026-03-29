@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
-import { ArrowRight, Star, Shield, Truck, Settings, Phone } from 'lucide-react';
+import { ArrowRight, Star, Shield, Truck, Settings, Phone, Quote } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { PRODUCTS } from '@/src/constants';
+import { PRODUCTS, REFERENCES } from '@/src/constants';
 
 export default function Home() {
   return (
@@ -51,9 +51,14 @@ export default function Home() {
             <Link to="/products" className="bg-brand-gold text-brand-brown px-10 py-4 rounded-full font-bold text-lg hover:bg-white transition-all flex items-center gap-2 group">
               Explore Collection <ArrowRight className="group-hover:translate-x-1 transition-transform" />
             </Link>
-            <Link to="/contact" className="border border-white/30 backdrop-blur-sm text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/10 transition-all">
+            <a 
+              href="https://wa.me/919848082209?text=Hello%20Sree%20Krishna%20Steels,%20I'd%20like%20to%20get%20a%20quote%20for%20some%20furniture."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="border border-white/30 backdrop-blur-sm text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/10 transition-all"
+            >
               Get a Quote
-            </Link>
+            </a>
           </motion.div>
         </div>
         
@@ -130,6 +135,44 @@ export default function Home() {
         </div>
       </section>
 
+      {/* References Section */}
+      <section className="py-24 px-6 bg-brand-cream">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-serif text-brand-brown mb-4">What Our Clients Say</h2>
+            <p className="text-brand-charcoal/60">Real stories from people who transformed their homes with us.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {REFERENCES.map((ref, idx) => (
+              <motion.div
+                key={ref.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                viewport={{ once: true }}
+                className="bg-white p-8 rounded-3xl shadow-sm border border-brand-gold/10 relative"
+              >
+                <Quote className="text-brand-gold/20 absolute top-6 right-6" size={40} />
+                <p className="text-brand-charcoal/70 italic mb-8 relative z-10">"{ref.content}"</p>
+                <div className="flex items-center gap-4">
+                  <img 
+                    src={ref.image} 
+                    alt={ref.name} 
+                    className="w-12 h-12 rounded-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div>
+                    <h4 className="font-bold text-brand-brown">{ref.name}</h4>
+                    <p className="text-xs text-brand-gold font-semibold uppercase tracking-wider">{ref.role}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-24 px-6">
         <div className="max-w-5xl mx-auto bg-brand-gold rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden">
@@ -138,9 +181,14 @@ export default function Home() {
             <h2 className="text-4xl md:text-6xl font-serif text-brand-brown mb-8">Ready to upgrade your home?</h2>
             <p className="text-brand-brown/70 text-lg mb-12 max-w-xl mx-auto">Get a free consultation and a personalized quote for your dream furniture today.</p>
             <div className="flex flex-col sm:flex-row justify-center gap-6">
-              <Link to="/contact" className="bg-brand-brown text-white px-12 py-5 rounded-full font-bold text-xl hover:shadow-2xl transition-all">
+              <a 
+                href="https://wa.me/919848082209?text=Hello%20Sree%20Krishna%20Steels,%20I'm%20interested%20in%20upgrading%20my%20home%20furniture.%20Please%20provide%20more%20details."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-brand-brown text-white px-12 py-5 rounded-full font-bold text-xl hover:shadow-2xl transition-all"
+              >
                 Enquire Now
-              </Link>
+              </a>
               <a href="tel:+919848082209" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-xl hover:underline">
                 <Phone /> +91 98480 82209
               </a>

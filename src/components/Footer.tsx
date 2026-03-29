@@ -6,11 +6,15 @@ export default function Footer() {
     <footer className="bg-brand-brown text-brand-cream pt-20 pb-10 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
         <div className="space-y-6">
-          <Link to="/" className="flex items-center gap-3">
+          <Link 
+            to="/" 
+            onClick={() => window.scrollTo(0, 0)}
+            className="flex items-center gap-3"
+          >
             <img 
               src="https://i.ibb.co/C3vGrKVv/Screenshot-2026-03-29-113001-removebg-preview.png" 
               alt="Sree Krishna Steels Logo" 
-              className="w-10 h-10 object-contain brightness-0 invert"
+              className="w-16 h-16 object-contain"
               referrerPolicy="no-referrer"
             />
             <div className="flex flex-col">
@@ -30,21 +34,21 @@ export default function Footer() {
         <div>
           <h4 className="font-serif text-lg font-semibold mb-6 text-brand-gold">Quick Links</h4>
           <ul className="space-y-4 text-sm text-brand-cream/70">
-            <li><Link to="/" className="hover:text-white transition-colors">Home</Link></li>
-            <li><Link to="/products" className="hover:text-white transition-colors">Our Products</Link></li>
-            <li><Link to="/about" className="hover:text-white transition-colors">About Us</Link></li>
-            <li><Link to="/bulk-enquiry" className="hover:text-white transition-colors">Bulk Enquiry</Link></li>
-            <li><Link to="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
+            <li><Link to="/" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors">Home</Link></li>
+            <li><Link to="/products" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors">Our Products</Link></li>
+            <li><Link to="/about" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors">About Us</Link></li>
+            <li><Link to="/bulk-enquiry" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors">Bulk Enquiry</Link></li>
+            <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors">Contact Us</Link></li>
           </ul>
         </div>
 
         <div>
           <h4 className="font-serif text-lg font-semibold mb-6 text-brand-gold">Categories</h4>
           <ul className="space-y-4 text-sm text-brand-cream/70">
-            <li><Link to="/products?cat=Beds" className="hover:text-white transition-colors">Premium Beds</Link></li>
-            <li><Link to="/products?cat=Sofas" className="hover:text-white transition-colors">Luxury Sofas</Link></li>
-            <li><Link to="/products?cat=Dining" className="hover:text-white transition-colors">Dining Tables</Link></li>
-            <li><Link to="/products?cat=Dressing" className="hover:text-white transition-colors">Dressing Tables</Link></li>
+            <li><Link to="/products?cat=Beds" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors">Premium Beds</Link></li>
+            <li><Link to="/products?cat=Sofas" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors">Luxury Sofas</Link></li>
+            <li><Link to="/products?cat=Dining Tables" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors">Dining Tables</Link></li>
+            <li><Link to="/products?cat=Dressing Tables" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors">Dressing Tables</Link></li>
           </ul>
         </div>
 
@@ -53,7 +57,7 @@ export default function Footer() {
           <ul className="space-y-4 text-sm text-brand-cream/70">
             <li className="flex items-start space-x-3">
               <MapPin size={18} className="text-brand-gold shrink-0" />
-              <span>123 Industrial Estate, Furniture Hub, Coimbatore, Tamil Nadu - 641001</span>
+              <span>Main Road, Jaggaiahpet, NTR District, Andhra Pradesh - 521175</span>
             </li>
             <li className="flex items-center space-x-3">
               <Phone size={18} className="text-brand-gold shrink-0" />
