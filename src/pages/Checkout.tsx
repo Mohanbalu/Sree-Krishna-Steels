@@ -63,7 +63,10 @@ export default function Checkout() {
         .from('order_items')
         .insert(orderItems);
 
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        console.error('Order Items Error:', itemsError);
+        throw new Error(`Failed to save order items: ${itemsError.message}`);
+      }
       
       // WhatsApp Integration
       const message = `*New Order from Sree Krishna Steels*%0A%0A` +

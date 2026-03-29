@@ -282,8 +282,10 @@ export default function ProductManagement() {
       }
       closeModal();
     } catch (error: any) {
-      toast.error('Failed to save product: ' + (error.message || 'Unknown error'));
       console.error('Save Product Error:', error);
+      const errorMessage = error.message || error.details || 'Unknown error';
+      toast.error(`Failed to save product: ${errorMessage}`);
+      if (error.hint) console.info('Hint:', error.hint);
     } finally {
       setSubmitting(false);
     }

@@ -115,24 +115,30 @@ export default function AdminDashboard() {
 
         // Fetch Top Selling Products
         // This requires joining order_items and products
-        const { data: topItems } = await supabase
+        const { data: topItems, error: topItemsError } = await supabase
           .from('order_items')
           .select('product_id, quantity, title, price, image_url')
-          .limit(100); // Get a good sample
+          .limit(100);
 
-        const productSales: Record<string, any> = {};
-        topItems?.forEach(item => {
-          if (!productSales[item.product_id]) {
-            productSales[item.product_id] = { ...item, total_sold: 0 };
-          }
-          productSales[item.product_id].total_sold += item.quantity;
-        });
+        if (topItemsError) {
+          console.error('Error fetching top items:', topItemsError);
+          // Fallback to empty if table doesn't exist or columns mismatch
+          setTopProducts([]);
+        } else {
+          const productSales: Record<string, any> = {};
+          topItems?.forEach(item => {
+            if (!productSales[item.product_id]) {
+              productSales[item.product_id] = { ...item, total_sold: 0 };
+            }
+            productSales[item.product_id].total_sold += item.quantity;
+          });
 
-        const sortedProducts = Object.values(productSales)
-          .sort((a, b) => b.total_sold - a.total_sold)
-          .slice(0, 5);
+          const sortedProducts = Object.values(productSales)
+            .sort((a, b) => b.total_sold - a.total_sold)
+            .slice(0, 5);
 
-        setTopProducts(sortedProducts);
+          setTopProducts(sortedProducts);
+        }
 
         setLoading(false);
       } catch (error) {
@@ -238,8 +244,8 @@ export default function AdminDashboard() {
               <option>Last 30 Days</option>
             </select>
           </div>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-80 min-h-[320px]">
+            <ResponsiveContainer width="100%" height="100%" minHeight={320}>
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
@@ -268,8 +274,8 @@ export default function AdminDashboard() {
               <option>Last 30 Days</option>
             </select>
           </div>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-80 min-h-[320px]">
+            <ResponsiveContainer width="100%" height="100%" minHeight={320}>
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} dy={10} />

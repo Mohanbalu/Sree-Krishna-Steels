@@ -9,7 +9,7 @@
         "name": { "type": "string", "description": "The name of the user." },
         "email": { "type": "string", "format": "email", "description": "The email address of the user." },
         "role": { "type": "string", "enum": ["admin", "customer"], "description": "The role of the user." },
-        "createdAt": { "type": "string", "format": "date-time", "description": "When the user was created." }
+        "created_at": { "type": "string", "format": "date-time", "description": "When the user was created." }
       },
       "required": ["id", "name", "email", "role"]
     },
@@ -24,11 +24,12 @@
         "price": { "type": "number", "description": "The price of the product." },
         "stock": { "type": "integer", "description": "The stock quantity of the product." },
         "category": { "type": "string", "description": "The category of the product." },
-        "images": { "type": "array", "items": { "type": "string" }, "description": "The images of the product." },
-        "reelLink": { "type": "string", "description": "The Instagram reel link for the product." },
-        "createdAt": { "type": "string", "format": "date-time", "description": "When the product was created." }
+        "image_url": { "type": "string", "description": "The main image of the product." },
+        "reel_link": { "type": "string", "description": "The Instagram reel link for the product." },
+        "is_active": { "type": "boolean", "description": "Whether the product is visible to customers." },
+        "created_at": { "type": "string", "format": "date-time", "description": "When the product was created." }
       },
-      "required": ["id", "title", "description", "price", "stock", "category", "images"]
+      "required": ["id", "title", "description", "price", "stock", "category", "image_url"]
     },
     "orders": {
       "title": "Order",
@@ -36,37 +37,37 @@
       "type": "object",
       "properties": {
         "id": { "type": "string", "description": "The unique identifier for the order." },
-        "userId": { "type": "string", "description": "The ID of the user who placed the order." },
-        "products": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "id": { "type": "string" },
-              "title": { "type": "string" },
-              "quantity": { "type": "integer" },
-              "price": { "type": "number" }
-            }
-          }
-        },
-        "totalAmount": { "type": "number", "description": "The total amount of the order." },
-        "status": { "type": "string", "enum": ["Pending", "Confirmed", "Shipped", "Delivered"], "description": "The status of the order." },
-        "address": {
-          "type": "object",
-          "properties": {
-            "name": { "type": "string" },
-            "phone": { "type": "string" },
-            "address": { "type": "string" }
-          }
-        },
-        "createdAt": { "type": "string", "format": "date-time", "description": "When the order was created." }
+        "user_id": { "type": "string", "description": "The ID of the user who placed the order." },
+        "total_amount": { "type": "number", "description": "The total amount of the order." },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "shipped", "delivered"], "description": "The status of the order." },
+        "address": { "type": "string", "description": "The shipping address." },
+        "payment_method": { "type": "string", "description": "The payment method used." },
+        "customer_name": { "type": "string", "description": "The name of the customer." },
+        "customer_phone": { "type": "string", "description": "The phone number of the customer." },
+        "created_at": { "type": "string", "format": "date-time", "description": "When the order was created." }
       },
-      "required": ["id", "userId", "products", "totalAmount", "status", "address", "createdAt"]
+      "required": ["id", "user_id", "total_amount", "status", "address", "created_at"]
+    },
+    "order_items": {
+      "title": "Order Item",
+      "description": "An item within an order.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique identifier for the order item." },
+        "order_id": { "type": "string", "description": "The ID of the parent order." },
+        "product_id": { "type": "string", "description": "The ID of the product." },
+        "quantity": { "type": "integer", "description": "The quantity ordered." },
+        "price": { "type": "number", "description": "The price at the time of order." },
+        "title": { "type": "string", "description": "The title of the product." },
+        "image_url": { "type": "string", "description": "The image of the product." }
+      },
+      "required": ["id", "order_id", "product_id", "quantity", "price", "title"]
     }
   },
   "firestore": {
     "/users/{userId}": { "schema": "users", "description": "User profile data." },
     "/products/{productId}": { "schema": "products", "description": "Product data." },
-    "/orders/{orderId}": { "schema": "orders", "description": "Order data." }
+    "/orders/{orderId}": { "schema": "orders", "description": "Order data." },
+    "/order_items/{itemId}": { "schema": "order_items", "description": "Order item data." }
   }
 }
