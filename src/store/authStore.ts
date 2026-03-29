@@ -34,7 +34,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     // Initial session check
     const { data: { session } } = await supabase.auth.getSession();
     
-    const fetchProfile = async (userId: string) => {
+    const fetchProfile = async (userId: string, userEmail?: string, userName?: string) => {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -42,10 +42,27 @@ export const useAuthStore = create<AuthState>((set) => ({
         .single();
       
       if (error) {
-        // If profile is missing, it might be the trigger delay. 
-        // We'll return a minimal profile object to prevent crashes.
+        // If profile is missing (PGRST116), try to create it immediately
         if (error.code === 'PGRST116') {
-          return { id: userId, role: 'customer' } as UserProfile;
+          console.log('Profile missing in DB, auto-creating...');
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert([
+              { 
+                id: userId, 
+                name: userName || 'User', 
+                email: userEmail, 
+                role: 'customer' 
+              }
+            ])
+            .select()
+            .single();
+            
+          if (createError) {
+            console.error('Auto-create failed:', createError);
+            return { id: userId, role: 'customer' } as UserProfile;
+          }
+          return newProfile as UserProfile;
         }
         console.error('Error fetching profile:', error);
         return null;
@@ -54,7 +71,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     };
 
     if (session?.user) {
-      const profile = await fetchProfile(session.user.id);
+      const profile = await fetchProfile(
+        session.user.id, 
+        session.user.email, 
+        session.user.user_metadata?.full_name || session.user.user_metadata?.name
+      );
       set({ user: session.user, profile, loading: false, initialized: true });
     } else {
       set({ user: null, profile: null, loading: false, initialized: true });
@@ -63,7 +84,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     // Listen for auth changes
     supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
-        const profile = await fetchProfile(session.user.id);
+        const profile = await fetchProfile(
+          session.user.id, 
+          session.user.email, 
+          session.user.user_metadata?.full_name || session.user.user_metadata?.name
+        );
         set({ user: session.user, profile, loading: false });
       } else {
         set({ user: null, profile: null, loading: false });
