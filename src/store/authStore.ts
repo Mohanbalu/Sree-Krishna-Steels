@@ -42,6 +42,11 @@ export const useAuthStore = create<AuthState>((set) => ({
         .single();
       
       if (error) {
+        // If profile is missing, it might be the trigger delay. 
+        // We'll return a minimal profile object to prevent crashes.
+        if (error.code === 'PGRST116') {
+          return { id: userId, role: 'customer' } as UserProfile;
+        }
         console.error('Error fetching profile:', error);
         return null;
       }

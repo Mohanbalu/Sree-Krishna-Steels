@@ -63,7 +63,8 @@ export default function Login() {
 
   return (
     <div className="pt-32 pb-24 px-6 flex items-center justify-center bg-brand-cream min-h-screen">
-      <div className="max-w-md w-full bg-white rounded-[2.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-brand-gold/20 backdrop-blur-sm">
+      <div className="max-w-md w-full bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-brand-gold/20 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-gold/30 to-transparent" />
         <div className="text-center mb-8">
           <h1 className="text-3xl font-serif text-brand-brown mb-2">Welcome Back</h1>
           <p className="text-brand-charcoal/60">Login to your Sree Krishna account</p>
