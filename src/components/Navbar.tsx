@@ -102,17 +102,20 @@ export default function Navbar() {
             )}
           </Link>
 
+          {user && (profile?.role === 'admin' || profile?.role === 'super_admin' || profile?.role === 'staff') && (
+            <div className="flex items-center gap-4">
+              <Link
+                to="/admin"
+                className={cn("p-2 transition-colors hover:text-brand-gold", textColor)}
+                title="Admin Dashboard"
+              >
+                <LayoutDashboard size={22} />
+              </Link>
+            </div>
+          )}
+
           {user ? (
             <div className="flex items-center gap-4">
-              {profile?.role === 'admin' && (
-                <Link
-                  to="/admin"
-                  className={cn("p-2 transition-colors hover:text-brand-gold", textColor)}
-                  title="Admin Dashboard"
-                >
-                  <LayoutDashboard size={22} />
-                </Link>
-              )}
               <Link
                 to="/orders"
                 className={cn("p-2 transition-colors hover:text-brand-gold", textColor)}
@@ -183,17 +186,18 @@ export default function Navbar() {
           
           <div className="h-px w-full bg-brand-gold/10 my-2"></div>
 
+          {user && (profile?.role === 'admin' || profile?.role === 'super_admin' || profile?.role === 'staff') && (
+            <Link
+              to="/admin"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 text-lg font-medium text-brand-charcoal hover:text-brand-gold"
+            >
+              <LayoutDashboard size={20} /> Admin Dashboard
+            </Link>
+          )}
+
           {user ? (
             <>
-              {profile?.role === 'admin' && (
-                <Link
-                  to="/admin"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-3 text-lg font-medium text-brand-charcoal hover:text-brand-gold"
-                >
-                  <LayoutDashboard size={20} /> Admin Dashboard
-                </Link>
-              )}
               <Link
                 to="/orders"
                 onClick={() => setIsOpen(false)}

@@ -143,6 +143,7 @@ export default function AdminDashboard() {
         setLoading(false);
       } catch (error) {
         handleSupabaseError(error, 'fetchDashboardData');
+        setLoading(false);
       }
     };
 
