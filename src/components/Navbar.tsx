@@ -31,7 +31,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <Link to="/" className="flex items-center gap-3">
           <img 
-            src="https://i.ibb.co/BVjLWjRd/Screenshot-2026-03-29-113001.png" 
+            src="https://i.ibb.co/C3vGrKVv/Screenshot-2026-03-29-113001-removebg-preview.png" 
             alt="Sree Krishna Steels Logo" 
             className="w-10 h-10 object-contain"
             referrerPolicy="no-referrer"
