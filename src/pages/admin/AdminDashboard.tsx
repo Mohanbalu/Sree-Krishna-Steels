@@ -122,7 +122,7 @@ export default function AdminDashboard() {
         // This requires joining order_items and products
         const { data: topItems, error: topItemsError } = await supabase
           .from('order_items')
-          .select('product_id, quantity, title, price, image_url')
+          .select('product_id, quantity, products(title, price, image_url)')
           .limit(100);
 
         if (topItemsError) {
@@ -131,11 +131,19 @@ export default function AdminDashboard() {
           setTopProducts([]);
         } else {
           const productSales: Record<string, any> = {};
-          topItems?.forEach(item => {
-            if (!productSales[item.product_id]) {
-              productSales[item.product_id] = { ...item, total_sold: 0 };
+          topItems?.forEach((item: any) => {
+            const productId = item.product_id;
+            const product = item.products;
+            if (!productSales[productId]) {
+              productSales[productId] = { 
+                product_id: productId,
+                title: product?.title || 'Unknown Product',
+                price: product?.price || 0,
+                image_url: product?.image_url || '',
+                total_sold: 0 
+              };
             }
-            productSales[item.product_id].total_sold += item.quantity;
+            productSales[productId].total_sold += item.quantity;
           });
 
           const sortedProducts = Object.values(productSales)
@@ -260,9 +268,9 @@ export default function AdminDashboard() {
               <option>Last 30 Days</option>
             </select>
           </div>
-          <div className="h-[400px] w-full">
-            {isMounted && (
-              <ResponsiveContainer width="100%" height="100%" minHeight={320}>
+          <div className="h-[400px] w-full min-h-[400px] flex items-center justify-center bg-brand-cream/5 rounded-[2rem]">
+            {isMounted && chartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
@@ -326,9 +334,9 @@ export default function AdminDashboard() {
               <option>Last 30 Days</option>
             </select>
           </div>
-          <div className="h-[400px] w-full">
-            {isMounted && (
-              <ResponsiveContainer width="100%" height="100%" minHeight={320}>
+          <div className="h-[400px] w-full min-h-[400px] flex items-center justify-center bg-brand-cream/5 rounded-[2rem]">
+            {isMounted && chartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F5F5F0" />
                   <XAxis 
