@@ -24,6 +24,8 @@ interface Order {
   user_id: string;
   customer_name: string;
   customer_phone: string;
+  name?: string;
+  phone?: string;
   shipping_address: string;
   order_items: any[];
   total_amount: number;
@@ -337,17 +339,17 @@ export default function OrderDetail() {
             <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-brand-gold/10 rounded-2xl flex items-center justify-center text-brand-brown font-bold text-xl">
-                  {order.customer_name.charAt(0)}
+                  {(order.customer_name || order.name || 'U').charAt(0)}
                 </div>
                 <div>
-                  <p className="font-bold text-gray-900">{order.customer_name}</p>
+                  <p className="font-bold text-gray-900">{order.customer_name || order.name || 'Unknown'}</p>
                   <p className="text-xs text-gray-500">Customer ID: {order.user_id.slice(-8).toUpperCase()}</p>
                 </div>
               </div>
               <div className="space-y-4 pt-4 border-t border-gray-100">
                 <div className="flex items-center gap-3 text-sm text-gray-600">
                   <Phone size={16} className="text-brand-gold" />
-                  <span className="font-medium">{order.customer_phone}</span>
+                  <span className="font-medium">{order.customer_phone || order.phone || 'No phone'}</span>
                 </div>
                 <div className="flex items-start gap-3 text-sm text-gray-600">
                   <MapPin size={16} className="text-brand-gold mt-1 shrink-0" />

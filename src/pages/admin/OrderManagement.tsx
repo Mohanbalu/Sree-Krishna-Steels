@@ -215,7 +215,7 @@ export default function OrderManagement() {
 
                 <div className="min-w-[150px]">
                   <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/30 mb-1">Customer</p>
-                  <p className="font-serif text-lg text-brand-brown">{order.customer_name}</p>
+                  <p className="font-serif text-lg text-brand-brown">{order.customer_name || order.name || 'Unknown'}</p>
                 </div>
 
                 <div>
@@ -269,16 +269,16 @@ export default function OrderManagement() {
                             <div className="space-y-4 bg-white p-6 rounded-[2rem] border border-brand-brown/5 shadow-sm">
                               <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-full bg-brand-cream flex items-center justify-center text-brand-brown font-serif text-xl">
-                                  {order.customer_name.charAt(0)}
+                                  {(order.customer_name || order.name || 'U').charAt(0)}
                                 </div>
                                 <div>
-                                  <p className="text-lg font-serif text-brand-brown">{order.customer_name}</p>
+                                  <p className="text-lg font-serif text-brand-brown">{order.customer_name || order.name || 'Unknown'}</p>
                                   <p className="text-xs text-brand-brown/40 font-medium">Verified Customer</p>
                                 </div>
                               </div>
                               <div className="pt-4 border-t border-brand-brown/5 space-y-3">
                                 <p className="flex items-center gap-3 text-sm text-brand-brown/70 font-medium">
-                                  <Phone size={16} className="text-brand-gold" /> {order.customer_phone}
+                                  <Phone size={16} className="text-brand-gold" /> {order.customer_phone || order.phone || 'No phone'}
                                 </p>
                                 <p className="flex items-start gap-3 text-sm text-brand-brown/70 font-medium leading-relaxed">
                                   <MapPin size={16} className="text-brand-gold mt-1 shrink-0" /> {order.shipping_address}

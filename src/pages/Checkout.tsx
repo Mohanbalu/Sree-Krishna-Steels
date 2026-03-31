@@ -108,7 +108,8 @@ export default function Checkout() {
             shipping_address: `${formData.address}, ${formData.city} - ${formData.pincode}`,
             payment_method: formData.paymentMethod,
             customer_name: formData.name,
-            customer_phone: formData.phone
+            customer_phone: formData.phone,
+            phone: formData.phone
           },
         ])
         .select()
