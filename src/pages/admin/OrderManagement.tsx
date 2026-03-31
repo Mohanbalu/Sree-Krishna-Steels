@@ -17,6 +17,8 @@ interface Order {
   payment_method: string;
   payment_status?: 'pending' | 'paid' | 'failed';
   created_at: string;
+  driver_name?: string;
+  delivery_days?: number;
 }
 
 export default function OrderManagement() {
@@ -222,6 +224,14 @@ export default function OrderManagement() {
                 </div>
 
                 <div className="flex items-center gap-6">
+                  {order.driver_name && (
+                    <div className="flex flex-col items-end gap-1">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/30">Driver</p>
+                      <span className="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm bg-blue-50 text-blue-700 border border-blue-100">
+                        {order.driver_name}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex flex-col items-end gap-1">
                     <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/30">Payment</p>
                     <span className={cn("px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm", getPaymentStatusColor(order.payment_status || 'pending'))}>

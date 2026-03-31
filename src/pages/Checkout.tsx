@@ -4,13 +4,15 @@ import { useCartStore } from '../store/cartStore';
 import { useAuthStore } from '../store/authStore';
 import { supabase, handleSupabaseError } from '../lib/supabase';
 import { toast } from 'sonner';
-import { MapPin, Phone, User, CreditCard, ChevronRight } from 'lucide-react';
+import { MapPin, Phone, User, CreditCard, ChevronRight, LocateFixed, Loader2 } from 'lucide-react';
+import { emailService } from '../services/emailService';
 
 export default function Checkout() {
   const { items, total, clearCart } = useCartStore();
   const { user, profile } = useAuthStore();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [locating, setLocating] = useState(false);
 
   const [formData, setFormData] = useState({
     name: profile?.name || '',
@@ -20,6 +22,65 @@ export default function Checkout() {
     pincode: '',
     paymentMethod: 'cod' as 'cod' | 'online',
   });
+
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error('Geolocation is not supported by your browser');
+      return;
+    }
+
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
+          );
+          const data = await response.json();
+
+          if (data.address) {
+            const addr = data.address;
+            const streetAddress = [
+              addr.road,
+              addr.suburb,
+              addr.neighbourhood,
+            ].filter(Boolean).join(', ');
+
+            setFormData(prev => ({
+              ...prev,
+              address: streetAddress || prev.address,
+              city: addr.city || addr.town || addr.village || prev.city,
+              pincode: addr.postcode || prev.pincode,
+            }));
+            toast.success('Location updated successfully!');
+          }
+        } catch (error) {
+          console.error('Error fetching address:', error);
+          toast.error('Failed to get address from coordinates');
+        } finally {
+          setLocating(false);
+        }
+      },
+      (error) => {
+        setLocating(false);
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            toast.error('Please allow location access to use this feature');
+            break;
+          case error.POSITION_UNAVAILABLE:
+            toast.error('Location information is unavailable');
+            break;
+          case error.TIMEOUT:
+            toast.error('The request to get user location timed out');
+            break;
+          default:
+            toast.error('An unknown error occurred while getting location');
+        }
+      },
+      { timeout: 10000 }
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,6 +142,15 @@ export default function Checkout() {
 
       window.open(`https://wa.me/919949666666?text=${message}`, '_blank');
       
+      // Send mock email
+      await emailService.sendOrderConfirmation({
+        order_id: order.id,
+        customer_name: formData.name,
+        customer_email: user.email,
+        total_amount: total(),
+        items: items.map(i => i.title)
+      });
+      
       clearCart();
       toast.success('Order placed successfully!');
       navigate('/orders');
@@ -100,9 +170,27 @@ export default function Checkout() {
           {/* Shipping Details */}
           <div className="lg:col-span-2 space-y-8">
             <div className="bg-white p-8 rounded-3xl shadow-xl border border-brand-gold/10">
-              <h2 className="text-2xl font-serif text-brand-brown mb-8 flex items-center gap-3">
-                <MapPin className="text-brand-gold" /> Shipping Details
-              </h2>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                <h2 className="text-2xl font-serif text-brand-brown flex items-center gap-3">
+                  <MapPin className="text-brand-gold" /> Shipping Details
+                </h2>
+                <button
+                  type="button"
+                  onClick={handleGetLocation}
+                  disabled={locating}
+                  className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-brand-gold hover:text-brand-brown transition-colors disabled:opacity-50"
+                >
+                  {locating ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" /> Locating...
+                    </>
+                  ) : (
+                    <>
+                      <LocateFixed size={14} /> Use Current Location
+                    </>
+                  )}
+                </button>
+              </div>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">

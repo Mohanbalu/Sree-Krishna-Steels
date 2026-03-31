@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
+import { emailService } from '../../services/emailService';
 
 interface Order {
   id: string;
@@ -30,6 +31,9 @@ interface Order {
   payment_method: string;
   payment_status?: 'pending' | 'paid' | 'failed';
   created_at: string;
+  driver_name?: string;
+  delivery_days?: number;
+  customer_email?: string;
 }
 
 export default function OrderDetail() {
@@ -37,6 +41,9 @@ export default function OrderDetail() {
   const navigate = useNavigate();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const [updatingDriver, setUpdatingDriver] = useState(false);
+  const [driverName, setDriverName] = useState('');
+  const [deliveryDays, setDeliveryDays] = useState(3);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -52,6 +59,8 @@ export default function OrderDetail() {
 
         if (error) throw error;
         setOrder(data);
+        setDriverName(data.driver_name || '');
+        setDeliveryDays(data.delivery_days || 3);
       } catch (error) {
         handleSupabaseError(error, 'fetchOrder');
         navigate('/admin/orders');
@@ -73,6 +82,11 @@ export default function OrderDetail() {
       if (error) throw error;
       setOrder(prev => prev ? { ...prev, status: newStatus as any } : null);
       toast.success(`Order status updated to ${newStatus}`);
+      
+      // Send status update email
+      if (order?.customer_email) {
+        await emailService.sendOrderStatusUpdate(id!, newStatus, order.customer_email);
+      }
     } catch (error) {
       handleSupabaseError(error, 'updateStatus');
     }
@@ -90,6 +104,41 @@ export default function OrderDetail() {
       toast.success(`Payment status updated to ${newStatus}`);
     } catch (error) {
       handleSupabaseError(error, 'updatePaymentStatus');
+    }
+  };
+
+  const handleAssignDriver = async () => {
+    setUpdatingDriver(true);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ 
+          driver_name: driverName,
+          delivery_days: deliveryDays
+        })
+        .eq('id', id);
+
+      if (error) {
+        // If columns don't exist, we'll just simulate it for now
+        console.warn('Could not update driver info in DB (columns might be missing):', error);
+        toast.info('Driver assigned (simulated - DB columns missing)');
+      } else {
+        toast.success('Driver assigned successfully');
+      }
+
+      setOrder(prev => prev ? { ...prev, driver_name: driverName, delivery_days: deliveryDays } : null);
+      
+      // Send delivery assignment email
+      await emailService.sendDeliveryAssignment(
+        id!, 
+        driverName, 
+        deliveryDays, 
+        order?.customer_email || 'customer@example.com'
+      );
+    } catch (error) {
+      handleSupabaseError(error, 'assignDriver');
+    } finally {
+      setUpdatingDriver(false);
     }
   };
 
@@ -230,6 +279,53 @@ export default function OrderDetail() {
                   <option value="failed">Failed</option>
                 </select>
               </div>
+            </div>
+          </div>
+
+          {/* Driver Assignment */}
+          <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-8">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-2">
+              <Truck size={14} /> Driver Assignment
+            </h3>
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-700">Assign Driver</label>
+                <input
+                  type="text"
+                  placeholder="Enter driver name"
+                  value={driverName}
+                  onChange={(e) => setDriverName(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl text-sm border border-gray-200 focus:ring-2 focus:ring-brand-gold outline-none transition-all"
+                />
+              </div>
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-700">Estimated Delivery (Days)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="30"
+                  value={deliveryDays}
+                  onChange={(e) => setDeliveryDays(parseInt(e.target.value))}
+                  className="w-full px-4 py-3 rounded-xl text-sm border border-gray-200 focus:ring-2 focus:ring-brand-gold outline-none transition-all"
+                />
+              </div>
+              <button
+                onClick={handleAssignDriver}
+                disabled={updatingDriver}
+                className="w-full bg-brand-gold text-brand-brown py-3 rounded-xl font-bold text-sm hover:bg-brand-gold/90 transition-all disabled:opacity-50"
+              >
+                {updatingDriver ? 'Assigning...' : 'Assign & Notify Client'}
+              </button>
+              {order.driver_name && (
+                <div className="p-4 bg-green-50 rounded-xl border border-green-100">
+                  <p className="text-xs text-green-800 font-medium">
+                    Currently assigned to: <span className="font-bold">{order.driver_name}</span>
+                  </p>
+                  <p className="text-xs text-green-800 font-medium">
+                    ETA: <span className="font-bold">{order.delivery_days} days</span>
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

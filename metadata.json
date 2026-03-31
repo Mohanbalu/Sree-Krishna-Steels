@@ -1,5 +1,5 @@
 {
   "name": "Sree Krishna Steels",
   "description": "Premium furniture manufacturing brand offering high-quality beds, sofas, and dining sets with a focus on durability and modern design.",
-  "requestFramePermissions": []
+  "requestFramePermissions": ["geolocation"]
 }
