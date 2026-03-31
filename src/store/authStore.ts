@@ -80,9 +80,11 @@ export const useAuthStore = create<AuthState>((set) => ({
         session.user.user_metadata?.full_name || session.user.user_metadata?.name,
         session.user.user_metadata?.phone || session.user.phone
       );
+      // Fetch cart from Supabase on initial load
+      await useCartStore.getState().fetchFromSupabase(session.user.id);
       set({ user: session.user, profile, loading: false, initialized: true });
     } else {
-      useCartStore.getState().clearCart();
+      useCartStore.getState().clearCart(false);
       set({ user: null, profile: null, loading: false, initialized: true });
     }
 
@@ -95,9 +97,11 @@ export const useAuthStore = create<AuthState>((set) => ({
           session.user.user_metadata?.full_name || session.user.user_metadata?.name,
           session.user.user_metadata?.phone || session.user.phone
         );
+        // Fetch cart from Supabase on login
+        await useCartStore.getState().fetchFromSupabase(session.user.id);
         set({ user: session.user, profile, loading: false });
       } else {
-        useCartStore.getState().clearCart();
+        useCartStore.getState().clearCart(false);
         set({ user: null, profile: null, loading: false });
       }
     });

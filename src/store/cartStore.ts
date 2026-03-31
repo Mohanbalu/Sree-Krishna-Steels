@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { supabase } from '../lib/supabase';
+import { useAuthStore } from './authStore';
 
 export interface CartItem {
   id: string;
@@ -14,8 +16,11 @@ interface CartState {
   addItem: (item: CartItem) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
+  setItems: (items: CartItem[]) => void;
   clearCart: () => void;
   total: () => number;
+  syncToSupabase: (userId: string) => Promise<void>;
+  fetchFromSupabase: (userId: string) => Promise<void>;
 }
 
 export const useCartStore = create<CartState>()(
@@ -24,25 +29,98 @@ export const useCartStore = create<CartState>()(
       items: [],
       addItem: (item) => {
         const existing = get().items.find((i) => i.id === item.id);
+        let newItems;
         if (existing) {
-          set({
-            items: get().items.map((i) =>
-              i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i
-            ),
-          });
+          newItems = get().items.map((i) =>
+            i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i
+          );
         } else {
-          set({ items: [...get().items, item] });
+          newItems = [...get().items, item];
+        }
+        set({ items: newItems });
+        
+        // Sync to Supabase if logged in
+        const userId = useAuthStore.getState().user?.id;
+        if (userId) get().syncToSupabase(userId);
+      },
+      removeItem: (id) => {
+        const newItems = get().items.filter((i) => i.id !== id);
+        set({ items: newItems });
+        
+        // Sync to Supabase if logged in
+        const userId = useAuthStore.getState().user?.id;
+        if (userId) get().syncToSupabase(userId);
+      },
+      updateQuantity: (id, quantity) => {
+        const newItems = get().items.map((i) =>
+          i.id === id ? { ...i, quantity: Math.max(1, quantity) } : i
+        );
+        set({ items: newItems });
+        
+        // Sync to Supabase if logged in
+        const userId = useAuthStore.getState().user?.id;
+        if (userId) get().syncToSupabase(userId);
+      },
+      setItems: (items) => set({ items }),
+      clearCart: (sync = true) => {
+        set({ items: [] });
+        if (sync) {
+          const userId = useAuthStore.getState().user?.id;
+          if (userId) get().syncToSupabase(userId);
         }
       },
-      removeItem: (id) => set({ items: get().items.filter((i) => i.id !== id) }),
-      updateQuantity: (id, quantity) =>
-        set({
-          items: get().items.map((i) =>
-            i.id === id ? { ...i, quantity: Math.max(1, quantity) } : i
-          ),
-        }),
-      clearCart: () => set({ items: [] }),
       total: () => get().items.reduce((acc, item) => acc + item.price * item.quantity, 0),
+      
+      syncToSupabase: async (userId: string) => {
+        if (!supabase) return;
+        try {
+          const items = get().items;
+          // First, delete existing cart items for this user
+          await supabase.from('cart_items').delete().eq('user_id', userId);
+          
+          if (items.length > 0) {
+            const toInsert = items.map(item => ({
+              user_id: userId,
+              product_id: item.id,
+              quantity: item.quantity,
+              // We store metadata to handle static products easily
+              metadata: {
+                title: item.title,
+                price: item.price,
+                image: item.image
+              }
+            }));
+            await supabase.from('cart_items').insert(toInsert);
+          }
+        } catch (error) {
+          console.error('Error syncing cart to Supabase:', error);
+        }
+      },
+
+      fetchFromSupabase: async (userId: string) => {
+        if (!supabase) return;
+        try {
+          const { data, error } = await supabase
+            .from('cart_items')
+            .select('*')
+            .eq('user_id', userId);
+          
+          if (error) throw error;
+          
+          if (data) {
+            const items: CartItem[] = data.map(row => ({
+              id: row.product_id,
+              quantity: row.quantity,
+              title: row.metadata?.title || 'Product',
+              price: row.metadata?.price || 0,
+              image: row.metadata?.image || ''
+            }));
+            set({ items });
+          }
+        } catch (error) {
+          console.error('Error fetching cart from Supabase:', error);
+        }
+      }
     }),
     { name: 'cart-storage' }
   )

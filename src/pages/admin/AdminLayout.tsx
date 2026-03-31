@@ -32,8 +32,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const handleLogout = async () => {
     try {
-      // Clear cart on logout
-      useCartStore.getState().clearCart();
+      // Clear local cart on logout (don't sync to Supabase so it's preserved for next login)
+      useCartStore.getState().clearCart(false);
       
       if (supabase) {
         const { error } = await supabase.auth.signOut();
