@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, ShoppingCart, User, LogOut, LayoutDashboard } from 'lucide-react';
+import { Menu, X, ShoppingCart, User, LogOut, LayoutDashboard, Package } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/src/lib/utils';
 import { useAuthStore } from '../store/authStore';
@@ -128,9 +128,9 @@ export default function Navbar() {
             {user ? (
               <div className="flex items-center gap-4">
                 <Link
-                  to="/orders"
+                  to="/profile"
                   className={cn("p-2 transition-transform duration-300 hover:scale-110", textColor)}
-                  title="My Orders"
+                  title="My Profile"
                 >
                   <User size={20} strokeWidth={1.5} />
                 </Link>
@@ -213,11 +213,18 @@ export default function Navbar() {
           {user ? (
             <>
               <Link
+                to="/profile"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 text-lg font-medium text-brand-charcoal hover:text-brand-gold"
+              >
+                <User size={20} /> My Profile
+              </Link>
+              <Link
                 to="/orders"
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-3 text-lg font-medium text-brand-charcoal hover:text-brand-gold"
               >
-                <User size={20} /> My Orders
+                <Package size={20} /> My Orders
               </Link>
               <button
                 onClick={() => {

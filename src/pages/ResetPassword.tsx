@@ -53,6 +53,8 @@ export default function ResetPassword() {
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (loading) return;
+
     if (password !== confirmPassword) {
       toast.error('Passwords do not match.');
       return;
@@ -64,46 +66,37 @@ export default function ResetPassword() {
     }
 
     setLoading(true);
-    console.log('Starting password update...');
     try {
-      // Ensure we have a session before updating
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('No active session found. Please try the reset link again.');
-      }
-
+      console.log('Attempting to update password...');
       const { error } = await supabase.auth.updateUser({
         password: password
       });
       
       if (error) {
-        console.error('Supabase updateUser error:', error);
-        throw error;
+        console.error('Update error:', error);
+        toast.error(error.message);
+        setLoading(false);
+        return;
       }
       
-      console.log('Password updated successfully');
-      toast.success('Password updated successfully!');
+      console.log('Update successful');
+      toast.success('Password updated! Redirecting to login...');
       
-      // Small delay before signing out to ensure toast is seen and state is stable
+      // Give the user a moment to see the success message
       setTimeout(async () => {
         try {
           await supabase.auth.signOut();
-          console.log('Signed out after password reset');
-          navigate('/login');
-        } catch (signOutError) {
-          console.error('Error signing out after reset:', signOutError);
-          navigate('/login');
+          navigate('/login', { replace: true });
+        } catch (err) {
+          console.error('Sign out error:', err);
+          navigate('/login', { replace: true });
         }
-      }, 1500);
+      }, 2000);
       
     } catch (error: any) {
-      console.error('Password reset catch block:', error);
-      toast.error(error.message || 'An error occurred while updating your password.');
-      setLoading(false); // Manually set it here in case the finally block is somehow skipped or delayed
-    } finally {
-      // We don't set loading to false here if we are navigating away soon, 
-      // but if there was an error, the catch block handles it.
-      // If successful, the timeout will handle the transition.
+      console.error('Unexpected error:', error);
+      toast.error(error.message || 'An unexpected error occurred.');
+      setLoading(false);
     }
   };
 
