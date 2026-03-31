@@ -269,7 +269,7 @@ export default function AdminDashboard() {
             </select>
           </div>
           <div className="h-[400px] w-full min-h-[400px] flex items-center justify-center bg-brand-cream/5 rounded-[2rem]">
-            {isMounted && chartData.length > 0 ? (
+            {isMounted && chartData.length > 0 && (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
                   <defs>
@@ -335,7 +335,7 @@ export default function AdminDashboard() {
             </select>
           </div>
           <div className="h-[400px] w-full min-h-[400px] flex items-center justify-center bg-brand-cream/5 rounded-[2rem]">
-            {isMounted && chartData.length > 0 ? (
+            {isMounted && chartData.length > 0 && (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F5F5F0" />
