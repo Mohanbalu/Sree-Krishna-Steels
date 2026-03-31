@@ -6,6 +6,7 @@ interface UserProfile {
   id: string;
   name: string;
   email: string;
+  phone?: string;
   role: 'super_admin' | 'admin' | 'staff' | 'customer';
   created_at: string;
 }
@@ -34,7 +35,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     // Initial session check
     const { data: { session } } = await supabase.auth.getSession();
     
-    const fetchProfile = async (userId: string, userEmail?: string, userName?: string) => {
+    const fetchProfile = async (userId: string, userEmail?: string, userName?: string, userPhone?: string) => {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -51,7 +52,8 @@ export const useAuthStore = create<AuthState>((set) => ({
               { 
                 id: userId, 
                 name: userName || 'User', 
-                email: userEmail, 
+                email: userEmail,
+                phone: userPhone,
                 role: 'customer' 
               }
             ])
@@ -74,7 +76,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       const profile = await fetchProfile(
         session.user.id, 
         session.user.email, 
-        session.user.user_metadata?.full_name || session.user.user_metadata?.name
+        session.user.user_metadata?.full_name || session.user.user_metadata?.name,
+        session.user.user_metadata?.phone || session.user.phone
       );
       set({ user: session.user, profile, loading: false, initialized: true });
     } else {
@@ -87,7 +90,8 @@ export const useAuthStore = create<AuthState>((set) => ({
         const profile = await fetchProfile(
           session.user.id, 
           session.user.email, 
-          session.user.user_metadata?.full_name || session.user.user_metadata?.name
+          session.user.user_metadata?.full_name || session.user.user_metadata?.name,
+          session.user.user_metadata?.phone || session.user.phone
         );
         set({ user: session.user, profile, loading: false });
       } else {

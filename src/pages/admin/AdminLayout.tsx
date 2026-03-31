@@ -14,6 +14,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { useCartStore } from '../../store/cartStore';
 import { supabase } from '../../lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
@@ -31,6 +32,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const handleLogout = async () => {
     try {
+      // Clear cart on logout
+      useCartStore.getState().clearCart();
+      
       if (supabase) {
         const { error } = await supabase.auth.signOut();
         if (error) throw error;

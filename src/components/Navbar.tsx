@@ -25,6 +25,9 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
+      // Clear cart on logout
+      useCartStore.getState().clearCart();
+      
       if (supabase) {
         const { error } = await supabase.auth.signOut();
         if (error) throw error;
@@ -105,17 +108,19 @@ export default function Navbar() {
           <div className="h-4 w-px bg-brand-gold/20"></div>
 
           <div className="flex items-center gap-6">
-            <Link
-              to="/cart"
-              className={cn("relative p-2 transition-transform duration-300 hover:scale-110", textColor)}
-            >
-              <ShoppingCart size={20} strokeWidth={1.5} />
-              {cartCount > 0 && (
-                <span className="absolute top-0 right-0 bg-brand-gold text-brand-brown text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
+            {user && (
+              <Link
+                to="/cart"
+                className={cn("relative p-2 transition-transform duration-300 hover:scale-110", textColor)}
+              >
+                <ShoppingCart size={20} strokeWidth={1.5} />
+                {cartCount > 0 && (
+                  <span className="absolute top-0 right-0 bg-brand-gold text-brand-brown text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+            )}
 
             {user && (profile?.role === 'admin' || profile?.role === 'super_admin' || profile?.role === 'staff') && (
               <Link
@@ -157,17 +162,19 @@ export default function Navbar() {
 
         {/* Mobile Toggle */}
         <div className="flex items-center gap-4 lg:hidden">
-          <Link
-            to="/cart"
-            className={cn("relative p-2", textColor)}
-          >
-            <ShoppingCart size={24} />
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-brand-gold text-brand-brown text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                {cartCount}
-              </span>
-            )}
-          </Link>
+          {user && (
+            <Link
+              to="/cart"
+              className={cn("relative p-2", textColor)}
+            >
+              <ShoppingCart size={24} />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-brand-gold text-brand-brown text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+          )}
           <button 
             className={cn("transition-colors duration-300", textColor)} 
             onClick={() => setIsOpen(!isOpen)}

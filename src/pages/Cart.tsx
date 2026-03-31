@@ -1,10 +1,20 @@
 import { Link } from 'react-router-dom';
 import { useCartStore } from '../store/cartStore';
+import { useAuthStore } from '../store/authStore';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export default function Cart() {
   const { items, removeItem, updateQuantity, total } = useCartStore();
+  const { user, initialized } = useAuthStore();
+
+  if (!initialized || !user) {
+    return (
+      <div className="pt-32 pb-24 px-6 min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-gold"></div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (

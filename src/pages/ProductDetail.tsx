@@ -5,6 +5,7 @@ import { Check, ArrowLeft, Phone, MessageSquare, ShieldCheck, Package, Ruler, Sh
 import { useState, useEffect } from 'react';
 import { supabase, handleSupabaseError } from '../lib/supabase';
 import { useCartStore } from '../store/cartStore';
+import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
 
 export default function ProductDetail() {
@@ -15,6 +16,7 @@ export default function ProductDetail() {
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const addItem = useCartStore((state) => state.addItem);
+  const { user } = useAuthStore();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -85,6 +87,11 @@ export default function ProductDetail() {
   const numericPrice = typeof product.price === 'number' ? product.price : parseInt(product.price.replace(/[^0-9]/g, ''));
 
   const handleAddToCart = () => {
+    if (!user) {
+      toast.error('Please login to add items to cart');
+      navigate('/login', { state: { from: { pathname: `/products/${id}` } } });
+      return;
+    }
     addItem({
       id: product.id,
       title: product.title || product.name,

@@ -70,7 +70,11 @@ function AppContent() {
           <Route path="/signup" element={<Signup />} />
           
           {/* Customer Protected Routes */}
-          <Route path="/cart" element={<Cart />} />
+          <Route path="/cart" element={
+            <ProtectedRoute>
+              <Cart />
+            </ProtectedRoute>
+          } />
           <Route path="/checkout" element={
             <ProtectedRoute>
               <Checkout />
