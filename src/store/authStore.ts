@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { User } from '@supabase/supabase-js';
+import { useCartStore } from './cartStore';
 
 interface UserProfile {
   id: string;
@@ -81,6 +82,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       );
       set({ user: session.user, profile, loading: false, initialized: true });
     } else {
+      useCartStore.getState().clearCart();
       set({ user: null, profile: null, loading: false, initialized: true });
     }
 
@@ -95,6 +97,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         );
         set({ user: session.user, profile, loading: false });
       } else {
+        useCartStore.getState().clearCart();
         set({ user: null, profile: null, loading: false });
       }
     });
