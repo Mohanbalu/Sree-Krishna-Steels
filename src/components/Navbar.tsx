@@ -13,7 +13,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, profile } = useAuthStore();
+  const { user, profile, signOut } = useAuthStore();
   const cartItems = useCartStore((state) => state.items);
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -25,19 +25,12 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
-      // Clear local cart on logout (don't sync to Supabase so it's preserved for next login)
-      useCartStore.getState().clearCart(false);
-      
-      if (supabase) {
-        const { error } = await supabase.auth.signOut();
-        if (error) throw error;
-      }
+      await signOut();
       toast.success('Logged out successfully');
       navigate('/');
     } catch (error: any) {
       console.error('Logout error:', error);
       toast.error(error.message || 'Failed to sign out');
-      // Still navigate to home to clear local state
       navigate('/');
     }
   };

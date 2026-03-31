@@ -17,7 +17,7 @@ interface CartState {
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   setItems: (items: CartItem[]) => void;
-  clearCart: () => void;
+  clearCart: (sync?: boolean) => void;
   total: () => number;
   syncToSupabase: (userId: string) => Promise<void>;
   fetchFromSupabase: (userId: string) => Promise<void>;

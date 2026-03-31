@@ -19,6 +19,7 @@ interface AuthState {
   initialized: boolean;
   setProfile: (profile: UserProfile | null) => void;
   initialize: () => void;
+  signOut: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -27,6 +28,20 @@ export const useAuthStore = create<AuthState>((set) => ({
   loading: true,
   initialized: false,
   setProfile: (profile) => set({ profile }),
+  signOut: async () => {
+    try {
+      // Clear local state immediately for a snappy UI
+      set({ user: null, profile: null });
+      useCartStore.getState().clearCart(false);
+      
+      if (supabase) {
+        // Don't await this to avoid blocking the UI, but still call it
+        supabase.auth.signOut().catch(err => console.error('Supabase signOut error:', err));
+      }
+    } catch (error) {
+      console.error('Logout error in store:', error);
+    }
+  },
   initialize: async () => {
     if (!supabase) {
       set({ loading: false, initialized: true });
