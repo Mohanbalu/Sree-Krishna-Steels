@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
+import { toast } from 'sonner';
+
 const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string) || '';
 const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string) || '';
 
@@ -16,8 +18,14 @@ export const supabase = (supabaseUrl && supabaseAnonKey)
 export const handleSupabaseError = (error: any, operation: string) => {
   if (!supabase) {
     console.error('Supabase client is not initialized. Please check your environment variables.');
+    toast.error('Database connection error. Please try again later.');
     return;
   }
   console.error(`Supabase Error [${operation}]:`, error);
+  
+  // Provide user-friendly messages for common errors
+  const message = error?.message || 'An unexpected error occurred';
+  toast.error(`Error: ${message}`);
+  
   throw error;
 };

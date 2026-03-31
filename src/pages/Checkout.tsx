@@ -90,8 +90,14 @@ export default function Checkout() {
     }
 
     setLoading(true);
+    console.log('🚀 Starting order placement process...');
     try {
+      if (!supabase) {
+        throw new Error('Database connection not available. Please check your environment variables.');
+      }
+
       // 1. Create the order
+      console.log('📦 Creating order in Supabase...');
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert([
@@ -108,9 +114,19 @@ export default function Checkout() {
         .select()
         .single();
 
-      if (orderError) throw orderError;
+      if (orderError) {
+        console.error('❌ Order Creation Error:', orderError);
+        throw orderError;
+      }
+
+      if (!order) {
+        throw new Error('Order was created but no data was returned.');
+      }
+
+      console.log('✅ Order created successfully:', order.id);
 
       // 2. Create order items
+      console.log('🛍️ Creating order items...');
       const orderItems = items.map(item => ({
         order_id: order.id,
         product_id: item.id,
@@ -125,24 +141,32 @@ export default function Checkout() {
         .insert(orderItems);
 
       if (itemsError) {
-        console.error('Order Items Error:', itemsError);
+        console.error('❌ Order Items Error:', itemsError);
         throw new Error(`Failed to save order items: ${itemsError.message}`);
       }
+
+      console.log('✅ Order items created successfully');
       
       // WhatsApp Integration
-      const message = `*New Order from Sree Krishna Steels*%0A%0A` +
-        `*Order ID:* ${order.id}%0A` +
-        `*Customer:* ${formData.name}%0A` +
-        `*Phone:* ${formData.phone}%0A` +
-        `*Address:* ${formData.address}, ${formData.city} - ${formData.pincode}%0A%0A` +
-        `*Items:*%0A` +
-        items.map(item => `- ${item.title} x ${item.quantity} (₹${(item.price * item.quantity).toLocaleString()})`).join('%0A') +
-        `%0A%0A*Total Amount:* ₹${total().toLocaleString()}%0A` +
-        `*Payment Method:* ${formData.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}`;
+      try {
+        const message = `*New Order from Sree Krishna Steels*%0A%0A` +
+          `*Order ID:* ${order.id}%0A` +
+          `*Customer:* ${formData.name}%0A` +
+          `*Phone:* ${formData.phone}%0A` +
+          `*Address:* ${formData.address}, ${formData.city} - ${formData.pincode}%0A%0A` +
+          `*Items:*%0A` +
+          items.map(item => `- ${item.title} x ${item.quantity} (₹${(item.price * item.quantity).toLocaleString()})`).join('%0A') +
+          `%0A%0A*Total Amount:* ₹${total().toLocaleString()}%0A` +
+          `*Payment Method:* ${formData.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}`;
 
-      window.open(`https://wa.me/919949666666?text=${message}`, '_blank');
+        console.log('📱 Opening WhatsApp...');
+        window.open(`https://wa.me/919949666666?text=${message}`, '_blank');
+      } catch (wsError) {
+        console.warn('⚠️ WhatsApp redirect failed, but order was placed:', wsError);
+      }
       
       // Send mock email
+      console.log('📧 Sending confirmation email...');
       await emailService.sendOrderConfirmation({
         order_id: order.id,
         customer_name: formData.name,
@@ -151,13 +175,16 @@ export default function Checkout() {
         items: items.map(i => i.title)
       });
       
+      console.log('🧹 Clearing cart and navigating...');
       clearCart();
       toast.success('Order placed successfully!');
       navigate('/orders');
-    } catch (error) {
+    } catch (error: any) {
+      console.error('🛑 Checkout Process Failed:', error);
       handleSupabaseError(error, 'placeOrder');
     } finally {
       setLoading(false);
+      console.log('🏁 Checkout process finished');
     }
   };
 
