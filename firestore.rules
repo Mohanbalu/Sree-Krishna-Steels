@@ -36,7 +36,7 @@ service cloud.firestore {
     //   - products: list (required)
     //   - totalAmount: number (required)
     //   - status: string (required, enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered'])
-    //   - address: map (required)
+    //   - shipping_address: string (required)
     //   - createdAt: timestamp (required)
     //
     // ===============================================================
@@ -81,13 +81,13 @@ service cloud.firestore {
     }
 
     function isValidOrder(data) {
-      return data.keys().hasAll(['id', 'userId', 'products', 'totalAmount', 'status', 'address', 'createdAt']) &&
+      return data.keys().hasAll(['id', 'userId', 'products', 'totalAmount', 'status', 'shipping_address', 'createdAt']) &&
              data.id is string &&
              data.userId is string &&
              data.products is list && data.products.size() > 0 &&
              data.totalAmount is number && data.totalAmount >= 0 &&
              data.status in ['Pending', 'Confirmed', 'Shipped', 'Delivered'] &&
-             data.address is map &&
+             data.shipping_address is string &&
              data.createdAt is timestamp;
     }
 

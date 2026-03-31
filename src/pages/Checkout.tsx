@@ -99,7 +99,7 @@ export default function Checkout() {
             user_id: user.id,
             total_amount: total(),
             status: 'pending',
-            address: `${formData.address}, ${formData.city} - ${formData.pincode}`,
+            shipping_address: `${formData.address}, ${formData.city} - ${formData.pincode}`,
             payment_method: formData.paymentMethod,
             customer_name: formData.name,
             customer_phone: formData.phone

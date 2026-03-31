@@ -10,7 +10,7 @@ interface Order {
   user_id: string;
   customer_name: string;
   customer_phone: string;
-  address: string;
+  shipping_address: string;
   order_items: any[];
   total_amount: number;
   status: 'pending' | 'confirmed' | 'shipped' | 'delivered';
@@ -281,7 +281,7 @@ export default function OrderManagement() {
                                   <Phone size={16} className="text-brand-gold" /> {order.customer_phone}
                                 </p>
                                 <p className="flex items-start gap-3 text-sm text-brand-brown/70 font-medium leading-relaxed">
-                                  <MapPin size={16} className="text-brand-gold mt-1 shrink-0" /> {order.address}
+                                  <MapPin size={16} className="text-brand-gold mt-1 shrink-0" /> {order.shipping_address}
                                 </p>
                               </div>
                             </div>

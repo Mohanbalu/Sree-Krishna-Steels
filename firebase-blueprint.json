@@ -40,13 +40,13 @@
         "user_id": { "type": "string", "description": "The ID of the user who placed the order." },
         "total_amount": { "type": "number", "description": "The total amount of the order." },
         "status": { "type": "string", "enum": ["pending", "confirmed", "shipped", "delivered"], "description": "The status of the order." },
-        "address": { "type": "string", "description": "The shipping address." },
+        "shipping_address": { "type": "string", "description": "The shipping address." },
         "payment_method": { "type": "string", "description": "The payment method used." },
         "customer_name": { "type": "string", "description": "The name of the customer." },
         "customer_phone": { "type": "string", "description": "The phone number of the customer." },
         "created_at": { "type": "string", "format": "date-time", "description": "When the order was created." }
       },
-      "required": ["id", "user_id", "total_amount", "status", "address", "created_at"]
+      "required": ["id", "user_id", "total_amount", "status", "shipping_address", "created_at"]
     },
     "order_items": {
       "title": "Order Item",

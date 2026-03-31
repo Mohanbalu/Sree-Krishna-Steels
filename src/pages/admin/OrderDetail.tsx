@@ -24,7 +24,7 @@ interface Order {
   user_id: string;
   customer_name: string;
   customer_phone: string;
-  address: string;
+  shipping_address: string;
   order_items: any[];
   total_amount: number;
   status: 'pending' | 'confirmed' | 'shipped' | 'delivered';
@@ -351,7 +351,7 @@ export default function OrderDetail() {
                 </div>
                 <div className="flex items-start gap-3 text-sm text-gray-600">
                   <MapPin size={16} className="text-brand-gold mt-1 shrink-0" />
-                  <span className="font-medium leading-relaxed">{order.address}</span>
+                  <span className="font-medium leading-relaxed">{order.shipping_address}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-gray-600">
                   <CreditCard size={16} className="text-brand-gold" />
