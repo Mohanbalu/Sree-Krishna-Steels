@@ -25,12 +25,17 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      if (supabase) {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+      }
       toast.success('Logged out successfully');
       navigate('/');
     } catch (error: any) {
-      toast.error(error.message);
+      console.error('Logout error:', error);
+      toast.error(error.message || 'Failed to sign out');
+      // Still navigate to home to clear local state
+      navigate('/');
     }
   };
 

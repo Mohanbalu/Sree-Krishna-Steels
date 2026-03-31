@@ -17,6 +17,7 @@ import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
+import { toast } from 'sonner';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -29,8 +30,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate('/login');
+    try {
+      if (supabase) {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+      }
+      toast.success('Logged out successfully');
+      navigate('/login');
+    } catch (error: any) {
+      console.error('Logout error:', error);
+      toast.error(error.message || 'Failed to sign out');
+      // Still navigate to login to clear local session state
+      navigate('/login');
+    }
   };
 
   const menuItems = [
