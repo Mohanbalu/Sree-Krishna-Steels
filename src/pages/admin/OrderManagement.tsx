@@ -10,14 +10,14 @@ import { useAuthStore } from '../../store/authStore';
 interface Order {
   id: string;
   user_id: string;
-  customer_name: string;
-  customer_phone: string;
+  customer_name?: string;
+  customer_phone?: string;
   shipping_address: string;
   order_items: any[];
   total_amount: number;
-  status: 'Pending' | 'Confirmed' | 'Shipped' | 'Delivered';
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   payment_method: string;
-  payment_status?: 'Pending' | 'Paid' | 'Failed';
+  payment_status?: 'pending' | 'paid' | 'failed';
   created_at: string;
   driver_name?: string;
   delivery_days?: number;
@@ -152,8 +152,9 @@ export default function OrderManagement() {
   const filteredOrders = orders.filter(order => {
     const matchesSearch = 
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer_phone.includes(searchTerm);
+      order.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customer_phone?.includes(searchTerm) ||
+      (order as any).phone?.includes(searchTerm);
     
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     const matchesPayment = paymentFilter === 'all' || order.payment_status === paymentFilter;
@@ -162,30 +163,33 @@ export default function OrderManagement() {
   });
 
   const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'Pending': return <Clock size={16} />;
-      case 'Confirmed': return <Package size={16} />;
-      case 'Shipped': return <Truck size={16} />;
-      case 'Delivered': return <CheckCircle size={16} />;
+    const s = status?.toLowerCase();
+    switch (s) {
+      case 'pending': return <Clock size={16} />;
+      case 'processing': return <Package size={16} />;
+      case 'shipped': return <Truck size={16} />;
+      case 'delivered': return <CheckCircle size={16} />;
       default: return <Clock size={16} />;
     }
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Pending': return 'bg-orange-100 text-orange-700';
-      case 'Confirmed': return 'bg-blue-100 text-blue-700';
-      case 'Shipped': return 'bg-purple-100 text-purple-700';
-      case 'Delivered': return 'bg-green-100 text-green-700';
+    const s = status?.toLowerCase();
+    switch (s) {
+      case 'pending': return 'bg-orange-100 text-orange-700';
+      case 'processing': return 'bg-blue-100 text-blue-700';
+      case 'shipped': return 'bg-purple-100 text-purple-700';
+      case 'delivered': return 'bg-green-100 text-green-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   };
 
   const getPaymentStatusColor = (status: string) => {
-    switch (status) {
-      case 'Paid': return 'bg-green-100 text-green-700';
-      case 'Pending': return 'bg-yellow-100 text-yellow-700';
-      case 'Failed': return 'bg-red-100 text-red-700';
+    const s = status?.toLowerCase();
+    switch (s) {
+      case 'paid': return 'bg-green-100 text-green-700';
+      case 'pending': return 'bg-yellow-100 text-yellow-700';
+      case 'failed': return 'bg-red-100 text-red-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   };
@@ -358,10 +362,11 @@ export default function OrderManagement() {
                                     value={order.status}
                                     className={cn("w-full px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-[0.2em] outline-none border border-brand-brown/5 focus:ring-2 focus:ring-brand-gold shadow-sm transition-all cursor-pointer", getStatusColor(order.status))}
                                   >
-                                    <option value="Pending">Pending</option>
-                                    <option value="Confirmed">Confirmed</option>
-                                    <option value="Shipped">Shipped</option>
-                                    <option value="Delivered">Delivered</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="processing">Processing</option>
+                                    <option value="shipped">Shipped</option>
+                                    <option value="delivered">Delivered</option>
+                                    <option value="cancelled">Cancelled</option>
                                   </select>
                                 </div>
                               </div>
@@ -370,12 +375,12 @@ export default function OrderManagement() {
                                 <div onClick={(e) => e.stopPropagation()}>
                                   <select
                                     onChange={(e) => updatePaymentStatus(order.id, e.target.value)}
-                                    value={order.payment_status || 'Pending'}
-                                    className={cn("w-full px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-[0.2em] outline-none border border-brand-brown/5 focus:ring-2 focus:ring-brand-gold shadow-sm transition-all cursor-pointer", getPaymentStatusColor(order.payment_status || 'Pending'))}
+                                    value={order.payment_status || 'pending'}
+                                    className={cn("w-full px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-[0.2em] outline-none border border-brand-brown/5 focus:ring-2 focus:ring-brand-gold shadow-sm transition-all cursor-pointer", getPaymentStatusColor(order.payment_status || 'pending'))}
                                   >
-                                    <option value="Pending">Pending</option>
-                                    <option value="Paid">Paid</option>
-                                    <option value="Failed">Failed</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="paid">Paid</option>
+                                    <option value="failed">Failed</option>
                                   </select>
                                 </div>
                               </div>
@@ -428,11 +433,11 @@ export default function OrderManagement() {
                             <div className="relative pl-10 space-y-10 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-brand-brown/5">
                               {[
                                 { status: 'pending', label: 'Order Initiated', desc: 'Client submitted the request' },
-                                { status: 'confirmed', label: 'Quality Verification', desc: 'Order confirmed and items allocated' },
+                                { status: 'processing', label: 'Processing', desc: 'Order confirmed and items allocated' },
                                 { status: 'shipped', label: 'In Transit', desc: 'Dispatched via premium courier' },
                                 { status: 'delivered', label: 'Handover Complete', desc: 'Successfully delivered to client' },
                               ].map((step, idx) => {
-                                const isCompleted = ['pending', 'confirmed', 'shipped', 'delivered'].indexOf(order.status) >= ['pending', 'confirmed', 'shipped', 'delivered'].indexOf(step.status);
+                                const isCompleted = ['pending', 'processing', 'shipped', 'delivered'].indexOf(order.status?.toLowerCase()) >= ['pending', 'processing', 'shipped', 'delivered'].indexOf(step.status);
                                 return (
                                   <div key={step.status} className="relative">
                                     <div className={`absolute -left-10 w-6 h-6 rounded-full border-4 border-white shadow-xl z-10 transition-all duration-500 ${isCompleted ? 'bg-brand-gold scale-110' : 'bg-brand-brown/5'}`} />

@@ -53,7 +53,7 @@
         "id": { "type": "string", "description": "The unique identifier for the order." },
         "user_id": { "type": "string", "description": "The ID of the user who placed the order." },
         "total_amount": { "type": "number", "description": "The total amount of the order." },
-        "status": { "type": "string", "enum": ["pending", "confirmed", "shipped", "delivered"], "description": "The status of the order." },
+        "status": { "type": "string", "enum": ["pending", "processing", "shipped", "delivered", "cancelled"], "description": "The status of the order." },
         "payment_status": { "type": "string", "enum": ["pending", "paid", "failed"], "description": "The payment status of the order." },
         "shipping_address": { "type": "string", "description": "The shipping address." },
         "payment_method": { "type": "string", "description": "The payment method used." },

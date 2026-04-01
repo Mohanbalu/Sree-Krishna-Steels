@@ -134,6 +134,13 @@ export default function Navbar() {
                 >
                   <User size={20} strokeWidth={1.5} />
                 </Link>
+                <Link
+                  to="/orders"
+                  className={cn("p-2 transition-transform duration-300 hover:scale-110", textColor)}
+                  title="My Orders"
+                >
+                  <Package size={20} strokeWidth={1.5} />
+                </Link>
                 <button
                   onClick={handleLogout}
                   className={cn("p-2 transition-transform duration-300 hover:scale-110", textColor)}

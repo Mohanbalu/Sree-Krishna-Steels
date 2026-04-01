@@ -122,12 +122,13 @@ export default function Checkout() {
           {
             user_id: user.id,
             total_amount: total(),
-            status: 'Pending',
+            status: 'pending',
+            payment_status: 'pending',
             shipping_address: `${formData.address}, ${formData.city} - ${formData.pincode}`,
+            address: `${formData.address}, ${formData.city} - ${formData.pincode}`,
             payment_method: formData.paymentMethod,
             customer_name: formData.name,
             customer_phone: formData.phone,
-            customer_email: formData.email,
             phone: formData.phone
           },
         ])
@@ -143,7 +144,7 @@ export default function Checkout() {
         throw new Error('Order was created but no data was returned.');
       }
 
-      console.log('✅ Order created successfully:', order.id, 'Email:', order.customer_email);
+      console.log('✅ Order created successfully:', order.id, 'Email:', formData.email);
 
       // 2. Create order items
       console.log('🛍️ Creating order items...');
@@ -166,24 +167,6 @@ export default function Checkout() {
       }
 
       console.log('✅ Order items created successfully');
-      
-      // WhatsApp Integration
-      try {
-        const message = `*New Order from Sree Krishna Steels*%0A%0A` +
-          `*Order ID:* ${order.id}%0A` +
-          `*Customer:* ${formData.name}%0A` +
-          `*Phone:* ${formData.phone}%0A` +
-          `*Address:* ${formData.address}, ${formData.city} - ${formData.pincode}%0A%0A` +
-          `*Items:*%0A` +
-          items.map(item => `- ${item.title} x ${item.quantity} (₹${(item.price * item.quantity).toLocaleString()})`).join('%0A') +
-          `%0A%0A*Total Amount:* ₹${total().toLocaleString()}%0A` +
-          `*Payment Method:* ${formData.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}`;
-
-        console.log('📱 Opening WhatsApp...');
-        window.open(`https://wa.me/919949666666?text=${message}`, '_blank');
-      } catch (wsError) {
-        console.warn('⚠️ WhatsApp redirect failed, but order was placed:', wsError);
-      }
       
       // Send mock email
       console.log('📧 Sending confirmation email to:', formData.email);

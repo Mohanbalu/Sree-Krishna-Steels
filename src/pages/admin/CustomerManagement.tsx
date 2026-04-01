@@ -262,21 +262,23 @@ export default function CustomerManagement() {
 }
 
 function getStatusIcon(status: string) {
-  switch (status) {
-    case 'Pending': return <Clock size={16} />;
-    case 'Confirmed': return <Package size={16} />;
-    case 'Shipped': return <Truck size={16} />;
-    case 'Delivered': return <CheckCircle size={16} />;
+  const s = status?.toLowerCase();
+  switch (s) {
+    case 'pending': return <Clock size={16} />;
+    case 'processing': return <Package size={16} />;
+    case 'shipped': return <Truck size={16} />;
+    case 'delivered': return <CheckCircle size={16} />;
     default: return <Clock size={16} />;
   }
 }
 
 function getStatusColor(status: string) {
-  switch (status) {
-    case 'Pending': return 'bg-orange-100 text-orange-700';
-    case 'Confirmed': return 'bg-blue-100 text-blue-700';
-    case 'Shipped': return 'bg-purple-100 text-purple-700';
-    case 'Delivered': return 'bg-green-100 text-green-700';
+  const s = status?.toLowerCase();
+  switch (s) {
+    case 'pending': return 'bg-orange-100 text-orange-700';
+    case 'processing': return 'bg-blue-100 text-blue-700';
+    case 'shipped': return 'bg-purple-100 text-purple-700';
+    case 'delivered': return 'bg-green-100 text-green-700';
     default: return 'bg-gray-100 text-gray-700';
   }
 }

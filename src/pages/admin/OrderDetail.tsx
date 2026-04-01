@@ -23,16 +23,16 @@ import { useAuthStore } from '../../store/authStore';
 interface Order {
   id: string;
   user_id: string;
-  customer_name: string;
-  customer_phone: string;
+  customer_name?: string;
+  customer_phone?: string;
   name?: string;
   phone?: string;
   shipping_address: string;
   order_items: any[];
   total_amount: number;
-  status: 'Pending' | 'Confirmed' | 'Shipped' | 'Delivered';
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   payment_method: string;
-  payment_status?: 'Pending' | 'Paid' | 'Failed';
+  payment_status?: 'pending' | 'paid' | 'failed';
   created_at: string;
   driver_name?: string;
   delivery_days?: number;
@@ -304,11 +304,11 @@ export default function OrderDetail() {
             <div className="relative pl-10 space-y-12 before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-100">
               {[
                 { status: 'Pending', label: 'Order Placed', date: order.created_at, desc: 'The order has been successfully placed by the customer.' },
-                { status: 'Confirmed', label: 'Order Confirmed', date: null, desc: 'The order has been reviewed and confirmed by our team.' },
+                { status: 'processing', label: 'Order Processing', date: null, desc: 'The order has been reviewed and is being processed by our team.' },
                 { status: 'Shipped', label: 'Order Shipped', date: null, desc: 'The package has been handed over to the courier partner.' },
                 { status: 'Delivered', label: 'Order Delivered', date: null, desc: 'The customer has received the package.' },
               ].map((step, idx) => {
-                const isCompleted = ['pending', 'confirmed', 'shipped', 'delivered'].indexOf(order.status) >= ['pending', 'confirmed', 'shipped', 'delivered'].indexOf(step.status);
+                const isCompleted = ['pending', 'processing', 'shipped', 'delivered'].indexOf(order.status?.toLowerCase()) >= ['pending', 'processing', 'shipped', 'delivered'].indexOf(step.status);
                 const isCurrent = order.status === step.status;
 
                 return (
@@ -345,22 +345,23 @@ export default function OrderDetail() {
                   value={order.status}
                   className={`w-full px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wider outline-none border-none focus:ring-2 focus:ring-brand-gold transition-all ${getStatusColor(order.status)}`}
                 >
-                  <option value="Pending">Pending</option>
-                  <option value="Confirmed">Confirmed</option>
-                  <option value="Shipped">Shipped</option>
-                  <option value="Delivered">Delivered</option>
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="delivered">Delivered</option>
+                  <option value="cancelled">Cancelled</option>
                 </select>
               </div>
               <div className="space-y-3">
                 <label className="text-sm font-bold text-gray-700">Payment Status</label>
                 <select
                   onChange={(e) => updatePaymentStatus(e.target.value)}
-                  value={order.payment_status || 'Pending'}
-                  className={`w-full px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wider outline-none border-none focus:ring-2 focus:ring-brand-gold transition-all ${getPaymentStatusColor(order.payment_status || 'Pending')}`}
+                  value={order.payment_status || 'pending'}
+                  className={`w-full px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wider outline-none border-none focus:ring-2 focus:ring-brand-gold transition-all ${getPaymentStatusColor(order.payment_status || 'pending')}`}
                 >
-                  <option value="Pending">Pending</option>
-                  <option value="Paid">Paid</option>
-                  <option value="Failed">Failed</option>
+                  <option value="pending">Pending</option>
+                  <option value="paid">Paid</option>
+                  <option value="failed">Failed</option>
                 </select>
               </div>
             </div>
@@ -451,20 +452,22 @@ export default function OrderDetail() {
 }
 
 function getStatusColor(status: string) {
-  switch (status) {
-    case 'Pending': return 'bg-orange-100 text-orange-700';
-    case 'Confirmed': return 'bg-blue-100 text-blue-700';
-    case 'Shipped': return 'bg-purple-100 text-purple-700';
-    case 'Delivered': return 'bg-green-100 text-green-700';
+  const s = status?.toLowerCase();
+  switch (s) {
+    case 'pending': return 'bg-orange-100 text-orange-700';
+    case 'processing': return 'bg-blue-100 text-blue-700';
+    case 'shipped': return 'bg-purple-100 text-purple-700';
+    case 'delivered': return 'bg-green-100 text-green-700';
     default: return 'bg-gray-100 text-gray-700';
   }
 }
 
 function getPaymentStatusColor(status: string) {
-  switch (status) {
-    case 'Paid': return 'bg-green-100 text-green-700';
-    case 'Pending': return 'bg-yellow-100 text-yellow-700';
-    case 'Failed': return 'bg-red-100 text-red-700';
+  const s = status?.toLowerCase();
+  switch (s) {
+    case 'paid': return 'bg-green-100 text-green-700';
+    case 'pending': return 'bg-yellow-100 text-yellow-700';
+    case 'failed': return 'bg-red-100 text-red-700';
     default: return 'bg-gray-100 text-gray-700';
   }
 }

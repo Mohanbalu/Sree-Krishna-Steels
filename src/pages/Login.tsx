@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
-import { LogIn, Mail, Lock, Chrome, Eye, EyeOff } from 'lucide-react';
+import { LogIn, Mail, Lock, Chrome, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showGoogleHint, setShowGoogleHint] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -17,12 +18,21 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setShowGoogleHint(false);
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      if (error) throw error;
+      if (error) {
+        if (error.message === 'Invalid login credentials') {
+          setShowGoogleHint(true);
+          toast.error('Invalid credentials. See the hint below.');
+        } else {
+          throw error;
+        }
+        return;
+      }
       toast.success('Logged in successfully!');
       navigate(from, { replace: true });
     } catch (error: any) {
@@ -70,6 +80,26 @@ export default function Login() {
           <h1 className="text-3xl font-serif text-brand-brown mb-2">Welcome Back</h1>
           <p className="text-brand-charcoal/60">Login to your Sree Krishna account</p>
         </div>
+
+        {showGoogleHint && (
+          <div className="mb-6 bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3 text-amber-800 animate-in fade-in slide-in-from-top-2 duration-300">
+            <AlertCircle size={20} className="text-amber-600 shrink-0 mt-0.5" />
+            <div className="space-y-2">
+              <p className="text-xs font-bold">Google Login detected?</p>
+              <p className="text-[11px] leading-relaxed opacity-90">
+                If you usually login with Google, you don't have a manual password yet. 
+                Please use the <strong>Google button</strong> below or click 
+                <button 
+                  onClick={handleForgotPassword}
+                  className="mx-1 text-brand-gold font-bold hover:underline"
+                >
+                  Forgot Password
+                </button>
+                to set one.
+              </p>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">

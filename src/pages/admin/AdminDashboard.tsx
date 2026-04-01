@@ -97,7 +97,7 @@ export default function AdminDashboard() {
         const dailyData = last7Days.map(date => {
           const dayOrders = ordersData?.filter(o => o.created_at.startsWith(date)) || [];
           const dayRevenue = dayOrders.reduce((sum, o) => {
-            if (o.payment_status === 'Paid' || o.status === 'Delivered') {
+            if (o.payment_status?.toLowerCase() === 'paid' || o.status?.toLowerCase() === 'delivered') {
               return sum + (o.total_amount || 0);
             }
             return sum;
@@ -415,8 +415,8 @@ export default function AdminDashboard() {
                   <tr key={order.id} className="hover:bg-brand-cream/10 transition-colors group">
                     <td className="px-10 py-6 font-mono text-xs font-bold text-brand-gold">#{order.id.slice(-8).toUpperCase()}</td>
                     <td className="px-10 py-6">
-                      <p className="font-bold text-brand-brown text-sm">{order.customer_name || 'Customer'}</p>
-                      <p className="text-[10px] text-brand-charcoal/40 font-medium">{order.customer_phone}</p>
+                      <p className="font-bold text-brand-brown text-sm">{order.customer_name || (order as any).name || 'Customer'}</p>
+                      <p className="text-[10px] text-brand-charcoal/40 font-medium">{order.customer_phone || (order as any).phone || 'No phone'}</p>
                     </td>
                     <td className="px-10 py-6 font-bold text-brand-brown text-sm">₹{order.total_amount.toLocaleString()}</td>
                     <td className="px-10 py-6">
@@ -530,12 +530,13 @@ function NotificationIcon({ type }: { type: string }) {
 }
 
 function getStatusColor(status: string) {
-  switch (status) {
-    case 'Pending': return 'bg-amber-50 text-amber-700 border border-amber-100';
-    case 'Confirmed': return 'bg-blue-50 text-blue-700 border border-blue-100';
-    case 'Shipped': return 'bg-indigo-50 text-indigo-700 border border-indigo-100';
-    case 'Delivered': return 'bg-emerald-50 text-emerald-700 border border-emerald-100';
-    case 'Cancelled': return 'bg-red-50 text-red-700 border border-red-100';
+  const s = status?.toLowerCase();
+  switch (s) {
+    case 'pending': return 'bg-amber-50 text-amber-700 border border-amber-100';
+    case 'processing': return 'bg-blue-50 text-blue-700 border border-blue-100';
+    case 'shipped': return 'bg-indigo-50 text-indigo-700 border border-indigo-100';
+    case 'delivered': return 'bg-emerald-50 text-emerald-700 border border-emerald-100';
+    case 'cancelled': return 'bg-red-50 text-red-700 border border-red-100';
     default: return 'bg-gray-50 text-gray-700 border border-gray-100';
   }
 }

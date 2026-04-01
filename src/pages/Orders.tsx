@@ -3,19 +3,27 @@ import { supabase, handleSupabaseError } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { Package, Truck, CheckCircle, Clock, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { cn } from '../lib/utils';
+import { toast } from 'sonner';
 
 interface Order {
   id: string;
   order_items: any[];
   total_amount: number;
-  status: 'Pending' | 'Confirmed' | 'Shipped' | 'Delivered';
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   created_at: string;
   payment_method: string;
+  shipping_address: string;
+  customer_name: string;
+  customer_phone: string;
+  driver_name?: string;
+  delivery_days?: number;
 }
 
 export default function Orders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const { user } = useAuthStore();
 
   useEffect(() => {
@@ -54,6 +62,10 @@ export default function Orders() {
       }, (payload) => {
         console.log('🔔 Real-time order change received in Orders.tsx:', payload);
         fetchOrders();
+        if (payload.eventType === 'UPDATE') {
+          const newStatus = (payload.new as any).status;
+          toast.info(`Order status updated to ${newStatus}!`);
+        }
       })
       .subscribe();
 
@@ -63,23 +75,43 @@ export default function Orders() {
   }, [user]);
 
   const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'Pending': return <Clock className="text-orange-500" />;
-      case 'Confirmed': return <Package className="text-blue-500" />;
-      case 'Shipped': return <Truck className="text-purple-500" />;
-      case 'Delivered': return <CheckCircle className="text-green-500" />;
+    const s = status.toLowerCase();
+    switch (s) {
+      case 'pending': return <Clock className="text-orange-500" />;
+      case 'processing': return <Package className="text-blue-500" />;
+      case 'shipped': return <Truck className="text-purple-500" />;
+      case 'delivered': return <CheckCircle className="text-green-500" />;
       default: return <Clock className="text-gray-500" />;
     }
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Pending': return 'bg-orange-100 text-orange-700';
-      case 'Confirmed': return 'bg-blue-100 text-blue-700';
-      case 'Shipped': return 'bg-purple-100 text-purple-700';
-      case 'Delivered': return 'bg-green-100 text-green-700';
+    const s = status.toLowerCase();
+    switch (s) {
+      case 'pending': return 'bg-orange-100 text-orange-700';
+      case 'processing': return 'bg-blue-100 text-blue-700';
+      case 'shipped': return 'bg-purple-100 text-purple-700';
+      case 'delivered': return 'bg-green-100 text-green-700';
       default: return 'bg-gray-100 text-gray-700';
     }
+  };
+
+  const getProgressWidth = (status: string) => {
+    const s = status.toLowerCase();
+    switch (s) {
+      case 'pending': return '0%';
+      case 'processing': return '33%';
+      case 'shipped': return '66%';
+      case 'delivered': return '100%';
+      default: return '0%';
+    }
+  };
+
+  const isStepCompleted = (currentStatus: string, step: string) => {
+    const stages = ['pending', 'processing', 'shipped', 'delivered'];
+    const currentIndex = stages.indexOf(currentStatus.toLowerCase());
+    const stepIndex = stages.indexOf(step.toLowerCase());
+    return stepIndex <= currentIndex;
   };
 
   if (loading) {
@@ -135,6 +167,57 @@ export default function Orders() {
                     </div>
                   </div>
 
+                  {/* Order Progress Tracker */}
+                  <div className="px-8 py-6 border-b border-brand-gold/5 bg-brand-cream/10">
+                    <div className="relative flex items-center justify-between">
+                      {/* Background Line */}
+                      <div className="absolute left-0 top-2 -translate-y-1/2 w-full h-1 bg-brand-gold/10 rounded-full z-0"></div>
+                      
+                      {/* Active Progress Line */}
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: getProgressWidth(order.status) }}
+                        transition={{ duration: 1.5, ease: "easeOut" }}
+                        className="absolute left-0 top-2 -translate-y-1/2 h-1 bg-brand-gold rounded-full z-0 shadow-[0_0_10px_rgba(212,175,55,0.3)]"
+                      ></motion.div>
+                      
+                      {/* Steps */}
+                      {['pending', 'processing', 'shipped', 'delivered'].map((step, idx) => (
+                        <div key={step} className="relative z-10 flex flex-col items-center gap-3">
+                          <motion.div 
+                            initial={false}
+                            animate={{ 
+                              scale: isStepCompleted(order.status, step) ? 1.2 : 1,
+                              backgroundColor: isStepCompleted(order.status, step) ? '#D4AF37' : '#FFFFFF'
+                            }}
+                            className={cn(
+                              "w-4 h-4 rounded-full border-2 transition-all duration-500",
+                              isStepCompleted(order.status, step) 
+                                ? "border-brand-gold shadow-[0_0_15px_rgba(212,175,55,0.5)]" 
+                                : "border-brand-gold/20"
+                            )}
+                          >
+                            {isStepCompleted(order.status, step) && (
+                              <motion.div 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="w-full h-full flex items-center justify-center"
+                              >
+                                <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                              </motion.div>
+                            )}
+                          </motion.div>
+                          <span className={cn(
+                            "text-[9px] font-bold uppercase tracking-[0.15em] transition-colors duration-500",
+                            isStepCompleted(order.status, step) ? "text-brand-gold" : "text-brand-charcoal/30"
+                          )}>
+                            {step}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="p-6 space-y-4">
                     {order.order_items.map((item, idx) => (
                       <div key={idx} className="flex items-center gap-4">
@@ -158,10 +241,58 @@ export default function Orders() {
                       <p className="text-xs font-bold uppercase tracking-widest text-brand-charcoal/40 mb-1">Total Amount</p>
                       <p className="text-xl font-bold text-brand-brown">₹{order.total_amount.toLocaleString()}</p>
                     </div>
-                    <button className="text-brand-gold font-bold text-sm flex items-center gap-1 hover:underline">
-                      View Details <ChevronRight size={16} />
+                    <button 
+                      onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
+                      className="text-brand-gold font-bold text-sm flex items-center gap-1 hover:underline"
+                    >
+                      {expandedOrderId === order.id ? 'Hide Details' : 'View Details'} 
+                      <ChevronRight size={16} className={cn("transition-transform", expandedOrderId === order.id && "rotate-90")} />
                     </button>
                   </div>
+
+                  <AnimatePresence>
+                    {expandedOrderId === order.id && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden border-t border-brand-gold/10"
+                      >
+                        <div className="p-8 bg-white grid grid-cols-1 md:grid-cols-2 gap-8">
+                          <div className="space-y-4">
+                            <h5 className="text-xs font-bold uppercase tracking-widest text-brand-gold">Shipping Information</h5>
+                            <div className="space-y-2">
+                              <p className="text-sm font-bold text-brand-brown">{order.customer_name}</p>
+                              <p className="text-sm text-brand-charcoal/70 leading-relaxed">{order.shipping_address}</p>
+                              <p className="text-sm text-brand-charcoal/70">{order.customer_phone}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-4">
+                            <h5 className="text-xs font-bold uppercase tracking-widest text-brand-gold">Order Details</h5>
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs text-brand-charcoal/40 uppercase font-bold">Payment Method</span>
+                                <span className="text-sm font-bold text-brand-brown uppercase">{order.payment_method}</span>
+                              </div>
+                              {order.driver_name && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-xs text-brand-charcoal/40 uppercase font-bold">Assigned Driver</span>
+                                  <span className="text-sm font-bold text-brand-brown">{order.driver_name}</span>
+                                </div>
+                              )}
+                              {order.delivery_days && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-xs text-brand-charcoal/40 uppercase font-bold">Est. Delivery</span>
+                                  <span className="text-sm font-bold text-brand-brown">{order.delivery_days} Days</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -170,8 +301,4 @@ export default function Orders() {
       </div>
     </div>
   );
-}
-
-function cn(...classes: any[]) {
-  return classes.filter(Boolean).join(' ');
 }

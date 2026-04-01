@@ -35,7 +35,7 @@ service cloud.firestore {
     //   - userId: string (required)
     //   - products: list (required)
     //   - totalAmount: number (required)
-    //   - status: string (required, enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered'])
+    //   - status: string (required, enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'])
     //   - shipping_address: string (required)
     //   - createdAt: timestamp (required)
     //
@@ -86,7 +86,7 @@ service cloud.firestore {
              data.userId is string &&
              data.products is list && data.products.size() > 0 &&
              data.totalAmount is number && data.totalAmount >= 0 &&
-             data.status in ['Pending', 'Confirmed', 'Shipped', 'Delivered'] &&
+             data.status in ['pending', 'processing', 'shipped', 'delivered', 'cancelled'] &&
              data.shipping_address is string &&
              data.createdAt is timestamp;
     }
