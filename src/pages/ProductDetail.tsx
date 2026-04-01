@@ -20,6 +20,13 @@ export default function ProductDetail() {
 
   useEffect(() => {
     const fetchProduct = async () => {
+      // Guard against invalid or missing ID
+      if (!id || id === 'undefined' || id === '[object Object]') {
+        console.warn('Invalid product ID provided:', id);
+        setLoading(false);
+        return;
+      }
+
       try {
         // Try Supabase first if client exists
         if (supabase) {

@@ -18,6 +18,7 @@ import {
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
 import { emailService } from '../../services/emailService';
+import { useAuthStore } from '../../store/authStore';
 
 interface Order {
   id: string;
@@ -29,9 +30,9 @@ interface Order {
   shipping_address: string;
   order_items: any[];
   total_amount: number;
-  status: 'pending' | 'confirmed' | 'shipped' | 'delivered';
+  status: 'Pending' | 'Confirmed' | 'Shipped' | 'Delivered';
   payment_method: string;
-  payment_status?: 'pending' | 'paid' | 'failed';
+  payment_status?: 'Pending' | 'Paid' | 'Failed';
   created_at: string;
   driver_name?: string;
   delivery_days?: number;
@@ -46,24 +47,40 @@ export default function OrderDetail() {
   const [updatingDriver, setUpdatingDriver] = useState(false);
   const [driverName, setDriverName] = useState('');
   const [deliveryDays, setDeliveryDays] = useState(3);
+  const { profile } = useAuthStore();
 
   useEffect(() => {
     const fetchOrder = async () => {
+      // Guard against invalid or missing ID
+      if (!id || id === 'undefined' || id === '[object Object]' || id.length < 10) {
+        console.warn('⚠️ Invalid order ID provided to OrderDetail:', id);
+        setLoading(false);
+        // Only navigate if it's clearly a broken ID
+        if (id === 'undefined' || id === '[object Object]') {
+          navigate('/admin/orders');
+        }
+        return;
+      }
+
+      console.log('🔍 Fetching order details for ID:', id);
       try {
         const { data, error } = await supabase
           .from('orders')
           .select(`
             *,
-            order_items (*)
+            order_items (*),
+            profiles:user_id (email)
           `)
           .eq('id', id)
           .single();
 
         if (error) throw error;
+        console.log('✅ Order data fetched:', data.id, 'Status:', data.status);
         setOrder(data);
         setDriverName(data.driver_name || '');
         setDeliveryDays(data.delivery_days || 3);
       } catch (error) {
+        console.error('❌ Error fetching order:', error);
         handleSupabaseError(error, 'fetchOrder');
         navigate('/admin/orders');
       } finally {
@@ -75,69 +92,134 @@ export default function OrderDetail() {
   }, [id, navigate]);
 
   const updateStatus = async (newStatus: string) => {
+    console.log(`🔄 Attempting to update order ${id} status to: ${newStatus}`);
     try {
-      const { error } = await supabase
+      const { error, count } = await supabase
         .from('orders')
-        .update({ status: newStatus })
+        .update({ status: newStatus }, { count: 'exact' })
         .eq('id', id);
 
       if (error) throw error;
-      setOrder(prev => prev ? { ...prev, status: newStatus as any } : null);
+      
+      if (count === 0) {
+        console.warn(`⚠️ Update matched 0 rows. User role: ${profile?.role}. Check RLS policies or if order exists.`);
+        toast.error(`Failed to update status: Access denied for your role (${profile?.role?.replace('_', ' ') || 'unknown'}).`);
+        return;
+      }
+
+      console.log('✅ Order status updated in DB. Rows affected:', count);
+      
+      setOrder(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          status: newStatus as any
+        };
+      });
+      
       toast.success(`Order status updated to ${newStatus}`);
       
       // Send status update email
-      if (order?.customer_email) {
-        await emailService.sendOrderStatusUpdate(id!, newStatus, order.customer_email);
+      const email = order?.customer_email || (order as any)?.profiles?.email;
+      if (email && email !== 'customer@example.com') {
+        console.log('📧 Sending status update email to:', email);
+        await emailService.sendOrderStatusUpdate(id!, newStatus, email);
+      } else {
+        console.warn('⚠️ Skipping status update email: No valid customer email found for order:', id);
       }
     } catch (error) {
+      console.error('❌ Update Status Error:', error);
       handleSupabaseError(error, 'updateStatus');
     }
   };
 
   const updatePaymentStatus = async (newStatus: string) => {
+    console.log(`🔄 Attempting to update order ${id} payment status to: ${newStatus}`);
     try {
-      const { error } = await supabase
+      const { error, count } = await supabase
         .from('orders')
-        .update({ payment_status: newStatus })
+        .update({ payment_status: newStatus }, { count: 'exact' })
         .eq('id', id);
 
       if (error) throw error;
-      setOrder(prev => prev ? { ...prev, payment_status: newStatus as any } : null);
+      
+      if (count === 0) {
+        console.warn(`⚠️ Update matched 0 rows for payment status. User role: ${profile?.role}.`);
+        toast.error(`Failed to update payment status: Access denied for your role (${profile?.role?.replace('_', ' ') || 'unknown'}).`);
+        return;
+      }
+
+      console.log('✅ Payment status updated in DB. Rows affected:', count);
+      
+      setOrder(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          payment_status: newStatus as any
+        };
+      });
+      
       toast.success(`Payment status updated to ${newStatus}`);
     } catch (error) {
+      console.error('❌ Update Payment Status Error:', error);
       handleSupabaseError(error, 'updatePaymentStatus');
     }
   };
 
   const handleAssignDriver = async () => {
+    if (!id || id === 'undefined') {
+      toast.error('Invalid Order ID');
+      return;
+    }
+
+    console.log(`🚚 Assigning driver "${driverName}" to order ${id}`);
     setUpdatingDriver(true);
     try {
-      const { error } = await supabase
+      const { error, count } = await supabase
         .from('orders')
         .update({ 
           driver_name: driverName,
           delivery_days: deliveryDays
-        })
+        }, { count: 'exact' })
         .eq('id', id);
 
       if (error) {
-        // If columns don't exist, we'll just simulate it for now
-        console.warn('Could not update driver info in DB (columns might be missing):', error);
-        toast.info('Driver assigned (simulated - DB columns missing)');
+        console.warn('⚠️ Could not update driver info in DB:', error);
+        toast.info('Driver assigned (simulated - DB columns might be missing)');
+      } else if (count === 0) {
+        console.warn(`⚠️ Update matched 0 rows for driver assignment. User role: ${profile?.role}.`);
+        toast.error(`Failed to assign driver: Access denied for your role (${profile?.role?.replace('_', ' ') || 'unknown'}).`);
       } else {
+        console.log('✅ Driver assigned in DB. Rows affected:', count);
         toast.success('Driver assigned successfully');
       }
 
-      setOrder(prev => prev ? { ...prev, driver_name: driverName, delivery_days: deliveryDays } : null);
+      // Update local state regardless of DB success for better UX if it was simulated
+      setOrder(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          driver_name: driverName,
+          delivery_days: deliveryDays
+        };
+      });
       
       // Send delivery assignment email
-      await emailService.sendDeliveryAssignment(
-        id!, 
-        driverName, 
-        deliveryDays, 
-        order?.customer_email || 'customer@example.com'
-      );
+      const email = order?.customer_email || (order as any)?.profiles?.email;
+      if (email && email !== 'customer@example.com') {
+        console.log('📧 Sending delivery assignment email to:', email);
+        await emailService.sendDeliveryAssignment(
+          id!, 
+          driverName, 
+          deliveryDays, 
+          email
+        );
+      } else {
+        console.warn('⚠️ Skipping delivery assignment email: No valid customer email found for order:', id);
+        toast.warning('Driver assigned but no customer email found for notification.');
+      }
     } catch (error) {
+      console.error('❌ Assign Driver Error:', error);
       handleSupabaseError(error, 'assignDriver');
     } finally {
       setUpdatingDriver(false);
@@ -221,10 +303,10 @@ export default function OrderDetail() {
             </h2>
             <div className="relative pl-10 space-y-12 before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-100">
               {[
-                { status: 'pending', label: 'Order Placed', date: order.created_at, desc: 'The order has been successfully placed by the customer.' },
-                { status: 'confirmed', label: 'Order Confirmed', date: null, desc: 'The order has been reviewed and confirmed by our team.' },
-                { status: 'shipped', label: 'Order Shipped', date: null, desc: 'The package has been handed over to the courier partner.' },
-                { status: 'delivered', label: 'Order Delivered', date: null, desc: 'The customer has received the package.' },
+                { status: 'Pending', label: 'Order Placed', date: order.created_at, desc: 'The order has been successfully placed by the customer.' },
+                { status: 'Confirmed', label: 'Order Confirmed', date: null, desc: 'The order has been reviewed and confirmed by our team.' },
+                { status: 'Shipped', label: 'Order Shipped', date: null, desc: 'The package has been handed over to the courier partner.' },
+                { status: 'Delivered', label: 'Order Delivered', date: null, desc: 'The customer has received the package.' },
               ].map((step, idx) => {
                 const isCompleted = ['pending', 'confirmed', 'shipped', 'delivered'].indexOf(order.status) >= ['pending', 'confirmed', 'shipped', 'delivered'].indexOf(step.status);
                 const isCurrent = order.status === step.status;
@@ -263,22 +345,22 @@ export default function OrderDetail() {
                   value={order.status}
                   className={`w-full px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wider outline-none border-none focus:ring-2 focus:ring-brand-gold transition-all ${getStatusColor(order.status)}`}
                 >
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="shipped">Shipped</option>
-                  <option value="delivered">Delivered</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Confirmed">Confirmed</option>
+                  <option value="Shipped">Shipped</option>
+                  <option value="Delivered">Delivered</option>
                 </select>
               </div>
               <div className="space-y-3">
                 <label className="text-sm font-bold text-gray-700">Payment Status</label>
                 <select
                   onChange={(e) => updatePaymentStatus(e.target.value)}
-                  value={order.payment_status || 'pending'}
-                  className={`w-full px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wider outline-none border-none focus:ring-2 focus:ring-brand-gold transition-all ${getPaymentStatusColor(order.payment_status || 'pending')}`}
+                  value={order.payment_status || 'Pending'}
+                  className={`w-full px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wider outline-none border-none focus:ring-2 focus:ring-brand-gold transition-all ${getPaymentStatusColor(order.payment_status || 'Pending')}`}
                 >
-                  <option value="pending">Pending</option>
-                  <option value="paid">Paid</option>
-                  <option value="failed">Failed</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Paid">Paid</option>
+                  <option value="Failed">Failed</option>
                 </select>
               </div>
             </div>
@@ -369,20 +451,20 @@ export default function OrderDetail() {
 }
 
 function getStatusColor(status: string) {
-  switch (status.toLowerCase()) {
-    case 'pending': return 'bg-orange-100 text-orange-700';
-    case 'confirmed': return 'bg-blue-100 text-blue-700';
-    case 'shipped': return 'bg-purple-100 text-purple-700';
-    case 'delivered': return 'bg-green-100 text-green-700';
+  switch (status) {
+    case 'Pending': return 'bg-orange-100 text-orange-700';
+    case 'Confirmed': return 'bg-blue-100 text-blue-700';
+    case 'Shipped': return 'bg-purple-100 text-purple-700';
+    case 'Delivered': return 'bg-green-100 text-green-700';
     default: return 'bg-gray-100 text-gray-700';
   }
 }
 
 function getPaymentStatusColor(status: string) {
-  switch (status.toLowerCase()) {
-    case 'paid': return 'bg-green-100 text-green-700';
-    case 'pending': return 'bg-yellow-100 text-yellow-700';
-    case 'failed': return 'bg-red-100 text-red-700';
+  switch (status) {
+    case 'Paid': return 'bg-green-100 text-green-700';
+    case 'Pending': return 'bg-yellow-100 text-yellow-700';
+    case 'Failed': return 'bg-red-100 text-red-700';
     default: return 'bg-gray-100 text-gray-700';
   }
 }

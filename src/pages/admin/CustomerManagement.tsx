@@ -11,18 +11,37 @@ export default function CustomerManagement() {
 
   useEffect(() => {
     const fetchCustomers = async () => {
+      setLoading(true);
       try {
-        const { data, error } = await supabase
+        // Fetch profiles first
+        const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
-          .select('*, orders(id, total_amount, status, created_at, payment_status)')
+          .select('*')
           .eq('role', 'customer')
           .order('created_at', { ascending: false });
 
-        if (error) throw error;
-        setCustomers(data || []);
-        setLoading(false);
+        if (profilesError) throw profilesError;
+
+        // Fetch orders separately to avoid join issues if relationship isn't set in schema cache
+        const { data: ordersData, error: ordersError } = await supabase
+          .from('orders')
+          .select('id, user_id, total_amount, status, created_at, payment_status');
+
+        if (ordersError) {
+          console.warn('Could not fetch orders for customers:', ordersError);
+        }
+
+        // Map orders to customers
+        const customersWithOrders = (profilesData || []).map(profile => ({
+          ...profile,
+          orders: (ordersData || []).filter(order => order.user_id === profile.id)
+        }));
+
+        setCustomers(customersWithOrders);
       } catch (error) {
         handleSupabaseError(error, 'fetchCustomers');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -207,12 +226,12 @@ export default function CustomerManagement() {
                         <div className="min-w-[120px]">
                           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/30 mb-1">Payment</p>
                           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                            order.payment_status === 'paid' 
+                            order.payment_status === 'Paid' 
                               ? 'bg-green-50 text-green-600 border-green-100' 
                               : 'bg-amber-50 text-amber-600 border-amber-100'
                           }`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${order.payment_status === 'paid' ? 'bg-green-500' : 'bg-amber-500'}`} />
-                            {order.payment_status || 'pending'}
+                            <span className={`w-1.5 h-1.5 rounded-full ${order.payment_status === 'Paid' ? 'bg-green-500' : 'bg-amber-500'}`} />
+                            {order.payment_status || 'Pending'}
                           </span>
                         </div>
 
@@ -243,21 +262,21 @@ export default function CustomerManagement() {
 }
 
 function getStatusIcon(status: string) {
-  switch (status.toLowerCase()) {
-    case 'pending': return <Clock size={16} />;
-    case 'confirmed': return <Package size={16} />;
-    case 'shipped': return <Truck size={16} />;
-    case 'delivered': return <CheckCircle size={16} />;
+  switch (status) {
+    case 'Pending': return <Clock size={16} />;
+    case 'Confirmed': return <Package size={16} />;
+    case 'Shipped': return <Truck size={16} />;
+    case 'Delivered': return <CheckCircle size={16} />;
     default: return <Clock size={16} />;
   }
 }
 
 function getStatusColor(status: string) {
-  switch (status.toLowerCase()) {
-    case 'pending': return 'bg-orange-100 text-orange-700';
-    case 'confirmed': return 'bg-blue-100 text-blue-700';
-    case 'shipped': return 'bg-purple-100 text-purple-700';
-    case 'delivered': return 'bg-green-100 text-green-700';
+  switch (status) {
+    case 'Pending': return 'bg-orange-100 text-orange-700';
+    case 'Confirmed': return 'bg-blue-100 text-blue-700';
+    case 'Shipped': return 'bg-purple-100 text-purple-700';
+    case 'Delivered': return 'bg-green-100 text-green-700';
     default: return 'bg-gray-100 text-gray-700';
   }
 }

@@ -8,7 +8,7 @@ interface Order {
   id: string;
   order_items: any[];
   total_amount: number;
-  status: 'pending' | 'confirmed' | 'shipped' | 'delivered';
+  status: 'Pending' | 'Confirmed' | 'Shipped' | 'Delivered';
   created_at: string;
   payment_method: string;
 }
@@ -51,7 +51,10 @@ export default function Orders() {
         schema: 'public', 
         table: 'orders',
         filter: `user_id=eq.${user.id}`
-      }, fetchOrders)
+      }, (payload) => {
+        console.log('🔔 Real-time order change received in Orders.tsx:', payload);
+        fetchOrders();
+      })
       .subscribe();
 
     return () => {
@@ -61,20 +64,20 @@ export default function Orders() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending': return <Clock className="text-orange-500" />;
-      case 'confirmed': return <Package className="text-blue-500" />;
-      case 'shipped': return <Truck className="text-purple-500" />;
-      case 'delivered': return <CheckCircle className="text-green-500" />;
+      case 'Pending': return <Clock className="text-orange-500" />;
+      case 'Confirmed': return <Package className="text-blue-500" />;
+      case 'Shipped': return <Truck className="text-purple-500" />;
+      case 'Delivered': return <CheckCircle className="text-green-500" />;
       default: return <Clock className="text-gray-500" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-orange-100 text-orange-700';
-      case 'confirmed': return 'bg-blue-100 text-blue-700';
-      case 'shipped': return 'bg-purple-100 text-purple-700';
-      case 'delivered': return 'bg-green-100 text-green-700';
+      case 'Pending': return 'bg-orange-100 text-orange-700';
+      case 'Confirmed': return 'bg-blue-100 text-blue-700';
+      case 'Shipped': return 'bg-purple-100 text-purple-700';
+      case 'Delivered': return 'bg-green-100 text-green-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   };

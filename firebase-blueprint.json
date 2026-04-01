@@ -31,6 +31,20 @@
       },
       "required": ["id", "title", "description", "price", "stock", "category", "image_url"]
     },
+    "notifications": {
+      "title": "Notification",
+      "description": "A notification or email log.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique identifier." },
+        "user_id": { "type": "string", "description": "The user ID." },
+        "type": { "type": "string", "description": "Type of notification (e.g., 'order_confirmation')." },
+        "message": { "type": "string", "description": "The message body." },
+        "read": { "type": "boolean", "description": "Whether it has been read." },
+        "created_at": { "type": "string", "format": "date-time", "description": "When it was created." }
+      },
+      "required": ["id", "type", "message"]
+    },
     "orders": {
       "title": "Order",
       "description": "A customer order.",
@@ -40,10 +54,15 @@
         "user_id": { "type": "string", "description": "The ID of the user who placed the order." },
         "total_amount": { "type": "number", "description": "The total amount of the order." },
         "status": { "type": "string", "enum": ["pending", "confirmed", "shipped", "delivered"], "description": "The status of the order." },
+        "payment_status": { "type": "string", "enum": ["pending", "paid", "failed"], "description": "The payment status of the order." },
         "shipping_address": { "type": "string", "description": "The shipping address." },
         "payment_method": { "type": "string", "description": "The payment method used." },
         "customer_name": { "type": "string", "description": "The name of the customer." },
         "customer_phone": { "type": "string", "description": "The phone number of the customer." },
+        "customer_email": { "type": "string", "format": "email", "description": "The email of the customer." },
+        "phone": { "type": "string", "description": "The phone number of the customer (legacy/required)." },
+        "driver_name": { "type": "string", "description": "The name of the assigned driver." },
+        "delivery_days": { "type": "integer", "description": "Estimated delivery time in days." },
         "created_at": { "type": "string", "format": "date-time", "description": "When the order was created." }
       },
       "required": ["id", "user_id", "total_amount", "status", "shipping_address", "created_at"]

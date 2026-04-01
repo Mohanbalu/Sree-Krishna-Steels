@@ -48,9 +48,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       return;
     }
 
-    // Initial session check
-    const { data: { session } } = await supabase.auth.getSession();
-    
     const fetchProfile = async (userId: string, userEmail?: string, userName?: string, userPhone?: string) => {
       const { data, error } = await supabase
         .from('profiles')
@@ -88,23 +85,47 @@ export const useAuthStore = create<AuthState>((set) => ({
       return data as UserProfile;
     };
 
-    if (session?.user) {
-      const profile = await fetchProfile(
-        session.user.id, 
-        session.user.email, 
-        session.user.user_metadata?.full_name || session.user.user_metadata?.name,
-        session.user.user_metadata?.phone || session.user.phone
-      );
-      // Fetch cart from Supabase on initial load
-      await useCartStore.getState().fetchFromSupabase(session.user.id);
-      set({ user: session.user, profile, loading: false, initialized: true });
-    } else {
-      useCartStore.getState().clearCart(false);
+    // Initial session check
+    try {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        if (sessionError.message.includes('Refresh Token Not Found') || sessionError.message.includes('Invalid Refresh Token')) {
+          console.warn('Stale session found, clearing...');
+          await supabase.auth.signOut();
+          set({ loading: false, initialized: true });
+          return;
+        }
+        throw sessionError;
+      }
+      
+      if (session?.user) {
+        const profile = await fetchProfile(
+          session.user.id, 
+          session.user.email, 
+          session.user.user_metadata?.full_name || session.user.user_metadata?.name,
+          session.user.user_metadata?.phone || session.user.phone
+        );
+        // Fetch cart from Supabase on initial load
+        await useCartStore.getState().fetchFromSupabase(session.user.id);
+        set({ user: session.user, profile, loading: false, initialized: true });
+      } else {
+        useCartStore.getState().clearCart(false);
+        set({ user: null, profile: null, loading: false, initialized: true });
+      }
+    } catch (error) {
+      console.error('Auth initialization error:', error);
       set({ user: null, profile: null, loading: false, initialized: true });
     }
 
     // Listen for auth changes
     supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+        useCartStore.getState().clearCart(false);
+        set({ user: null, profile: null, loading: false });
+        return;
+      }
+
       if (session?.user) {
         const profile = await fetchProfile(
           session.user.id, 

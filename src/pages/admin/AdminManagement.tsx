@@ -75,7 +75,10 @@ export default function AdminManagement() {
   };
 
   const handleRemoveAdmin = async () => {
-    if (!adminToRemove) return;
+    if (!adminToRemove || !adminToRemove.id || adminToRemove.id === 'undefined') {
+      toast.error('Invalid Admin ID');
+      return;
+    }
     
     if (adminToRemove.email === profile?.email) {
       toast.error('You cannot remove yourself.');

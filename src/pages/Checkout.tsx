@@ -4,7 +4,7 @@ import { useCartStore } from '../store/cartStore';
 import { useAuthStore } from '../store/authStore';
 import { supabase, handleSupabaseError } from '../lib/supabase';
 import { toast } from 'sonner';
-import { MapPin, Phone, User, CreditCard, ChevronRight, LocateFixed, Loader2 } from 'lucide-react';
+import { MapPin, Phone, User, CreditCard, ChevronRight, LocateFixed, Loader2, Mail } from 'lucide-react';
 import { emailService } from '../services/emailService';
 
 export default function Checkout() {
@@ -16,12 +16,25 @@ export default function Checkout() {
 
   const [formData, setFormData] = useState({
     name: profile?.name || '',
-    phone: '',
+    phone: profile?.phone || '',
+    email: user?.email || '',
     address: '',
     city: '',
     pincode: '',
     paymentMethod: 'cod' as 'cod' | 'online',
   });
+
+  // Sync form data when profile loads
+  React.useEffect(() => {
+    if (profile || user) {
+      setFormData(prev => ({
+        ...prev,
+        name: prev.name || profile?.name || '',
+        phone: prev.phone || profile?.phone || '',
+        email: prev.email || user?.email || '',
+      }));
+    }
+  }, [profile, user]);
 
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
@@ -89,6 +102,11 @@ export default function Checkout() {
       return;
     }
 
+    if (!formData.email || !formData.email.includes('@')) {
+      toast.error('Please provide a valid email address');
+      return;
+    }
+
     setLoading(true);
     console.log('🚀 Starting order placement process...');
     try {
@@ -104,11 +122,12 @@ export default function Checkout() {
           {
             user_id: user.id,
             total_amount: total(),
-            status: 'pending',
+            status: 'Pending',
             shipping_address: `${formData.address}, ${formData.city} - ${formData.pincode}`,
             payment_method: formData.paymentMethod,
             customer_name: formData.name,
             customer_phone: formData.phone,
+            customer_email: formData.email,
             phone: formData.phone
           },
         ])
@@ -124,7 +143,7 @@ export default function Checkout() {
         throw new Error('Order was created but no data was returned.');
       }
 
-      console.log('✅ Order created successfully:', order.id);
+      console.log('✅ Order created successfully:', order.id, 'Email:', order.customer_email);
 
       // 2. Create order items
       console.log('🛍️ Creating order items...');
@@ -167,11 +186,12 @@ export default function Checkout() {
       }
       
       // Send mock email
-      console.log('📧 Sending confirmation email...');
+      console.log('📧 Sending confirmation email to:', formData.email);
       await emailService.sendOrderConfirmation({
         order_id: order.id,
+        user_id: user.id,
         customer_name: formData.name,
-        customer_email: user.email,
+        customer_email: formData.email,
         total_amount: total(),
         items: items.map(i => i.title)
       });
@@ -246,6 +266,20 @@ export default function Checkout() {
                     placeholder="+91 98765 43210"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-widest text-brand-charcoal/40 flex items-center gap-2">
+                    <Mail size={14} /> Email Address
+                  </label>
+                  <input
+                    required
+                    type="email"
+                    className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none"
+                    placeholder="john@example.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   />
                 </div>
 

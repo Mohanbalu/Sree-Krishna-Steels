@@ -198,6 +198,12 @@ export default function ProductManagement() {
   };
 
   const toggleStatus = async (product: Product) => {
+    if (!product?.id || product.id === 'undefined') {
+      console.error('Invalid product ID provided to toggleStatus:', product?.id);
+      toast.error('Could not toggle status: Invalid Product ID');
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('products')
@@ -247,6 +253,10 @@ export default function ProductManagement() {
       };
 
       if (editingProduct) {
+        if (!editingProduct.id || editingProduct.id === 'undefined') {
+          throw new Error('Invalid product ID for editing');
+        }
+
         const { error } = await supabase
           .from('products')
           .update(data)
@@ -292,7 +302,13 @@ export default function ProductManagement() {
   };
 
   const handleDelete = async () => {
-    if (!productToDelete) return;
+    if (!productToDelete || productToDelete === 'undefined') {
+      console.error('Invalid product ID provided to handleDelete:', productToDelete);
+      toast.error('Could not delete product: Invalid Product ID');
+      setIsDeleteModalOpen(false);
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('products')

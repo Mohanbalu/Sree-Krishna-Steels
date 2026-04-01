@@ -4,6 +4,8 @@ import { supabase, handleSupabaseError } from '../../lib/supabase';
 import { Package, Truck, CheckCircle, Clock, Search, Filter, Phone, MapPin, ChevronDown, ChevronUp, CreditCard, Calendar, User, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
+import { emailService } from '../../services/emailService';
+import { useAuthStore } from '../../store/authStore';
 
 interface Order {
   id: string;
@@ -13,12 +15,13 @@ interface Order {
   shipping_address: string;
   order_items: any[];
   total_amount: number;
-  status: 'pending' | 'confirmed' | 'shipped' | 'delivered';
+  status: 'Pending' | 'Confirmed' | 'Shipped' | 'Delivered';
   payment_method: string;
-  payment_status?: 'pending' | 'paid' | 'failed';
+  payment_status?: 'Pending' | 'Paid' | 'Failed';
   created_at: string;
   driver_name?: string;
   delivery_days?: number;
+  customer_email?: string;
 }
 
 export default function OrderManagement() {
@@ -28,6 +31,7 @@ export default function OrderManagement() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const { profile } = useAuthStore();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -36,7 +40,8 @@ export default function OrderManagement() {
           .from('orders')
           .select(`
             *,
-            order_items (*)
+            order_items (*),
+            profiles:user_id (email)
           `)
           .order('created_at', { ascending: false });
 
@@ -62,32 +67,85 @@ export default function OrderManagement() {
   }, []);
 
   const updateStatus = async (orderId: string, newStatus: string) => {
+    if (!orderId || orderId === 'undefined' || orderId.length < 10) {
+      console.warn('⚠️ Invalid order ID provided to updateStatus:', orderId);
+      return;
+    }
+
+    console.log(`🔄 Attempting to update order ${orderId} status to: ${newStatus}`);
     try {
-      const { error } = await supabase
+      const { error, count } = await supabase
         .from('orders')
-        .update({ status: newStatus })
+        .update({ status: newStatus }, { count: 'exact' })
         .eq('id', orderId);
 
       if (error) throw error;
+      
+      if (count === 0) {
+        console.warn(`⚠️ Update matched 0 rows. User role: ${profile?.role}. Check RLS policies or if order exists.`);
+        toast.error(`Failed to update status: Access denied for your role (${profile?.role?.replace('_', ' ') || 'unknown'}).`);
+        return;
+      }
+
+      console.log('✅ Order status updated in DB. Rows affected:', count);
+      
+      // Update local state immediately
+      setOrders(prev => prev.map(o => o.id === orderId ? { 
+        ...o, 
+        status: newStatus as any
+      } : o));
+      
       toast.success(`Order status updated to ${newStatus}`);
+
+      // Send status update email if email is available
+      const order = orders.find(o => o.id === orderId);
+      const orderEmail = order?.customer_email || (order as any)?.profiles?.email;
+      
+      if (orderEmail && orderEmail !== 'customer@example.com') {
+        console.log('📧 Sending status update email to:', orderEmail);
+        await emailService.sendOrderStatusUpdate(orderId, newStatus, orderEmail);
+      } else {
+        console.warn('⚠️ Skipping status update email: No valid customer email found for order:', orderId);
+      }
     } catch (error: any) {
+      console.error('❌ Update Status Error:', error);
       toast.error('Failed to update status: ' + (error.message || 'Unknown error'));
-      console.error('Update Status Error:', error);
     }
   };
 
   const updatePaymentStatus = async (orderId: string, newStatus: string) => {
+    if (!orderId || orderId === 'undefined' || orderId.length < 10) {
+      console.warn('⚠️ Invalid order ID provided to updatePaymentStatus:', orderId);
+      return;
+    }
+
+    console.log(`🔄 Attempting to update order ${orderId} payment status to: ${newStatus}`);
     try {
-      const { error } = await supabase
+      const { error, count } = await supabase
         .from('orders')
-        .update({ payment_status: newStatus })
+        .update({ payment_status: newStatus }, { count: 'exact' })
         .eq('id', orderId);
 
       if (error) throw error;
+      
+      if (count === 0) {
+        console.warn(`⚠️ Update matched 0 rows for payment status. User role: ${profile?.role}.`);
+        toast.error(`Failed to update payment status: Access denied for your role (${profile?.role?.replace('_', ' ') || 'unknown'}).`);
+        return;
+      }
+
+      console.log('✅ Payment status updated in DB for order:', orderId, 'Rows affected:', count);
+      
+      // Update local state immediately
+      setOrders(prev => prev.map(o => o.id === orderId ? { 
+        ...o, 
+        payment_status: newStatus as any
+      } : o));
+      
       toast.success(`Payment status updated to ${newStatus}`);
     } catch (error: any) {
+      console.error('❌ Update Payment Status Error:', error);
       toast.error('Failed to update payment status: ' + (error.message || 'Unknown error'));
-      console.error('Update Payment Status Error:', error);
     }
   };
 
@@ -105,29 +163,29 @@ export default function OrderManagement() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending': return <Clock size={16} />;
-      case 'confirmed': return <Package size={16} />;
-      case 'shipped': return <Truck size={16} />;
-      case 'delivered': return <CheckCircle size={16} />;
+      case 'Pending': return <Clock size={16} />;
+      case 'Confirmed': return <Package size={16} />;
+      case 'Shipped': return <Truck size={16} />;
+      case 'Delivered': return <CheckCircle size={16} />;
       default: return <Clock size={16} />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-orange-100 text-orange-700';
-      case 'confirmed': return 'bg-blue-100 text-blue-700';
-      case 'shipped': return 'bg-purple-100 text-purple-700';
-      case 'delivered': return 'bg-green-100 text-green-700';
+      case 'Pending': return 'bg-orange-100 text-orange-700';
+      case 'Confirmed': return 'bg-blue-100 text-blue-700';
+      case 'Shipped': return 'bg-purple-100 text-purple-700';
+      case 'Delivered': return 'bg-green-100 text-green-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   };
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
-      case 'paid': return 'bg-green-100 text-green-700';
-      case 'pending': return 'bg-yellow-100 text-yellow-700';
-      case 'failed': return 'bg-red-100 text-red-700';
+      case 'Paid': return 'bg-green-100 text-green-700';
+      case 'Pending': return 'bg-yellow-100 text-yellow-700';
+      case 'Failed': return 'bg-red-100 text-red-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   };
@@ -167,10 +225,10 @@ export default function OrderManagement() {
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="all">Fulfillment</option>
-              <option value="pending">Pending</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="shipped">Shipped</option>
-              <option value="delivered">Delivered</option>
+              <option value="Pending">Pending</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Delivered">Delivered</option>
             </select>
           </div>
           <div className="flex items-center gap-3 bg-white rounded-[1.5rem] px-6 py-2 border border-brand-brown/5 shadow-sm min-w-[160px]">
@@ -181,9 +239,9 @@ export default function OrderManagement() {
               onChange={(e) => setPaymentFilter(e.target.value)}
             >
               <option value="all">Payment</option>
-              <option value="pending">Pending</option>
-              <option value="paid">Paid</option>
-              <option value="failed">Failed</option>
+              <option value="Pending">Pending</option>
+              <option value="Paid">Paid</option>
+              <option value="Failed">Failed</option>
             </select>
           </div>
         </div>
@@ -294,30 +352,32 @@ export default function OrderManagement() {
                             <div className="space-y-4">
                               <div className="space-y-2">
                                 <label className="text-[10px] font-bold text-brand-brown/30 uppercase tracking-[0.2em] ml-1">Fulfillment Stage</label>
-                                <select
-                                  onClick={(e) => e.stopPropagation()}
-                                  onChange={(e) => updateStatus(order.id, e.target.value)}
-                                  value={order.status}
-                                  className={cn("w-full px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-[0.2em] outline-none border border-brand-brown/5 focus:ring-2 focus:ring-brand-gold shadow-sm transition-all cursor-pointer", getStatusColor(order.status))}
-                                >
-                                  <option value="pending">Pending</option>
-                                  <option value="confirmed">Confirmed</option>
-                                  <option value="shipped">Shipped</option>
-                                  <option value="delivered">Delivered</option>
-                                </select>
+                                <div onClick={(e) => e.stopPropagation()}>
+                                  <select
+                                    onChange={(e) => updateStatus(order.id, e.target.value)}
+                                    value={order.status}
+                                    className={cn("w-full px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-[0.2em] outline-none border border-brand-brown/5 focus:ring-2 focus:ring-brand-gold shadow-sm transition-all cursor-pointer", getStatusColor(order.status))}
+                                  >
+                                    <option value="Pending">Pending</option>
+                                    <option value="Confirmed">Confirmed</option>
+                                    <option value="Shipped">Shipped</option>
+                                    <option value="Delivered">Delivered</option>
+                                  </select>
+                                </div>
                               </div>
                               <div className="space-y-2">
                                 <label className="text-[10px] font-bold text-brand-brown/30 uppercase tracking-[0.2em] ml-1">Payment Verification</label>
-                                <select
-                                  onClick={(e) => e.stopPropagation()}
-                                  onChange={(e) => updatePaymentStatus(order.id, e.target.value)}
-                                  value={order.payment_status || 'pending'}
-                                  className={cn("w-full px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-[0.2em] outline-none border border-brand-brown/5 focus:ring-2 focus:ring-brand-gold shadow-sm transition-all cursor-pointer", getPaymentStatusColor(order.payment_status || 'pending'))}
-                                >
-                                  <option value="pending">Pending</option>
-                                  <option value="paid">Paid</option>
-                                  <option value="failed">Failed</option>
-                                </select>
+                                <div onClick={(e) => e.stopPropagation()}>
+                                  <select
+                                    onChange={(e) => updatePaymentStatus(order.id, e.target.value)}
+                                    value={order.payment_status || 'Pending'}
+                                    className={cn("w-full px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-[0.2em] outline-none border border-brand-brown/5 focus:ring-2 focus:ring-brand-gold shadow-sm transition-all cursor-pointer", getPaymentStatusColor(order.payment_status || 'Pending'))}
+                                  >
+                                    <option value="Pending">Pending</option>
+                                    <option value="Paid">Paid</option>
+                                    <option value="Failed">Failed</option>
+                                  </select>
+                                </div>
                               </div>
                             </div>
                           </div>

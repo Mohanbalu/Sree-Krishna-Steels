@@ -46,6 +46,8 @@ export default function AdminDashboard() {
   });
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
+  const [topProducts, setTopProducts] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -69,10 +71,18 @@ export default function AdminDashboard() {
           .select('*', { count: 'exact', head: true })
           .eq('role', 'customer');
 
+        // Fetch Recent Notifications
+        const { data: notificationsData } = await supabase
+          .from('notifications')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(5);
+        setNotifications(notificationsData || []);
+
         let revenue = 0;
         ordersData?.forEach(order => {
           // Sum revenue for paid or delivered orders
-          if (order.payment_status === 'paid' || order.status === 'delivered') {
+          if (order.payment_status === 'Paid' || order.status === 'Delivered') {
             revenue += order.total_amount || 0;
           }
         });
@@ -87,7 +97,7 @@ export default function AdminDashboard() {
         const dailyData = last7Days.map(date => {
           const dayOrders = ordersData?.filter(o => o.created_at.startsWith(date)) || [];
           const dayRevenue = dayOrders.reduce((sum, o) => {
-            if (o.payment_status === 'paid' || o.status === 'delivered') {
+            if (o.payment_status === 'Paid' || o.status === 'Delivered') {
               return sum + (o.total_amount || 0);
             }
             return sum;
@@ -162,8 +172,6 @@ export default function AdminDashboard() {
 
     fetchData();
   }, []);
-
-  const [topProducts, setTopProducts] = useState<any[]>([]);
 
   const statCards = [
     { 
@@ -268,52 +276,55 @@ export default function AdminDashboard() {
               <option>Last 30 Days</option>
             </select>
           </div>
-          <div className="h-[400px] w-full min-h-[400px] flex items-center justify-center bg-brand-cream/5 rounded-[2rem]">
+          <div className="h-[400px] w-full min-h-[400px] flex items-center justify-center bg-brand-cream/5 rounded-[2rem] overflow-hidden">
             {isMounted && chartData.length > 0 && (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData}>
-                  <defs>
-                    <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#D4AF37" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F5F5F0" />
-                  <XAxis 
-                    dataKey="name" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{fill: '#8E9299', fontSize: 10, fontWeight: 600}} 
-                    dy={10} 
-                  />
-                  <YAxis 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{fill: '#8E9299', fontSize: 10, fontWeight: 600}} 
-                    tickFormatter={(value) => `₹${value}`}
-                  />
-                  <Tooltip 
-                    contentStyle={{
-                      backgroundColor: '#1A1A1A', 
-                      borderRadius: '16px', 
-                      border: 'none', 
-                      boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-                      color: '#FFF',
-                      fontSize: '12px',
-                      padding: '12px 16px'
-                    }}
-                    itemStyle={{fontWeight: 'bold', color: '#D4AF37'}}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="total" 
-                    stroke="#D4AF37" 
-                    strokeWidth={4} 
-                    fillOpacity={1} 
-                    fill="url(#colorTotal)" 
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              <div className="w-full h-full p-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#D4AF37" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F5F5F0" />
+                    <XAxis 
+                      dataKey="name" 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{fill: '#8E9299', fontSize: 10, fontWeight: 600}} 
+                      dy={10} 
+                    />
+                    <YAxis 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{fill: '#8E9299', fontSize: 10, fontWeight: 600}} 
+                      tickFormatter={(value) => `₹${value}`}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: '#1A1A1A', 
+                        borderRadius: '16px', 
+                        border: 'none', 
+                        boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+                        color: '#FFF',
+                        fontSize: '12px',
+                        padding: '12px 16px'
+                      }}
+                      itemStyle={{fontWeight: 'bold', color: '#D4AF37'}}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="total" 
+                      stroke="#D4AF37" 
+                      strokeWidth={4} 
+                      fillOpacity={1} 
+                      fill="url(#colorTotal)" 
+                      animationDuration={1500}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
             )}
           </div>
         </motion.div>
@@ -334,39 +345,41 @@ export default function AdminDashboard() {
               <option>Last 30 Days</option>
             </select>
           </div>
-          <div className="h-[400px] w-full min-h-[400px] flex items-center justify-center bg-brand-cream/5 rounded-[2rem]">
+          <div className="h-[400px] w-full min-h-[400px] flex items-center justify-center bg-brand-cream/5 rounded-[2rem] overflow-hidden">
             {isMounted && chartData.length > 0 && (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F5F5F0" />
-                  <XAxis 
-                    dataKey="name" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{fill: '#8E9299', fontSize: 10, fontWeight: 600}} 
-                    dy={10} 
-                  />
-                  <YAxis 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{fill: '#8E9299', fontSize: 10, fontWeight: 600}} 
-                  />
-                  <Tooltip 
-                    cursor={{fill: '#F5F5F0', radius: 12}}
-                    contentStyle={{
-                      backgroundColor: '#1A1A1A', 
-                      borderRadius: '16px', 
-                      border: 'none', 
-                      boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-                      color: '#FFF',
-                      fontSize: '12px',
-                      padding: '12px 16px'
-                    }}
-                    itemStyle={{fontWeight: 'bold', color: '#D4AF37'}}
-                  />
-                  <Bar dataKey="total" fill="#3D2B1F" radius={[12, 12, 0, 0]} barSize={40} />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="w-full h-full p-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F5F5F0" />
+                    <XAxis 
+                      dataKey="name" 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{fill: '#8E9299', fontSize: 10, fontWeight: 600}} 
+                      dy={10} 
+                    />
+                    <YAxis 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{fill: '#8E9299', fontSize: 10, fontWeight: 600}} 
+                    />
+                    <Tooltip 
+                      cursor={{fill: '#F5F5F0', radius: 12}}
+                      contentStyle={{
+                        backgroundColor: '#1A1A1A', 
+                        borderRadius: '16px', 
+                        border: 'none', 
+                        boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+                        color: '#FFF',
+                        fontSize: '12px',
+                        padding: '12px 16px'
+                      }}
+                      itemStyle={{fontWeight: 'bold', color: '#D4AF37'}}
+                    />
+                    <Bar dataKey="total" fill="#3D2B1F" radius={[12, 12, 0, 0]} barSize={40} animationDuration={1500} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             )}
           </div>
         </motion.div>
@@ -469,17 +482,60 @@ export default function AdminDashboard() {
         </motion.div>
       </div>
 
+      {/* Notifications Section */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-[3rem] border border-brand-brown/5 shadow-2xl shadow-brand-brown/5 overflow-hidden"
+      >
+        <div className="p-10 border-b border-brand-brown/5 flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-serif text-brand-brown mb-1">Recent Activity & Notifications</h2>
+            <p className="text-[10px] font-bold text-brand-charcoal/40 uppercase tracking-widest">System logs and email confirmations</p>
+          </div>
+        </div>
+        <div className="p-8 space-y-4">
+          {notifications.map((notif) => (
+            <div key={notif.id} className="flex items-start gap-4 p-4 rounded-2xl bg-brand-cream/20 border border-brand-gold/5 hover:border-brand-gold/20 transition-all">
+              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm">
+                <NotificationIcon type={notif.type} />
+              </div>
+              <div className="flex-grow">
+                <p className="text-sm text-brand-brown font-medium">{notif.message}</p>
+                <p className="text-[10px] text-brand-charcoal/40 font-bold uppercase tracking-widest mt-1">
+                  {new Date(notif.created_at).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          ))}
+          {notifications.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-brand-charcoal/40 text-[10px] font-bold uppercase tracking-widest">No recent activity</p>
+            </div>
+          )}
+        </div>
+      </motion.div>
+
     </div>
   );
 }
 
+function NotificationIcon({ type }: { type: string }) {
+  switch (type) {
+    case 'order_confirmation': return <ShoppingBag size={16} className="text-brand-gold" />;
+    case 'status_update': return <Clock size={16} className="text-brand-brown" />;
+    case 'delivery_assignment': return <Package size={16} className="text-brand-charcoal" />;
+    default: return <Clock size={16} className="text-brand-gold" />;
+  }
+}
+
 function getStatusColor(status: string) {
-  switch (status.toLowerCase()) {
-    case 'pending': return 'bg-amber-50 text-amber-700 border border-amber-100';
-    case 'processing': return 'bg-blue-50 text-blue-700 border border-blue-100';
-    case 'shipped': return 'bg-indigo-50 text-indigo-700 border border-indigo-100';
-    case 'delivered': return 'bg-emerald-50 text-emerald-700 border border-emerald-100';
-    case 'cancelled': return 'bg-red-50 text-red-700 border border-red-100';
+  switch (status) {
+    case 'Pending': return 'bg-amber-50 text-amber-700 border border-amber-100';
+    case 'Confirmed': return 'bg-blue-50 text-blue-700 border border-blue-100';
+    case 'Shipped': return 'bg-indigo-50 text-indigo-700 border border-indigo-100';
+    case 'Delivered': return 'bg-emerald-50 text-emerald-700 border border-emerald-100';
+    case 'Cancelled': return 'bg-red-50 text-red-700 border border-red-100';
     default: return 'bg-gray-50 text-gray-700 border border-gray-100';
   }
 }
