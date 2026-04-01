@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase, handleSupabaseError } from '../../lib/supabase';
-import { Package, Truck, CheckCircle, Clock, Search, Filter, Phone, MapPin, ChevronDown, ChevronUp, CreditCard, Calendar, User, ExternalLink } from 'lucide-react';
+import { Package, Truck, CheckCircle, Clock, Search, Filter, Phone, MapPin, ChevronDown, ChevronUp, CreditCard, Calendar, User, ExternalLink, XCircle, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 import { emailService } from '../../services/emailService';
@@ -31,6 +31,8 @@ export default function OrderManagement() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [orderToCancel, setOrderToCancel] = useState<{ id: string, status: string } | null>(null);
   const { profile } = useAuthStore();
 
   useEffect(() => {
@@ -72,6 +74,16 @@ export default function OrderManagement() {
       return;
     }
 
+    if (newStatus === 'cancelled') {
+      setOrderToCancel({ id: orderId, status: newStatus });
+      setIsCancelModalOpen(true);
+      return;
+    }
+
+    await performStatusUpdate(orderId, newStatus);
+  };
+
+  const performStatusUpdate = async (orderId: string, newStatus: string) => {
     console.log(`🔄 Attempting to update order ${orderId} status to: ${newStatus}`);
     try {
       const { error, count } = await supabase
@@ -110,6 +122,14 @@ export default function OrderManagement() {
     } catch (error: any) {
       console.error('❌ Update Status Error:', error);
       toast.error('Failed to update status: ' + (error.message || 'Unknown error'));
+    }
+  };
+
+  const handleConfirmCancel = async () => {
+    if (orderToCancel) {
+      await performStatusUpdate(orderToCancel.id, orderToCancel.status);
+      setIsCancelModalOpen(false);
+      setOrderToCancel(null);
     }
   };
 
@@ -169,6 +189,7 @@ export default function OrderManagement() {
       case 'processing': return <Package size={16} />;
       case 'shipped': return <Truck size={16} />;
       case 'delivered': return <CheckCircle size={16} />;
+      case 'cancelled': return <XCircle size={16} />;
       default: return <Clock size={16} />;
     }
   };
@@ -180,6 +201,7 @@ export default function OrderManagement() {
       case 'processing': return 'bg-blue-100 text-blue-700';
       case 'shipped': return 'bg-purple-100 text-purple-700';
       case 'delivered': return 'bg-green-100 text-green-700';
+      case 'cancelled': return 'bg-red-100 text-red-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   };
@@ -395,7 +417,11 @@ export default function OrderManagement() {
                             </h3>
                             <div className="space-y-4">
                               {order.order_items.map((item, idx) => (
-                                <div key={idx} className="flex items-center gap-6 bg-white p-5 rounded-[2rem] border border-brand-brown/5 shadow-sm group hover:shadow-md transition-all duration-300">
+                                <Link 
+                                  to={`/products/${item.product_id}`}
+                                  key={idx} 
+                                  className="flex items-center gap-6 bg-white p-5 rounded-[2rem] border border-brand-brown/5 shadow-sm group hover:shadow-md transition-all duration-300"
+                                >
                                   <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-inner">
                                     <img
                                       src={item.image_url}
@@ -405,7 +431,7 @@ export default function OrderManagement() {
                                     />
                                   </div>
                                   <div className="flex-grow">
-                                    <p className="font-serif text-lg text-brand-brown">{item.title}</p>
+                                    <p className="font-serif text-lg text-brand-brown group-hover:text-brand-gold transition-colors">{item.title}</p>
                                     <p className="text-xs font-bold text-brand-brown/40 uppercase tracking-widest mt-1">
                                       QTY: {item.quantity} <span className="mx-2">×</span> ₹{item.price.toLocaleString()}
                                     </p>
@@ -413,7 +439,7 @@ export default function OrderManagement() {
                                   <div className="text-right">
                                     <p className="font-bold text-brand-gold text-lg">₹{(item.price * item.quantity).toLocaleString()}</p>
                                   </div>
-                                </div>
+                                </Link>
                               ))}
                               
                               <div className="mt-10 pt-8 border-t border-brand-brown/5 flex justify-between items-center px-6">
@@ -465,6 +491,39 @@ export default function OrderManagement() {
           ))}
         </AnimatePresence>
       </div>
+
+      {isCancelModalOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-brand-charcoal/80 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white w-full max-w-md rounded-[2rem] p-8 shadow-2xl text-center"
+          >
+            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertTriangle size={40} className="text-red-500" />
+            </div>
+            <h2 className="text-2xl font-serif text-brand-brown mb-4">Cancel Order?</h2>
+            <p className="text-gray-500 mb-8">Are you sure you want to cancel this order? This action will notify the customer and cannot be undone.</p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setIsCancelModalOpen(false);
+                  setOrderToCancel(null);
+                }}
+                className="flex-1 px-6 py-4 border border-gray-200 rounded-xl font-bold hover:bg-gray-50 transition-all"
+              >
+                No, Keep it
+              </button>
+              <button
+                onClick={handleConfirmCancel}
+                className="flex-1 px-6 py-4 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-500/20"
+              >
+                Yes, Cancel Order
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

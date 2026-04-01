@@ -6,6 +6,7 @@ import { supabase, handleSupabaseError } from '../lib/supabase';
 import { toast } from 'sonner';
 import { MapPin, Phone, User, CreditCard, ChevronRight, LocateFixed, Loader2, Mail } from 'lucide-react';
 import { emailService } from '../services/emailService';
+import { validatePhone } from '../lib/validation';
 
 export default function Checkout() {
   const { items, total, clearCart } = useCartStore();
@@ -107,6 +108,12 @@ export default function Checkout() {
       return;
     }
 
+    const cleanedPhone = formData.phone.replace(/\D/g, '');
+    if (!validatePhone(cleanedPhone)) {
+      toast.error('Please enter a valid 10-digit phone number (starts with 6-9)');
+      return;
+    }
+
     setLoading(true);
     console.log('🚀 Starting order placement process...');
     try {
@@ -128,8 +135,8 @@ export default function Checkout() {
             address: `${formData.address}, ${formData.city} - ${formData.pincode}`,
             payment_method: formData.paymentMethod,
             customer_name: formData.name,
-            customer_phone: formData.phone,
-            phone: formData.phone
+            customer_phone: cleanedPhone,
+            phone: cleanedPhone
           },
         ])
         .select()
@@ -245,11 +252,18 @@ export default function Checkout() {
                   <input
                     required
                     type="tel"
+                    maxLength={10}
                     className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none"
-                    placeholder="+91 98765 43210"
+                    placeholder="9876543210"
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      setFormData({ ...formData, phone: value });
+                    }}
                   />
+                  {formData.phone && formData.phone.length > 0 && formData.phone.length < 10 && (
+                    <p className="text-[10px] text-amber-600 font-medium">Must be 10 digits</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">

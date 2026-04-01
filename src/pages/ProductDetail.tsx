@@ -27,8 +27,21 @@ export default function ProductDetail() {
         return;
       }
 
+      // Check static first for immediate display
+      const staticProduct = PRODUCTS.find(p => p.id === id);
+      if (staticProduct) {
+        setProduct({
+          ...staticProduct,
+          title: staticProduct.name,
+          image: staticProduct.images[0],
+          isStatic: true
+        });
+        // If we found a static product, we can stop showing the spinner early
+        setLoading(false);
+      }
+
       try {
-        // Try Supabase first if client exists
+        // Try Supabase if client exists
         if (supabase) {
           const { data, error } = await supabase
             .from('products')
@@ -50,17 +63,6 @@ export default function ProductDetail() {
             setLoading(false);
             return;
           }
-        }
-        
-        // Fallback to static constants if Supabase fails or is missing
-        const staticProduct = PRODUCTS.find(p => p.id === id);
-        if (staticProduct) {
-          setProduct({
-            ...staticProduct,
-            title: staticProduct.name,
-            image: staticProduct.images[0],
-            isStatic: true
-          });
         }
       } catch (error) {
         handleSupabaseError(error, `fetchProduct/${id}`);

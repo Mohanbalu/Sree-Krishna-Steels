@@ -1,12 +1,30 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCartStore } from '../store/cartStore';
 import { useAuthStore } from '../store/authStore';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, AlertTriangle } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { toast } from 'sonner';
 
 export default function Cart() {
   const { items, removeItem, updateQuantity, total } = useCartStore();
   const { user, initialized } = useAuthStore();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+
+  const confirmRemove = (id: string) => {
+    setItemToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleRemove = () => {
+    if (itemToDelete) {
+      removeItem(itemToDelete);
+      toast.success('Item removed from cart');
+    }
+    setIsDeleteModalOpen(false);
+    setItemToDelete(null);
+  };
 
   if (!initialized || !user) {
     return (
@@ -79,7 +97,7 @@ export default function Cart() {
                 </div>
 
                 <button
-                  onClick={() => removeItem(item.id)}
+                  onClick={() => confirmRemove(item.id)}
                   className="p-2 text-brand-charcoal/40 hover:text-red-500 transition-colors"
                 >
                   <Trash2 size={20} />
@@ -123,6 +141,36 @@ export default function Cart() {
           </div>
         </div>
       </div>
+
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-brand-charcoal/80 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white w-full max-w-md rounded-[2rem] p-8 shadow-2xl text-center"
+          >
+            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertTriangle size={40} className="text-red-500" />
+            </div>
+            <h2 className="text-2xl font-serif text-brand-brown mb-4">Remove Item?</h2>
+            <p className="text-gray-500 mb-8">Are you sure you want to remove this item from your cart?</p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="flex-1 px-6 py-4 border border-gray-200 rounded-xl font-bold hover:bg-gray-50 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRemove}
+                className="flex-1 px-6 py-4 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-500/20"
+              >
+                Remove
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

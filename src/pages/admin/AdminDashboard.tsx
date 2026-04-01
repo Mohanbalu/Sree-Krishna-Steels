@@ -55,29 +55,25 @@ export default function AdminDashboard() {
     setIsMounted(true);
     const fetchData = async () => {
       try {
-        // Fetch Products Count
-        const { count: productsCount } = await supabase
-          .from('products')
-          .select('*', { count: 'exact', head: true });
+        // Fetch all data in parallel to speed up dashboard loading
+        const [
+          { count: productsCount },
+          { data: ordersData },
+          { count: customersCount },
+          { data: notificationsData },
+          { data: recentOrdersData },
+          { data: topItems, error: topItemsError }
+        ] = await Promise.all([
+          supabase.from('products').select('*', { count: 'exact', head: true }),
+          supabase.from('orders').select('total_amount, status, created_at, payment_status'),
+          supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'customer'),
+          supabase.from('notifications').select('*').order('created_at', { ascending: false }).limit(5),
+          supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(5),
+          supabase.from('order_items').select('product_id, quantity, products(title, price, image_url)').limit(100)
+        ]);
 
-        // Fetch Orders and Revenue (only completed/paid orders for revenue)
-        const { data: ordersData } = await supabase
-          .from('orders')
-          .select('total_amount, status, created_at, payment_status');
-
-        // Fetch Customers Count
-        const { count: customersCount } = await supabase
-          .from('profiles')
-          .select('*', { count: 'exact', head: true })
-          .eq('role', 'customer');
-
-        // Fetch Recent Notifications
-        const { data: notificationsData } = await supabase
-          .from('notifications')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(5);
         setNotifications(notificationsData || []);
+        setRecentOrders(recentOrdersData || []);
 
         let revenue = 0;
         ordersData?.forEach(order => {
@@ -120,24 +116,9 @@ export default function AdminDashboard() {
           totalCustomers: customersCount || 0,
         }));
 
-        // Fetch Recent Orders
-        const { data: recent } = await supabase
-          .from('orders')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(5);
-        setRecentOrders(recent || []);
-
-        // Fetch Top Selling Products
-        // This requires joining order_items and products
-        const { data: topItems, error: topItemsError } = await supabase
-          .from('order_items')
-          .select('product_id, quantity, products(title, price, image_url)')
-          .limit(100);
-
+        // Process Top Selling Products
         if (topItemsError) {
           console.error('Error fetching top items:', topItemsError);
-          // Fallback to empty if table doesn't exist or columns mismatch
           setTopProducts([]);
         } else {
           const productSales: Record<string, any> = {};

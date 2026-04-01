@@ -13,19 +13,22 @@ export default function CustomerManagement() {
     const fetchCustomers = async () => {
       setLoading(true);
       try {
-        // Fetch profiles first
-        const { data: profilesData, error: profilesError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('role', 'customer')
-          .order('created_at', { ascending: false });
+        // Fetch profiles and orders in parallel to speed up loading
+        const [
+          { data: profilesData, error: profilesError },
+          { data: ordersData, error: ordersError }
+        ] = await Promise.all([
+          supabase
+            .from('profiles')
+            .select('*')
+            .eq('role', 'customer')
+            .order('created_at', { ascending: false }),
+          supabase
+            .from('orders')
+            .select('id, user_id, total_amount, status, created_at, payment_status')
+        ]);
 
         if (profilesError) throw profilesError;
-
-        // Fetch orders separately to avoid join issues if relationship isn't set in schema cache
-        const { data: ordersData, error: ordersError } = await supabase
-          .from('orders')
-          .select('id, user_id, total_amount, status, created_at, payment_status');
 
         if (ordersError) {
           console.warn('Could not fetch orders for customers:', ordersError);

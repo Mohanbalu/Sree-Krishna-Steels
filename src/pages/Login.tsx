@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
-import { LogIn, Mail, Lock, Chrome, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { LogIn, Mail, Lock, Chrome, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -10,10 +11,20 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showGoogleHint, setShowGoogleHint] = useState(false);
+  const { user, profile, loading: authLoading } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
 
   const from = location.state?.from?.pathname || '/';
+
+  useEffect(() => {
+    if (user && profile) {
+      navigate(from, { replace: true });
+    } else if (!authLoading && user && !profile) {
+      // If auth finished but we have no profile, stop the local loading state
+      setLoading(false);
+    }
+  }, [user, profile, authLoading, navigate, from]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,12 +45,13 @@ export default function Login() {
         return;
       }
       toast.success('Logged in successfully!');
-      navigate(from, { replace: true });
+      // Navigation is handled by the useEffect waiting for user and profile
     } catch (error: any) {
       toast.error(error.message);
-    } finally {
       setLoading(false);
     }
+    // Note: setLoading(false) is NOT in finally because we want to keep 
+    // the button in loading state until the useEffect triggers navigation
   };
 
   const handleGoogleLogin = async () => {
@@ -154,7 +166,11 @@ export default function Login() {
             disabled={loading}
             className="w-full bg-brand-brown text-white py-4 rounded-xl font-bold text-lg hover:bg-brand-charcoal transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            {loading ? 'Logging in...' : (
+            {loading ? (
+              <>
+                <Loader2 className="animate-spin" size={20} /> Logging in...
+              </>
+            ) : (
               <>
                 Login <LogIn size={20} />
               </>

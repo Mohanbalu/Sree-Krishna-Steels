@@ -310,6 +310,12 @@ export default function ProductManagement() {
     }
 
     try {
+      // First delete associated images
+      await supabase
+        .from('product_images')
+        .delete()
+        .eq('product_id', productToDelete);
+
       const { error } = await supabase
         .from('products')
         .delete()

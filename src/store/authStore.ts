@@ -100,14 +100,17 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
       
       if (session?.user) {
-        const profile = await fetchProfile(
-          session.user.id, 
-          session.user.email, 
-          session.user.user_metadata?.full_name || session.user.user_metadata?.name,
-          session.user.user_metadata?.phone || session.user.phone
-        );
-        // Fetch cart from Supabase on initial load
-        await useCartStore.getState().fetchFromSupabase(session.user.id);
+        // Run profile and cart fetching in parallel to speed up initialization
+        const [profile] = await Promise.all([
+          fetchProfile(
+            session.user.id, 
+            session.user.email, 
+            session.user.user_metadata?.full_name || session.user.user_metadata?.name,
+            session.user.user_metadata?.phone || session.user.phone
+          ),
+          useCartStore.getState().fetchFromSupabase(session.user.id)
+        ]);
+        
         set({ user: session.user, profile, loading: false, initialized: true });
       } else {
         useCartStore.getState().clearCart(false);
@@ -120,6 +123,8 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     // Listen for auth changes
     supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth event triggered:', event, session?.user?.id);
+      
       if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
         useCartStore.getState().clearCart(false);
         set({ user: null, profile: null, loading: false });
@@ -127,15 +132,39 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
 
       if (session?.user) {
-        const profile = await fetchProfile(
-          session.user.id, 
-          session.user.email, 
-          session.user.user_metadata?.full_name || session.user.user_metadata?.name,
-          session.user.user_metadata?.phone || session.user.phone
-        );
-        // Fetch cart from Supabase on login
-        await useCartStore.getState().fetchFromSupabase(session.user.id);
-        set({ user: session.user, profile, loading: false });
+        // If we already have the user and profile, and it's just a token refresh or similar, 
+        // we might not need to fetch the profile again unless it's a SIGNED_IN event.
+        const currentUser = useAuthStore.getState().user;
+        const currentProfile = useAuthStore.getState().profile;
+        
+        if (currentUser?.id === session.user.id && currentProfile && event !== 'SIGNED_IN') {
+          console.log('Session refreshed, keeping existing profile');
+          set({ user: session.user, loading: false });
+          return;
+        }
+
+        console.log('Fetching profile for session user...');
+        // Set loading true while fetching profile for a new session or sign in
+        set({ loading: true });
+        
+        try {
+          // Run profile and cart fetching in parallel
+          const [profile] = await Promise.all([
+            fetchProfile(
+              session.user.id, 
+              session.user.email, 
+              session.user.user_metadata?.full_name || session.user.user_metadata?.name,
+              session.user.user_metadata?.phone || session.user.phone
+            ),
+            useCartStore.getState().fetchFromSupabase(session.user.id)
+          ]);
+          
+          console.log('Profile fetched successfully:', profile?.role);
+          set({ user: session.user, profile, loading: false });
+        } catch (error) {
+          console.error('Error in onAuthStateChange profile fetch:', error);
+          set({ user: session.user, profile: null, loading: false });
+        }
       } else {
         useCartStore.getState().clearCart(false);
         set({ user: null, profile: null, loading: false });

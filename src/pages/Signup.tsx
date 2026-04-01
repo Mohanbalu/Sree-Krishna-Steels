@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
 import { UserPlus, Mail, Lock, User, Eye, EyeOff, Phone } from 'lucide-react';
+import { validatePhone } from '../lib/validation';
 
 export default function Signup() {
   const [name, setName] = useState('');
@@ -15,6 +16,13 @@ export default function Signup() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const cleanedPhone = phone.replace(/\D/g, '');
+    if (!validatePhone(cleanedPhone)) {
+      toast.error('Please enter a valid 10-digit phone number (starts with 6-9)');
+      return;
+    }
+
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -23,7 +31,7 @@ export default function Signup() {
         options: {
           data: {
             full_name: name,
-            phone: phone,
+            phone: cleanedPhone,
           },
         },
       });
@@ -40,7 +48,7 @@ export default function Signup() {
                 id: data.user.id,
                 name: name,
                 email: email,
-                phone: phone,
+                phone: cleanedPhone,
                 role: 'customer'
               }
             ]);
@@ -103,11 +111,18 @@ export default function Signup() {
             <input
               required
               type="tel"
+              maxLength={10}
               className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none"
-              placeholder="+91 98765 43210"
+              placeholder="9876543210"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '');
+                setPhone(value);
+              }}
             />
+            {phone && phone.length > 0 && phone.length < 10 && (
+              <p className="text-[10px] text-amber-600 font-medium">Must be 10 digits</p>
+            )}
           </div>
 
           <div className="space-y-2">

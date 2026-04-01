@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase, handleSupabaseError } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
-import { Package, Truck, CheckCircle, Clock, ChevronRight } from 'lucide-react';
+import { Package, Truck, CheckCircle, Clock, ChevronRight, XCircle, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { toast } from 'sonner';
@@ -24,6 +25,9 @@ export default function Orders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [orderToCancel, setOrderToCancel] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
   const { user } = useAuthStore();
 
   useEffect(() => {
@@ -81,6 +85,7 @@ export default function Orders() {
       case 'processing': return <Package className="text-blue-500" />;
       case 'shipped': return <Truck className="text-purple-500" />;
       case 'delivered': return <CheckCircle className="text-green-500" />;
+      case 'cancelled': return <XCircle className="text-red-500" />;
       default: return <Clock className="text-gray-500" />;
     }
   };
@@ -92,6 +97,7 @@ export default function Orders() {
       case 'processing': return 'bg-blue-100 text-blue-700';
       case 'shipped': return 'bg-purple-100 text-purple-700';
       case 'delivered': return 'bg-green-100 text-green-700';
+      case 'cancelled': return 'bg-red-100 text-red-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   };
@@ -108,10 +114,39 @@ export default function Orders() {
   };
 
   const isStepCompleted = (currentStatus: string, step: string) => {
+    if (currentStatus.toLowerCase() === 'cancelled') return false;
     const stages = ['pending', 'processing', 'shipped', 'delivered'];
     const currentIndex = stages.indexOf(currentStatus.toLowerCase());
     const stepIndex = stages.indexOf(step.toLowerCase());
     return stepIndex <= currentIndex;
+  };
+
+  const handleCancelOrder = async () => {
+    if (!orderToCancel) return;
+    
+    setCancelling(true);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: 'cancelled' })
+        .eq('id', orderToCancel);
+
+      if (error) throw error;
+      
+      toast.success('Order cancelled successfully');
+      setOrders(prev => prev.map(o => o.id === orderToCancel ? { ...o, status: 'cancelled' } : o));
+    } catch (error) {
+      handleSupabaseError(error, 'cancelOrder');
+    } finally {
+      setCancelling(false);
+      setIsCancelModalOpen(false);
+      setOrderToCancel(null);
+    }
+  };
+
+  const confirmCancel = (id: string) => {
+    setOrderToCancel(id);
+    setIsCancelModalOpen(true);
   };
 
   if (loading) {
@@ -220,26 +255,40 @@ export default function Orders() {
 
                   <div className="p-6 space-y-4">
                     {order.order_items.map((item, idx) => (
-                      <div key={idx} className="flex items-center gap-4">
+                      <Link 
+                        to={`/products/${item.product_id}`} 
+                        key={idx} 
+                        className="flex items-center gap-4 p-2 rounded-2xl hover:bg-brand-cream/30 transition-all duration-300 group"
+                      >
                         <img
                           src={item.image_url}
                           alt={item.title}
-                          className="w-16 h-16 object-cover rounded-xl"
+                          className="w-16 h-16 object-cover rounded-xl shadow-sm group-hover:shadow-md transition-all"
                           referrerPolicy="no-referrer"
                         />
                         <div className="flex-grow">
-                          <h4 className="font-bold text-brand-brown">{item.title}</h4>
+                          <h4 className="font-bold text-brand-brown group-hover:text-brand-gold transition-colors">{item.title}</h4>
                           <p className="text-xs text-brand-charcoal/60">Qty: {item.quantity} × ₹{item.price.toLocaleString()}</p>
                         </div>
                         <p className="font-bold text-brand-brown">₹{(item.price * item.quantity).toLocaleString()}</p>
-                      </div>
+                      </Link>
                     ))}
                   </div>
 
                   <div className="p-6 bg-brand-cream/50 flex justify-between items-center">
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-brand-charcoal/40 mb-1">Total Amount</p>
-                      <p className="text-xl font-bold text-brand-brown">₹{order.total_amount.toLocaleString()}</p>
+                    <div className="flex items-center gap-8">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-widest text-brand-charcoal/40 mb-1">Total Amount</p>
+                        <p className="text-xl font-bold text-brand-brown">₹{order.total_amount.toLocaleString()}</p>
+                      </div>
+                      {order.status === 'pending' && (
+                        <button
+                          onClick={() => confirmCancel(order.id)}
+                          className="text-red-500 text-xs font-bold uppercase tracking-widest hover:underline flex items-center gap-1"
+                        >
+                          <XCircle size={14} /> Cancel Order
+                        </button>
+                      )}
                     </div>
                     <button 
                       onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
@@ -299,6 +348,42 @@ export default function Orders() {
           </div>
         )}
       </div>
+
+      {isCancelModalOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-brand-charcoal/80 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white w-full max-w-md rounded-[2rem] p-8 shadow-2xl text-center"
+          >
+            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertTriangle size={40} className="text-red-500" />
+            </div>
+            <h2 className="text-2xl font-serif text-brand-brown mb-4">Cancel Order?</h2>
+            <p className="text-gray-500 mb-8">Are you sure you want to cancel this order? This action cannot be undone.</p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setIsCancelModalOpen(false)}
+                className="flex-1 px-6 py-4 border border-gray-200 rounded-xl font-bold hover:bg-gray-50 transition-all"
+                disabled={cancelling}
+              >
+                No, Keep it
+              </button>
+              <button
+                onClick={handleCancelOrder}
+                disabled={cancelling}
+                className="flex-1 px-6 py-4 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 flex items-center justify-center gap-2"
+              >
+                {cancelling ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  'Yes, Cancel'
+                )}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
