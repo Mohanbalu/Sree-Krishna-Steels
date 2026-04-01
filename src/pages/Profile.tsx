@@ -2,17 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
-import { User, Mail, Phone, Calendar, Save, Loader2, Package } from 'lucide-react';
+import { User, Mail, Phone, Calendar, Save, Loader2, Package, ShieldCheck, AlertCircle, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Profile() {
-  const { profile, setProfile } = useAuthStore();
+  const { profile, setProfile, user } = useAuthStore();
   const [loading, setLoading] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     email: ''
   });
+
+  const isGoogleUser = user?.app_metadata?.provider === 'google' || 
+                     user?.identities?.some(id => id.provider === 'google');
+  
+  const hasPassword = user?.identities?.some(id => id.provider === 'email');
 
   useEffect(() => {
     if (profile) {
@@ -51,6 +57,23 @@ export default function Profile() {
     }
   };
 
+  const handleSetPassword = async () => {
+    if (!profile?.email) return;
+    
+    setPasswordLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(profile.email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success('Password setup link sent to your email!');
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
   if (!profile) {
     return (
       <div className="pt-32 pb-24 px-6 flex items-center justify-center min-h-screen">
@@ -62,6 +85,19 @@ export default function Profile() {
   return (
     <div className="pt-32 pb-24 px-6 bg-brand-cream min-h-screen">
       <div className="max-w-4xl mx-auto">
+        {/* Missing Info Banner */}
+        {!profile.phone && (
+          <div className="mb-8 bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-4 text-amber-800">
+            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center shrink-0">
+              <AlertCircle size={20} className="text-amber-600" />
+            </div>
+            <div>
+              <p className="font-bold text-sm">Complete your profile</p>
+              <p className="text-xs opacity-80">Please add your phone number to receive order updates via WhatsApp.</p>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar Info */}
           <div className="w-full md:w-1/3 space-y-6">
@@ -89,16 +125,57 @@ export default function Profile() {
                   <Mail size={18} className="text-brand-gold" />
                   <span className="text-sm truncate">{profile.email}</span>
                 </div>
-                {profile.phone && (
-                  <div className="flex items-center gap-3 text-brand-charcoal/70">
-                    <Phone size={18} className="text-brand-gold" />
-                    <span className="text-sm">{profile.phone}</span>
-                  </div>
-                )}
+                <div className="flex items-center gap-3 text-brand-charcoal/70">
+                  <Phone size={18} className={profile.phone ? "text-brand-gold" : "text-red-400"} />
+                  <span className={`text-sm ${!profile.phone ? "text-red-400 italic" : ""}`}>
+                    {profile.phone || "No phone number"}
+                  </span>
+                </div>
                 <div className="flex items-center gap-3 text-brand-charcoal/70">
                   <Calendar size={18} className="text-brand-gold" />
                   <span className="text-sm">Joined {new Date(profile.created_at).toLocaleDateString()}</span>
                 </div>
+              </div>
+            </div>
+
+            {/* Security Card */}
+            <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-brand-gold/10">
+              <h3 className="text-sm font-bold uppercase tracking-widest text-brand-charcoal/40 mb-6">Security</h3>
+              <div className="space-y-6">
+                <div className="flex items-start gap-3">
+                  <ShieldCheck size={18} className="text-emerald-500 mt-1" />
+                  <div>
+                    <p className="text-sm font-bold text-brand-brown">Login Method</p>
+                    <p className="text-xs text-brand-charcoal/60">{isGoogleUser ? 'Google Account' : 'Email & Password'}</p>
+                  </div>
+                </div>
+
+                {!hasPassword && isGoogleUser && (
+                  <div className="pt-2">
+                    <p className="text-xs text-brand-charcoal/60 mb-4">
+                      You are logged in with Google. Set a password to enable manual login with your email.
+                    </p>
+                    <button
+                      onClick={handleSetPassword}
+                      disabled={passwordLoading}
+                      className="w-full flex items-center justify-center gap-2 bg-brand-cream text-brand-brown py-3 rounded-xl text-xs font-bold hover:bg-brand-gold/10 transition-colors border border-brand-gold/20 disabled:opacity-50"
+                    >
+                      {passwordLoading ? <Loader2 className="animate-spin" size={14} /> : <Lock size={14} />}
+                      Set Account Password
+                    </button>
+                  </div>
+                )}
+
+                {hasPassword && (
+                  <button
+                    onClick={handleSetPassword}
+                    disabled={passwordLoading}
+                    className="w-full flex items-center justify-center gap-2 bg-brand-cream text-brand-brown py-3 rounded-xl text-xs font-bold hover:bg-brand-gold/10 transition-colors border border-brand-gold/20 disabled:opacity-50"
+                  >
+                    {passwordLoading ? <Loader2 className="animate-spin" size={14} /> : <Lock size={14} />}
+                    Change Password
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -143,11 +220,14 @@ export default function Profile() {
                     </label>
                     <input
                       type="tel"
-                      className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none"
+                      className={`w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none ${!formData.phone ? "ring-1 ring-amber-200" : ""}`}
                       placeholder="+91 XXXXX XXXXX"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     />
+                    {!formData.phone && (
+                      <p className="text-[10px] text-amber-600 font-medium">Required for order updates</p>
+                    )}
                   </div>
                 </div>
 
