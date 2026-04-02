@@ -3,7 +3,6 @@ import { supabase, handleSupabaseError } from '../../lib/supabase';
 import { Plus, Trash2, Edit2, X, Image as ImageIcon, Link as LinkIcon, Package, Search, Upload, Filter, AlertTriangle, Eye, EyeOff, Pin } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
-import imageCompression from 'browser-image-compression';
 
 interface Product {
   id: string;
@@ -51,40 +50,54 @@ export default function ProductManagement() {
 
   const [categories, setCategories] = useState(['Beds', 'Sofas', 'Dining Tables', 'Wardrobes', 'Office Furniture', 'Steel Almirahs']);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('products')
-          .select(`
-            *,
-            product_images (
-              image_url
-            )
-          `)
-          .order('is_pinned', { ascending: false })
-          .order('created_at', { ascending: false });
+  const fetchProducts = React.useCallback(async (retryCount = 0) => {
+    try {
+      const productPromise = supabase
+        .from('products')
+        .select(`
+          *,
+          product_images (
+            image_url
+          )
+        `)
+        .order('is_pinned', { ascending: false })
+        .order('created_at', { ascending: false });
 
-        if (error) throw error;
-        setProducts(data || []);
-        
-        // Extract unique categories
-        if (data) {
-          const uniqueCats = Array.from(new Set(data.map((p: any) => p.category)));
-          setCategories(prev => Array.from(new Set([...prev, ...uniqueCats])));
-        }
-      } catch (error) {
-        handleSupabaseError(error, 'fetchProducts');
-      } finally {
-        setLoading(false);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Products fetch timeout')), 60000)
+      );
+
+      const { data, error } = await Promise.race([
+        Promise.resolve(productPromise),
+        timeoutPromise
+      ]) as any;
+
+      if (error) throw error;
+      setProducts(data || []);
+      
+      // Extract unique categories
+      if (data) {
+        const uniqueCats = Array.from(new Set(data.map((p: any) => p.category)));
+        setCategories(prev => Array.from(new Set([...prev, ...uniqueCats])));
       }
-    };
+    } catch (error: any) {
+      if (retryCount < 2 && error.message?.includes('timeout')) {
+        console.warn(`Products fetch timed out (attempt ${retryCount + 1}), retrying in 2s...`);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        return fetchProducts(retryCount + 1);
+      }
+      handleSupabaseError(error, 'fetchProducts');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
+  useEffect(() => {
     fetchProducts();
 
     const channel = supabase
       .channel('products-admin')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, fetchProducts)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchProducts())
       .subscribe();
 
     return () => {
@@ -98,37 +111,20 @@ export default function ProductManagement() {
 
     setUploading(true);
     setUploadProgress(0);
-    const toastId = toast.loading(`Processing ${files.length} image(s)...`);
+    const toastId = toast.loading(`Uploading ${files.length} image(s)...`);
     
     try {
       const totalFiles = files.length;
       let completedFiles = 0;
 
-      for (const file of Array.from(files) as File[]) {
-        // Image compression options
-        const options = {
-          maxSizeMB: 1,
-          maxWidthOrHeight: 1920,
-          useWebWorker: true,
-        };
-
-        let fileToUpload: File | Blob = file;
-        try {
-          // Only compress if it's an image and larger than 1MB
-          if (file.type.startsWith('image/') && file.size > 1024 * 1024) {
-            fileToUpload = await imageCompression(file, options);
-          }
-        } catch (compressionError) {
-          console.warn('Compression failed, uploading original:', compressionError);
-        }
-
+      const uploadFile = async (file: File) => {
         const fileExt = file.name.split('.').pop() || 'jpg';
         const fileName = `${Math.random()}.${fileExt}`;
         const filePath = `products/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('products')
-          .upload(filePath, fileToUpload);
+          .upload(filePath, file);
 
         if (uploadError) throw uploadError;
 
@@ -136,21 +132,32 @@ export default function ProductManagement() {
           .from('products')
           .getPublicUrl(filePath);
         
-        setFormData(prev => {
-          const newImageUrls = [...prev.image_urls, publicUrl];
-          return { 
-            ...prev, 
-            image_urls: newImageUrls,
-            image_url: prev.image_url || publicUrl
-          };
-        });
-
         completedFiles++;
         setUploadProgress(Math.round((completedFiles / totalFiles) * 100));
         toast.loading(`Uploaded ${completedFiles}/${totalFiles} images...`, { id: toastId });
+        
+        return publicUrl;
+      };
+
+      // Process in parallel batches of 3 for faster upload without compression
+      const results: string[] = [];
+      const fileArray = Array.from(files) as File[];
+      for (let i = 0; i < fileArray.length; i += 3) {
+        const chunk = fileArray.slice(i, i + 3);
+        const chunkUrls = await Promise.all(chunk.map(uploadFile));
+        results.push(...chunkUrls);
       }
 
-      toast.success(`${files.length} image(s) optimized and added!`, { id: toastId });
+      setFormData(prev => {
+        const newImageUrls = [...prev.image_urls, ...results];
+        return { 
+          ...prev, 
+          image_urls: newImageUrls,
+          image_url: prev.image_url || results[0]
+        };
+      });
+
+      toast.success(`${files.length} image(s) added!`, { id: toastId });
     } catch (error: any) {
       toast.error('Failed to upload image: ' + error.message, { id: toastId });
     } finally {
@@ -336,57 +343,67 @@ export default function ProductManagement() {
         setCategories(prev => Array.from(new Set([...prev, newCategory])));
       }
 
-      if (editingProduct) {
-        if (!editingProduct.id || editingProduct.id === 'undefined') {
-          throw new Error('Invalid product ID for editing');
-        }
+      const saveProduct = async () => {
+        if (editingProduct) {
+          if (!editingProduct.id || editingProduct.id === 'undefined') {
+            throw new Error('Invalid product ID for editing');
+          }
 
-        const { error } = await supabase
-          .from('products')
-          .update(data)
-          .eq('id', editingProduct.id);
-        
-        if (error) throw error;
+          const { error } = await supabase
+            .from('products')
+            .update(data)
+            .eq('id', editingProduct.id);
+          
+          if (error) throw error;
 
-        // Update product_images as well
-        await supabase
-          .from('product_images')
-          .delete()
-          .eq('product_id', editingProduct.id);
-        
-        if (formData.image_urls.length > 0) {
-          const imageInserts = formData.image_urls.map(url => ({
-            product_id: editingProduct.id,
-            image_url: url
-          }));
+          // Update product_images as well
           await supabase
             .from('product_images')
-            .insert(imageInserts);
+            .delete()
+            .eq('product_id', editingProduct.id);
+          
+          if (formData.image_urls.length > 0) {
+            const imageInserts = formData.image_urls.map(url => ({
+              product_id: editingProduct.id,
+              image_url: url
+            }));
+            await supabase
+              .from('product_images')
+              .insert(imageInserts);
+          }
+
+          toast.success('Product updated successfully!');
+        } else {
+          const { data: newProduct, error } = await supabase
+            .from('products')
+            .insert([data])
+            .select()
+            .single();
+
+          if (error) throw error;
+
+          if (formData.image_urls.length > 0) {
+            const imageInserts = formData.image_urls.map(url => ({
+              product_id: newProduct.id,
+              image_url: url
+            }));
+            await supabase
+              .from('product_images')
+              .insert(imageInserts);
+          }
+
+          toast.success('Product added successfully!');
         }
+      };
 
-        toast.success('Product updated successfully!');
-      } else {
-        const { data: newProduct, error } = await supabase
-          .from('products')
-          .insert([data])
-          .select()
-          .single();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Save operation timed out')), 45000)
+      );
 
-        if (error) throw error;
-
-        if (formData.image_urls.length > 0) {
-          const imageInserts = formData.image_urls.map(url => ({
-            product_id: newProduct.id,
-            image_url: url
-          }));
-          await supabase
-            .from('product_images')
-            .insert(imageInserts);
-        }
-
-        toast.success('Product added successfully!');
-      }
+      await Promise.race([saveProduct(), timeoutPromise]);
       closeModal();
+      // Manually trigger fetch to ensure UI is updated even if real-time is slow
+      fetchProducts();
     } catch (error: any) {
       console.error('Save Product Error:', error);
       const errorMessage = error.message || error.details || 'Unknown error';
@@ -570,7 +587,24 @@ export default function ProductManagement() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
         <AnimatePresence mode="popLayout">
-          {filteredProducts.slice(0, displayLimit).map((product) => (
+          {filteredProducts.length === 0 ? (
+            <div className="col-span-full py-20 text-center space-y-4">
+              <div className="bg-brand-cream/50 w-20 h-20 rounded-full flex items-center justify-center mx-auto">
+                <Search size={32} className="text-brand-brown/20" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-xl font-serif text-brand-brown">No products found</h3>
+                <p className="text-gray-500">Try adjusting your search or filters, or add a new product.</p>
+              </div>
+              <button 
+                onClick={() => { setSearchTerm(''); setCategoryFilter('all'); }}
+                className="text-brand-gold font-bold uppercase tracking-widest text-xs hover:underline"
+              >
+                Clear all filters
+              </button>
+            </div>
+          ) : (
+            filteredProducts.slice(0, displayLimit).map((product) => (
             <motion.div
               key={product.id}
               layout
@@ -654,7 +688,7 @@ export default function ProductManagement() {
                 </div>
               </div>
             </motion.div>
-          ))}
+          )))}
         </AnimatePresence>
       </div>
 

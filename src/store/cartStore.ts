@@ -99,15 +99,15 @@ export const useCartStore = create<CartState>()(
           })();
 
           const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Cart sync timeout')), 15000) // Reduced to 15s
+            setTimeout(() => reject(new Error('Cart sync timeout')), 15000) // 15s timeout
           );
 
           await Promise.race([syncPromise, timeoutPromise]);
         } catch (error: any) {
           // Retry on transient errors or timeouts
-          if (retryCount < 2 && (error.code === '503' || error.code === '504' || error.message?.includes('timeout'))) {
-            console.warn(`Cart sync failed (attempt ${retryCount + 1}) with ${error.code || 'timeout'}, retrying in 2s...`);
-            await new Promise(resolve => setTimeout(resolve, 2000));
+          if (retryCount < 3 && (error.code === '503' || error.code === '504' || error.message?.includes('timeout'))) {
+            console.warn(`Cart sync failed (attempt ${retryCount + 1}), retrying in 1s...`);
+            await new Promise(resolve => setTimeout(resolve, 1000));
             return get().syncToSupabase(userId, retryCount + 1);
           }
           console.error('Error syncing cart to Supabase:', error);
@@ -123,7 +123,7 @@ export const useCartStore = create<CartState>()(
             .eq('user_id', userId);
 
           const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Cart fetch timeout')), 15000) // Reduced to 15s
+            setTimeout(() => reject(new Error('Cart fetch timeout')), 15000) // 15s timeout
           );
 
           const { data, error } = await Promise.race([
@@ -133,9 +133,9 @@ export const useCartStore = create<CartState>()(
           
           if (error) {
             // Retry on transient errors or timeouts
-            if (retryCount < 2 && (error.code === '503' || error.code === '504' || error.message?.includes('timeout'))) {
-              console.warn(`Cart fetch failed (attempt ${retryCount + 1}) with ${error.code || 'timeout'}, retrying in 2s...`);
-              await new Promise(resolve => setTimeout(resolve, 2000));
+            if (retryCount < 3 && (error.code === '503' || error.code === '504' || error.message?.includes('timeout'))) {
+              console.warn(`Cart fetch failed (attempt ${retryCount + 1}), retrying in 1s...`);
+              await new Promise(resolve => setTimeout(resolve, 1000));
               return get().fetchFromSupabase(userId, retryCount + 1);
             }
             throw error;
