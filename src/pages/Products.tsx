@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { PRODUCTS } from '@/src/constants';
 import { cn } from '@/src/lib/utils';
 import { supabase, handleSupabaseError } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
@@ -98,21 +97,14 @@ export default function Products() {
   };
 
   const allProducts = useMemo(() => {
-    // Merge DB products with static products, prioritizing DB products
-    const staticProducts = PRODUCTS.map(p => ({
-      ...p,
-      title: p.name,
-      image: p.images[0],
-      isStatic: true
-    }));
-    
     const formattedDbProducts = dbProducts.map(p => ({
       ...p,
+      title: p.name,
       image: p.product_images?.[0]?.image_url || '',
       images: p.product_images?.map((img: any) => img.image_url) || []
     }));
 
-    return [...formattedDbProducts, ...staticProducts];
+    return formattedDbProducts;
   }, [dbProducts]);
 
   const filteredProducts = useMemo(() => {
@@ -133,7 +125,7 @@ export default function Products() {
 
   // No full-page loading spinner if we have static products to show
   // Only show spinner if we have no products at all and we are loading
-  const showSpinner = loading && dbProducts.length === 0 && PRODUCTS.length === 0;
+  const showSpinner = loading && dbProducts.length === 0;
 
   if (showSpinner) {
     return (

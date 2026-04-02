@@ -14,7 +14,7 @@ export default function Contact() {
     e.preventDefault();
     
     const whatsappNumber = '919848082209';
-    const text = `Hello Sree Krishna Steels,\n\nI have a quick enquiry:\n\n*Name:* ${formData.name}\n*Email:* ${formData.email}\n*Message:* ${formData.message}`;
+    const text = `Hello Sree Krishna Steels & Furniture,\n\nI have a quick enquiry:\n\n*Name:* ${formData.name}\n*Email:* ${formData.email}\n*Message:* ${formData.message}`;
     const encodedText = encodeURIComponent(text);
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedText}`;
     

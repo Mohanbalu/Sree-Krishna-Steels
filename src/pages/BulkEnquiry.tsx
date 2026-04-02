@@ -17,7 +17,7 @@ export default function BulkEnquiry() {
     e.preventDefault();
     
     const whatsappNumber = '919848082209';
-    const text = `Hello Sree Krishna Steels,\n\nI am interested in a *Bulk/Dealer Enquiry*:\n\n*Name:* ${formData.name}\n*Business:* ${formData.businessName}\n*Email:* ${formData.email}\n*Phone:* ${formData.phone}\n*Type:* ${formData.enquiryType}\n*Requirement:* ${formData.requirement}`;
+    const text = `Hello Sree Krishna Steels & Furniture,\n\nI am interested in a *Bulk/Dealer Enquiry*:\n\n*Name:* ${formData.name}\n*Business:* ${formData.businessName}\n*Email:* ${formData.email}\n*Phone:* ${formData.phone}\n*Type:* ${formData.enquiryType}\n*Requirement:* ${formData.requirement}`;
     const encodedText = encodeURIComponent(text);
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedText}`;
     

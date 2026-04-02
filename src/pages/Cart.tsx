@@ -135,7 +135,7 @@ export default function Cart() {
               </Link>
 
               <p className="mt-6 text-center text-xs text-brand-charcoal/40">
-                Secure checkout powered by Sree Krishna Steels
+                Secure checkout powered by Sree Krishna Steels & Furniture
               </p>
             </div>
           </div>

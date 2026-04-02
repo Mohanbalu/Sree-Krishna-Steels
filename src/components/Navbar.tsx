@@ -67,10 +67,17 @@ export default function Navbar() {
           </div>
           <div className="flex flex-col">
             <span className={cn(
+              "text-[9px] font-sans tracking-[0.3em] font-black uppercase mb-0.5 transition-colors duration-500",
+              scrolled ? "text-brand-gold" : (isHome ? "text-brand-gold" : "text-brand-gold")
+            )}>Nethra Brand</span>
+            <span className={cn(
               "text-2xl font-serif font-bold tracking-tight leading-none transition-colors duration-500 whitespace-nowrap",
-              textColor
+              scrolled ? "text-blue-600" : (isHome ? "text-blue-400" : "text-blue-600")
             )}>SREE KRISHNA</span>
-            <span className="text-[10px] font-sans tracking-[0.4em] text-brand-gold font-bold uppercase mt-1">STEELS</span>
+            <span className={cn(
+              "text-[10px] font-sans tracking-[0.2em] font-bold uppercase mt-1 transition-colors duration-500",
+              scrolled ? "text-[#800000]" : (isHome ? "text-red-200" : "text-[#800000]")
+            )}>STEELS & FURNITURE</span>
           </div>
         </Link>
 

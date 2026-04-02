@@ -43,46 +43,63 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
   initialize: async () => {
+    // Prevent multiple initializations
+    if (useAuthStore.getState().initialized && supabase) {
+      return;
+    }
+
     if (!supabase) {
       set({ loading: false, initialized: true });
       return;
     }
 
     const fetchProfile = async (userId: string, userEmail?: string, userName?: string, userPhone?: string) => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-      
-      if (error) {
-        // If profile is missing (PGRST116), try to create it immediately
-        if (error.code === 'PGRST116') {
-          console.log('Profile missing in DB, auto-creating...');
-          const { data: newProfile, error: createError } = await supabase
-            .from('profiles')
-            .insert([
-              { 
-                id: userId, 
-                name: userName || 'User', 
-                email: userEmail,
-                phone: userPhone,
-                role: userEmail === 'support@sksfurniture.in' ? 'super_admin' : 'customer' 
-              }
-            ])
-            .select()
-            .single();
-            
-          if (createError) {
-            console.error('Auto-create failed:', createError);
-            return { id: userId, role: 'customer' } as UserProfile;
+      try {
+        // Add a timeout to the profile fetch to prevent stuck loading state
+        const profilePromise = supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single();
+
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Profile fetch timeout')), 10000)
+        );
+
+        const { data, error } = await Promise.race([profilePromise, timeoutPromise]) as any;
+        
+        if (error) {
+          // If profile is missing (PGRST116), try to create it immediately
+          if (error.code === 'PGRST116') {
+            console.log('Profile missing in DB, auto-creating...');
+            const { data: newProfile, error: createError } = await supabase
+              .from('profiles')
+              .insert([
+                { 
+                  id: userId, 
+                  name: userName || 'User', 
+                  email: userEmail,
+                  phone: userPhone,
+                  role: userEmail === 'support@sksfurniture.in' ? 'super_admin' : 'customer' 
+                }
+              ])
+              .select()
+              .single();
+              
+            if (createError) {
+              console.error('Auto-create failed:', createError);
+              return { id: userId, role: 'customer', email: userEmail || '', name: userName || 'User', created_at: new Date().toISOString() } as UserProfile;
+            }
+            return newProfile as UserProfile;
           }
-          return newProfile as UserProfile;
+          console.error('Error fetching profile:', error);
+          return null;
         }
-        console.error('Error fetching profile:', error);
+        return data as UserProfile;
+      } catch (err) {
+        console.error('fetchProfile error or timeout:', err);
         return null;
       }
-      return data as UserProfile;
     };
 
     // Initial session check
@@ -132,13 +149,11 @@ export const useAuthStore = create<AuthState>((set) => ({
       
       if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
         useCartStore.getState().clearCart(false);
-        set({ user: null, profile: null, loading: false });
+        set({ user: null, profile: null, loading: false, initialized: true });
         return;
       }
 
       if (session?.user) {
-        // If we already have the user and profile, and it's just a token refresh or similar, 
-        // we might not need to fetch the profile again unless it's a SIGNED_IN event.
         const currentUser = useAuthStore.getState().user;
         let currentProfile = useAuthStore.getState().profile;
         
@@ -147,26 +162,31 @@ export const useAuthStore = create<AuthState>((set) => ({
           currentProfile = { ...currentProfile, role: 'super_admin' };
         }
         
+        // If we already have the user and profile, and it's just a token refresh or similar, 
+        // don't set loading to true to avoid jarring UI shifts.
         if (currentUser?.id === session.user.id && currentProfile && event !== 'SIGNED_IN') {
           console.log('Session refreshed, keeping existing profile');
-          set({ user: session.user, profile: currentProfile, loading: false });
+          set({ user: session.user, profile: currentProfile, loading: false, initialized: true });
           return;
         }
 
         console.log('Fetching profile for session user...');
-        // Set loading true while fetching profile for a new session or sign in
-        set({ loading: true });
+        // Only set loading true if we don't have a profile yet or it's a fresh sign in
+        if (!currentProfile || event === 'SIGNED_IN') {
+          set({ loading: true });
+        }
         
         try {
-          const [profile] = await Promise.all([
-            fetchProfile(
-              session.user.id, 
-              session.user.email, 
-              session.user.user_metadata?.full_name || session.user.user_metadata?.name,
-              session.user.user_metadata?.phone || session.user.phone
-            ),
-            useCartStore.getState().fetchFromSupabase(session.user.id)
-          ]);
+          const profilePromise = fetchProfile(
+            session.user.id, 
+            session.user.email, 
+            session.user.user_metadata?.full_name || session.user.user_metadata?.name,
+            session.user.user_metadata?.phone || session.user.phone
+          );
+          
+          const cartPromise = useCartStore.getState().fetchFromSupabase(session.user.id);
+
+          const [profile] = await Promise.all([profilePromise, cartPromise]);
           
           // Ensure support@sksfurniture.in is always an admin
           if (session.user.email === 'support@sksfurniture.in' && profile) {
@@ -174,14 +194,14 @@ export const useAuthStore = create<AuthState>((set) => ({
           }
           
           console.log('Profile fetched successfully:', profile?.role);
-          set({ user: session.user, profile, loading: false });
+          set({ user: session.user, profile, loading: false, initialized: true });
         } catch (error) {
           console.error('Error in onAuthStateChange profile fetch:', error);
-          set({ user: session.user, profile: null, loading: false });
+          set({ user: session.user, profile: null, loading: false, initialized: true });
         }
       } else {
         useCartStore.getState().clearCart(false);
-        set({ user: null, profile: null, loading: false });
+        set({ user: null, profile: null, loading: false, initialized: true });
       }
     });
   },

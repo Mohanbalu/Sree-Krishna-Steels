@@ -229,11 +229,11 @@ export default function CustomerManagement() {
                         <div className="min-w-[120px]">
                           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/30 mb-1">Payment</p>
                           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                            order.payment_status === 'Paid' 
+                            order.payment_status?.toLowerCase() === 'paid' 
                               ? 'bg-green-50 text-green-600 border-green-100' 
                               : 'bg-amber-50 text-amber-600 border-amber-100'
                           }`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${order.payment_status === 'Paid' ? 'bg-green-500' : 'bg-amber-500'}`} />
+                            <span className={`w-1.5 h-1.5 rounded-full ${order.payment_status?.toLowerCase() === 'paid' ? 'bg-green-500' : 'bg-amber-500'}`} />
                             {order.payment_status || 'Pending'}
                           </span>
                         </div>

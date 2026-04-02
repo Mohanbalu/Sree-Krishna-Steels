@@ -155,11 +155,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </div>
 
           <div className="flex items-center gap-6">
-            <button className="relative p-3 text-brand-charcoal/40 hover:text-brand-gold hover:bg-brand-gold/5 rounded-2xl transition-all">
-              <Bell size={20} strokeWidth={1.5} />
-              <span className="absolute top-3 right-3 w-2 h-2 bg-brand-gold rounded-full border-2 border-white shadow-sm"></span>
-            </button>
-            
             <div className="flex items-center gap-4 pl-6 border-l border-brand-brown/5">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-bold text-brand-brown leading-tight">{profile?.name}</p>

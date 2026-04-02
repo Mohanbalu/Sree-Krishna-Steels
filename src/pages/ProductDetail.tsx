@@ -1,6 +1,5 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { PRODUCTS } from '@/src/constants';
 import { Check, ArrowLeft, Phone, MessageSquare, ShieldCheck, Package, Ruler, ShoppingCart, Minus, Plus } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase, handleSupabaseError } from '../lib/supabase';
@@ -27,19 +26,6 @@ export default function ProductDetail() {
         return;
       }
 
-      // Check static first for immediate display
-      const staticProduct = PRODUCTS.find(p => p.id === id);
-      if (staticProduct) {
-        setProduct({
-          ...staticProduct,
-          title: staticProduct.name,
-          image: staticProduct.images[0],
-          isStatic: true
-        });
-        // If we found a static product, we can stop showing the spinner early
-        setLoading(false);
-      }
-
       try {
         // Try Supabase if client exists
         if (supabase) {
@@ -57,6 +43,7 @@ export default function ProductDetail() {
           if (data) {
             setProduct({
               ...data,
+              title: data.name,
               images: data.product_images?.map((img: any) => img.image_url) || [],
               image: data.product_images?.[0]?.image_url || ''
             });
@@ -91,7 +78,7 @@ export default function ProductDetail() {
     );
   }
 
-  const images = product.isStatic ? product.images : [product.image];
+  const images = product.images && product.images.length > 0 ? product.images : [product.image];
   const price = typeof product.price === 'number' ? `₹${product.price.toLocaleString()}` : product.price;
   const numericPrice = typeof product.price === 'number' ? product.price : parseInt(product.price.replace(/[^0-9]/g, ''));
 

@@ -143,14 +143,14 @@ export const REFERENCES = [
     id: 1,
     name: 'Rajesh Kumar',
     role: 'Home Owner',
-    content: 'The quality of the teak bed I purchased from Sree Krishna Steels is exceptional. The craftsmanship is truly royal.',
+    content: 'The quality of the teak bed I purchased from Sree Krishna Steels & Furniture is exceptional. The craftsmanship is truly royal.',
     image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200'
   },
   {
     id: 2,
     name: 'Anjali Sharma',
     role: 'Interior Designer',
-    content: 'As a designer, I always look for durability and style. Sree Krishna Steels delivers both consistently. Their steel frames are top-notch.',
+    content: 'As a designer, I always look for durability and style. Sree Krishna Steels & Furniture delivers both consistently. Their steel frames are top-notch.',
     image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200'
   },
   {
@@ -171,7 +171,7 @@ export const REFERENCES = [
     id: 5,
     name: 'Suresh Babu',
     role: 'Architect',
-    content: 'I have recommended Sree Krishna Steels to many of my clients. Their attention to detail and ability to customize is impressive.',
+    content: 'I have recommended Sree Krishna Steels & Furniture to many of my clients. Their attention to detail and ability to customize is impressive.',
     image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'
   },
   {

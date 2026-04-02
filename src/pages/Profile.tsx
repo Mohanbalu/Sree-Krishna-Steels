@@ -86,7 +86,7 @@ export default function Profile() {
   if (!profile) {
     return (
       <div className="pt-32 pb-24 px-6 flex items-center justify-center min-h-screen">
-        <Loader2 className="animate-spin text-brand-gold" size={48} />
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-gold"></div>
       </div>
     );
   }

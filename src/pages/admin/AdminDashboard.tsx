@@ -78,7 +78,7 @@ export default function AdminDashboard() {
         let revenue = 0;
         ordersData?.forEach(order => {
           // Sum revenue for paid or delivered orders
-          if (order.payment_status === 'Paid' || order.status === 'Delivered') {
+          if (order.payment_status?.toLowerCase() === 'paid' || order.status?.toLowerCase() === 'delivered') {
             revenue += order.total_amount || 0;
           }
         });

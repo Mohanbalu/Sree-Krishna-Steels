@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
 import { ArrowRight, Star, Shield, Truck, Settings, Phone, Quote, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { PRODUCTS, REFERENCES } from '@/src/constants';
+import { REFERENCES } from '@/src/constants';
 import { useState, useEffect, useMemo } from 'react';
 import { supabase, handleSupabaseError } from '../lib/supabase';
 
@@ -14,7 +14,12 @@ export default function Home() {
       try {
         const { data, error } = await supabase
           .from('products')
-          .select('*')
+          .select(`
+            *,
+            product_images (
+              image_url
+            )
+          `)
           .eq('is_best_seller', true)
           .limit(3);
 
@@ -29,11 +34,10 @@ export default function Home() {
   }, []);
 
   const featuredProducts = useMemo(() => {
-    if (dbFeatured.length > 0) return dbFeatured;
-    return PRODUCTS.filter(p => p.isBestSeller).map(p => ({
+    return dbFeatured.map(p => ({
       ...p,
       title: p.name,
-      image_url: p.images[0]
+      image_url: p.product_images?.[0]?.image_url || p.image_url
     }));
   }, [dbFeatured]);
 
@@ -98,7 +102,7 @@ export default function Home() {
               </span>
             </Link>
             <a 
-              href="https://wa.me/919848082209?text=Hello%20Sree%20Krishna%20Steels,%20I'd%20like%20to%20get%20a%20quote%20for%20some%20furniture."
+              href="https://wa.me/919848082209?text=Hello%20Sree%20Krishna%20Steels%20%26%20Furniture,%20I'd%20like%20to%20get%20a%20quote%20for%20some%20furniture."
               target="_blank"
               rel="noopener noreferrer"
               className="text-white font-bold text-sm uppercase tracking-[0.2em] hover:text-brand-gold transition-colors duration-300 flex items-center gap-3 group"
@@ -186,6 +190,7 @@ export default function Home() {
       <section className="bg-brand-brown py-24 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
+            <span className="text-brand-gold font-bold tracking-[0.3em] uppercase text-[10px] mb-4 block">A Nethra Brand</span>
             <h2 className="text-4xl md:text-5xl font-serif text-white mb-6">The Sree Krishna Edge</h2>
             <p className="text-brand-cream/60 max-w-2xl mx-auto">We don't just make furniture; we create legacies of comfort and durability for your home.</p>
           </div>
@@ -254,7 +259,7 @@ export default function Home() {
             <p className="text-brand-brown/70 text-lg mb-12 max-w-xl mx-auto">Get a free consultation and a personalized quote for your dream furniture today.</p>
             <div className="flex flex-col sm:flex-row justify-center gap-6">
               <a 
-                href="https://wa.me/919848082209?text=Hello%20Sree%20Krishna%20Steels,%20I'm%20interested%20in%20upgrading%20my%20home%20furniture.%20Please%20provide%20more%20details."
+                href="https://wa.me/919848082209?text=Hello%20Sree%20Krishna%20Steels%20%26%20Furniture,%20I'm%20interested%20in%20upgrading%20my%20home%20furniture.%20Please%20provide%20more%20details."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-brand-brown text-white px-12 py-5 rounded-full font-bold text-xl hover:shadow-2xl transition-all"

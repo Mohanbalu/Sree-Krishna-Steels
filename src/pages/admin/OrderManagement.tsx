@@ -176,8 +176,8 @@ export default function OrderManagement() {
       order.customer_phone?.includes(searchTerm) ||
       (order as any).phone?.includes(searchTerm);
     
-    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
-    const matchesPayment = paymentFilter === 'all' || order.payment_status === paymentFilter;
+    const matchesStatus = statusFilter === 'all' || order.status?.toLowerCase() === statusFilter.toLowerCase();
+    const matchesPayment = paymentFilter === 'all' || order.payment_status?.toLowerCase() === paymentFilter.toLowerCase();
     
     return matchesSearch && matchesStatus && matchesPayment;
   });
@@ -251,10 +251,11 @@ export default function OrderManagement() {
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="all">Fulfillment</option>
-              <option value="Pending">Pending</option>
-              <option value="Confirmed">Confirmed</option>
-              <option value="Shipped">Shipped</option>
-              <option value="Delivered">Delivered</option>
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
             </select>
           </div>
           <div className="flex items-center gap-3 bg-white rounded-[1.5rem] px-6 py-2 border border-brand-brown/5 shadow-sm min-w-[160px]">
@@ -265,9 +266,9 @@ export default function OrderManagement() {
               onChange={(e) => setPaymentFilter(e.target.value)}
             >
               <option value="all">Payment</option>
-              <option value="Pending">Pending</option>
-              <option value="Paid">Paid</option>
-              <option value="Failed">Failed</option>
+              <option value="pending">Pending</option>
+              <option value="paid">Paid</option>
+              <option value="failed">Failed</option>
             </select>
           </div>
         </div>
