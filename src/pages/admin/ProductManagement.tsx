@@ -593,29 +593,29 @@ export default function ProductManagement() {
       )}
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center lg:p-6 bg-brand-charcoal/60 backdrop-blur-xl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 md:p-6 bg-brand-charcoal/60 backdrop-blur-xl">
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 40 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-white w-full h-full lg:h-auto lg:max-w-3xl lg:rounded-[3rem] shadow-2xl overflow-hidden border border-brand-brown/5 flex flex-col"
+            className="bg-white w-full h-full sm:h-auto sm:max-h-[92vh] max-w-3xl sm:rounded-[2rem] md:rounded-[3rem] shadow-2xl overflow-hidden border border-brand-brown/5 flex flex-col"
           >
-            <div className="px-6 lg:px-10 py-6 lg:py-8 border-b border-brand-brown/5 flex justify-between items-center bg-brand-cream/30">
-              <div className="space-y-1">
-                <h2 className="text-2xl lg:text-3xl font-serif text-brand-brown">
+            <div className="px-5 sm:px-8 lg:px-10 py-5 sm:py-6 lg:py-8 border-b border-brand-brown/5 flex justify-between items-center bg-brand-cream/30 shrink-0">
+              <div className="space-y-0.5 sm:space-y-1">
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-serif text-brand-brown leading-tight">
                   {editingProduct ? 'Refine Product' : 'New Collection Item'}
                 </h2>
-                <p className="text-[10px] lg:text-xs font-bold uppercase tracking-widest text-brand-brown/40">
+                <p className="text-[8px] sm:text-[10px] lg:text-xs font-bold uppercase tracking-widest text-brand-brown/40">
                   {editingProduct ? 'Update existing inventory details' : 'Add a new piece to your catalog'}
                 </p>
               </div>
-              <button onClick={closeModal} className="p-2 lg:p-3 hover:bg-brand-brown/5 rounded-xl lg:rounded-2xl transition-all text-brand-brown/40 hover:text-brand-brown">
-                <X size={20} lg:size={24} />
+              <button onClick={closeModal} className="p-2 sm:p-3 hover:bg-brand-brown/5 rounded-xl lg:rounded-2xl transition-all text-brand-brown/40 hover:text-brand-brown">
+                <X size={18} sm:size={20} lg:size={24} />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="flex flex-col flex-grow overflow-hidden">
-              <div className="p-6 lg:p-10 space-y-6 lg:space-y-8 overflow-y-auto flex-grow custom-scrollbar">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+              <div className="p-5 sm:p-8 lg:p-10 space-y-6 lg:space-y-8 overflow-y-auto flex-grow custom-scrollbar">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 lg:gap-8">
                   <div className="space-y-2 lg:space-y-3">
                     <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1">Title</label>
                     <input
@@ -773,11 +773,11 @@ export default function ProductManagement() {
                 </div>
               </div>
 
-              <div className="p-6 lg:p-10 border-t border-brand-brown/5 bg-brand-cream/10">
+              <div className="p-5 sm:p-8 lg:p-10 border-t border-brand-brown/5 bg-brand-cream/10 shrink-0">
                 <button
                   type="submit"
                   disabled={uploading || submitting}
-                  className={`w-full bg-brand-brown text-white py-4 lg:py-5 rounded-xl lg:rounded-2xl font-bold text-base lg:text-lg hover:bg-brand-charcoal active:scale-[0.99] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-brand-brown/30 ${submitting || uploading ? 'animate-pulse' : ''}`}
+                  className={`w-full bg-brand-brown text-white py-3.5 sm:py-4 lg:py-5 rounded-xl lg:rounded-2xl font-bold text-sm sm:text-base lg:text-lg hover:bg-brand-charcoal active:scale-[0.99] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-brand-brown/30 ${submitting || uploading ? 'animate-pulse' : ''}`}
                 >
                   {submitting || uploading ? (
                     <>
