@@ -14,6 +14,7 @@ interface Product {
   image_url: string;
   reel_link?: string;
   is_active?: boolean;
+  images?: string[];
 }
 
 export default function ProductManagement() {
@@ -33,6 +34,7 @@ export default function ProductManagement() {
     stock: 0,
     category: 'Beds',
     image_url: '',
+    image_urls: [] as string[],
     reel_link: '',
     is_active: true,
   });
@@ -72,27 +74,38 @@ export default function ProductManagement() {
   }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setUploading(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `products/${fileName}`;
+      const newImageUrls: string[] = [...formData.image_urls];
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `products/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('products')
-        .upload(filePath, file);
+        const { error: uploadError } = await supabase.storage
+          .from('products')
+          .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+        if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('products')
-        .getPublicUrl(filePath);
+        const { data: { publicUrl } } = supabase.storage
+          .from('products')
+          .getPublicUrl(filePath);
+        
+        newImageUrls.push(publicUrl);
+      }
 
-      setFormData(prev => ({ ...prev, image_url: publicUrl }));
-      toast.success('Image uploaded successfully!');
+      setFormData(prev => ({ 
+        ...prev, 
+        image_urls: newImageUrls,
+        image_url: prev.image_url || newImageUrls[0]
+      }));
+      toast.success(`${files.length} image(s) uploaded successfully!`);
     } catch (error: any) {
       toast.error('Failed to upload image: ' + error.message);
     } finally {
@@ -270,9 +283,15 @@ export default function ProductManagement() {
           .delete()
           .eq('product_id', editingProduct.id);
         
-        await supabase
-          .from('product_images')
-          .insert([{ product_id: editingProduct.id, image_url: data.image_url }]);
+        if (formData.image_urls.length > 0) {
+          const imageInserts = formData.image_urls.map(url => ({
+            product_id: editingProduct.id,
+            image_url: url
+          }));
+          await supabase
+            .from('product_images')
+            .insert(imageInserts);
+        }
 
         toast.success('Product updated successfully!');
       } else {
@@ -284,9 +303,15 @@ export default function ProductManagement() {
 
         if (error) throw error;
 
-        await supabase
-          .from('product_images')
-          .insert([{ product_id: newProduct.id, image_url: data.image_url }]);
+        if (formData.image_urls.length > 0) {
+          const imageInserts = formData.image_urls.map(url => ({
+            product_id: newProduct.id,
+            image_url: url
+          }));
+          await supabase
+            .from('product_images')
+            .insert(imageInserts);
+        }
 
         toast.success('Product added successfully!');
       }
@@ -335,9 +360,18 @@ export default function ProductManagement() {
     setIsDeleteModalOpen(true);
   };
 
-  const openModal = (product: Product | null = null) => {
+  const openModal = async (product: Product | null = null) => {
     if (product) {
       setEditingProduct(product);
+      
+      // Fetch all images for this product
+      const { data: imagesData } = await supabase
+        .from('product_images')
+        .select('image_url')
+        .eq('product_id', product.id);
+      
+      const images = imagesData?.map((img: any) => img.image_url) || [product.image_url];
+
       setFormData({
         title: product.title,
         description: product.description,
@@ -345,6 +379,7 @@ export default function ProductManagement() {
         stock: product.stock,
         category: product.category,
         image_url: product.image_url,
+        image_urls: images,
         reel_link: product.reel_link || '',
         is_active: product.is_active ?? true,
       });
@@ -357,6 +392,7 @@ export default function ProductManagement() {
         stock: 0,
         category: 'Beds',
         image_url: '',
+        image_urls: [],
         reel_link: '',
         is_active: true,
       });
@@ -611,59 +647,75 @@ export default function ProductManagement() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-                  <div className="space-y-2 lg:space-y-3">
-                    <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1 flex items-center gap-2">
-                      <ImageIcon size={12} /> Visual Asset
-                    </label>
-                    <div className="space-y-4">
-                      {formData.image_url && (
-                        <div className="relative aspect-video rounded-xl lg:rounded-2xl overflow-hidden border border-brand-brown/10 group">
-                          <img 
-                            src={formData.image_url} 
-                            alt="Preview" 
-                            className="w-full h-full object-cover"
-                            referrerPolicy="no-referrer"
-                          />
+                <div className="space-y-4">
+                  <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1 flex items-center gap-2">
+                    <ImageIcon size={12} /> Product Gallery
+                  </label>
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {formData.image_urls.map((url, index) => (
+                      <div key={index} className="relative aspect-square rounded-2xl overflow-hidden border border-brand-brown/10 group bg-brand-cream/10">
+                        <img 
+                          src={url} 
+                          alt={`Product ${index + 1}`} 
+                          className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                           <button
                             type="button"
-                            onClick={() => setFormData(prev => ({ ...prev, image_url: '' }))}
-                            className="absolute top-2 lg:top-3 right-2 lg:right-3 p-1.5 lg:p-2 bg-white/90 backdrop-blur-md rounded-lg lg:rounded-xl text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xl opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
+                            onClick={() => setFormData(prev => ({ ...prev, image_url: url }))}
+                            className={`p-2 rounded-xl transition-all ${formData.image_url === url ? 'bg-brand-gold text-white' : 'bg-white/90 text-brand-brown hover:bg-brand-gold hover:text-white'}`}
+                            title="Set as main image"
                           >
-                            <X size={14} lg:size={16} />
+                            <Eye size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setFormData(prev => {
+                              const newUrls = prev.image_urls.filter((_, i) => i !== index);
+                              return {
+                                ...prev,
+                                image_urls: newUrls,
+                                image_url: prev.image_url === url ? (newUrls[0] || '') : prev.image_url
+                              };
+                            })}
+                            className="p-2 bg-white/90 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"
+                            title="Remove image"
+                          >
+                            <Trash2 size={14} />
                           </button>
                         </div>
-                      )}
-                      <div className="flex gap-4">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          className="hidden"
-                          id="image-upload"
-                        />
-                        <label
-                          htmlFor="image-upload"
-                          className={`flex-grow border-2 border-dashed rounded-xl lg:rounded-2xl p-4 lg:p-6 text-center cursor-pointer transition-all duration-300 ${
-                            uploading ? 'bg-brand-cream/10 border-brand-brown/10 cursor-not-allowed' : 
-                            formData.image_url ? 'bg-white border-brand-gold/20 hover:border-brand-gold' : 
-                            'bg-brand-cream/10 border-brand-brown/10 hover:border-brand-gold'
-                          }`}
-                        >
-                          <div className="flex flex-col items-center gap-2">
-                            {uploading ? (
-                              <div className="animate-spin rounded-full h-5 w-5 lg:h-6 lg:w-6 border-2 border-brand-gold/30 border-t-brand-gold"></div>
-                            ) : (
-                              <Upload size={20} lg:size={24} className="text-brand-brown/30" />
-                            )}
-                            <span className="text-[10px] lg:text-xs font-bold uppercase tracking-widest text-brand-brown/60">
-                              {uploading ? 'Uploading...' : (formData.image_url ? 'Replace Image' : 'Select Image')}
-                            </span>
+                        {formData.image_url === url && (
+                          <div className="absolute top-2 left-2 bg-brand-gold text-white text-[8px] font-bold uppercase px-2 py-1 rounded-full shadow-lg">
+                            Main
                           </div>
-                        </label>
+                        )}
                       </div>
-                    </div>
+                    ))}
+                    
+                    <label className={`aspect-square border-2 border-dashed rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer transition-all hover:border-brand-gold hover:bg-brand-gold/5 ${uploading ? 'opacity-50 cursor-not-allowed' : 'border-brand-brown/10'}`}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        disabled={uploading}
+                      />
+                      {uploading ? (
+                        <div className="animate-spin rounded-full h-6 w-6 border-2 border-brand-gold border-t-transparent" />
+                      ) : (
+                        <>
+                          <Plus size={24} className="text-brand-brown/30" />
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-brand-brown/40">Add Images</span>
+                        </>
+                      )}
+                    </label>
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
                   <div className="space-y-2 lg:space-y-3">
                     <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1 flex items-center gap-2">
                       <LinkIcon size={12} /> Social Media (Reel)

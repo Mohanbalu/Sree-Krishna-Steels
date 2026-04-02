@@ -99,8 +99,8 @@ export default function Products() {
   const allProducts = useMemo(() => {
     const formattedDbProducts = dbProducts.map(p => ({
       ...p,
-      title: p.name,
-      image: p.product_images?.[0]?.image_url || '',
+      title: p.title || p.name,
+      image: p.product_images?.[0]?.image_url || p.image_url || '',
       images: p.product_images?.map((img: any) => img.image_url) || []
     }));
 

@@ -43,9 +43,9 @@ export default function ProductDetail() {
           if (data) {
             setProduct({
               ...data,
-              title: data.name,
+              title: data.title || data.name,
               images: data.product_images?.map((img: any) => img.image_url) || [],
-              image: data.product_images?.[0]?.image_url || ''
+              image: data.product_images?.[0]?.image_url || data.image_url || ''
             });
             setLoading(false);
             return;
