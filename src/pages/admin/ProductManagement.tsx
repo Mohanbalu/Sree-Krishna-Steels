@@ -41,6 +41,7 @@ export default function ProductManagement() {
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [displayLimit, setDisplayLimit] = useState(12);
 
   const categories = ['Beds', 'Sofas', 'Dining Tables', 'Wardrobes', 'Office Furniture', 'Steel Almirahs'];
 
@@ -79,10 +80,7 @@ export default function ProductManagement() {
 
     setUploading(true);
     try {
-      const newImageUrls: string[] = [...formData.image_urls];
-      
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+      const uploadPromises = Array.from(files).map(async (file: File) => {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
         const filePath = `products/${fileName}`;
@@ -97,14 +95,19 @@ export default function ProductManagement() {
           .from('products')
           .getPublicUrl(filePath);
         
-        newImageUrls.push(publicUrl);
-      }
+        return publicUrl;
+      });
 
-      setFormData(prev => ({ 
-        ...prev, 
-        image_urls: newImageUrls,
-        image_url: prev.image_url || newImageUrls[0]
-      }));
+      const uploadedUrls = await Promise.all(uploadPromises);
+      
+      setFormData(prev => {
+        const newImageUrls = [...prev.image_urls, ...uploadedUrls];
+        return { 
+          ...prev, 
+          image_urls: newImageUrls,
+          image_url: prev.image_url || newImageUrls[0]
+        };
+      });
       toast.success(`${files.length} image(s) uploaded successfully!`);
     } catch (error: any) {
       toast.error('Failed to upload image: ' + error.message);
@@ -405,12 +408,23 @@ export default function ProductManagement() {
     setEditingProduct(null);
   };
 
-  const filteredProducts = products.filter(p => {
-    const matchesSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         p.category.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter === 'all' || p.category === categoryFilter;
-    return matchesSearch && matchesCategory;
-  });
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const filteredProducts = React.useMemo(() => {
+    return products.filter(p => {
+      const matchesSearch = p.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+                           p.category.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
+      const matchesCategory = categoryFilter === 'all' || p.category === categoryFilter;
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, debouncedSearchTerm, categoryFilter]);
 
   if (loading) {
     return (
@@ -489,7 +503,7 @@ export default function ProductManagement() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
         <AnimatePresence mode="popLayout">
-          {filteredProducts.map((product) => (
+          {filteredProducts.slice(0, displayLimit).map((product) => (
             <motion.div
               key={product.id}
               layout
@@ -566,6 +580,17 @@ export default function ProductManagement() {
           ))}
         </AnimatePresence>
       </div>
+
+      {filteredProducts.length > displayLimit && (
+        <div className="flex justify-center pt-10">
+          <button 
+            onClick={() => setDisplayLimit(prev => prev + 12)}
+            className="px-8 py-3 bg-white border border-brand-brown/10 rounded-2xl font-bold text-brand-brown hover:bg-brand-cream transition-all shadow-sm uppercase tracking-widest text-xs"
+          >
+            Load More Products
+          </button>
+        </div>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center lg:p-6 bg-brand-charcoal/60 backdrop-blur-xl">
@@ -752,12 +777,14 @@ export default function ProductManagement() {
                 <button
                   type="submit"
                   disabled={uploading || submitting}
-                  className="w-full bg-brand-brown text-white py-4 lg:py-5 rounded-xl lg:rounded-2xl font-bold text-base lg:text-lg hover:bg-brand-charcoal active:scale-[0.99] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-brand-brown/30"
+                  className={`w-full bg-brand-brown text-white py-4 lg:py-5 rounded-xl lg:rounded-2xl font-bold text-base lg:text-lg hover:bg-brand-charcoal active:scale-[0.99] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-brand-brown/30 ${submitting || uploading ? 'animate-pulse' : ''}`}
                 >
-                  {submitting ? (
+                  {submitting || uploading ? (
                     <>
                       <div className="animate-spin rounded-full h-5 w-5 lg:h-6 lg:w-6 border-2 border-white/30 border-t-white"></div>
-                      <span className="tracking-widest uppercase text-xs lg:text-sm">Processing...</span>
+                      <span className="tracking-widest uppercase text-xs lg:text-sm">
+                        {uploading ? 'Uploading Images...' : 'Processing...'}
+                      </span>
                     </>
                   ) : (
                     <>
