@@ -385,21 +385,21 @@ export default function ProductManagement() {
   }
 
   return (
-    <div className="space-y-10 pb-20">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    <div className="space-y-6 lg:space-y-10 pb-20">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div className="space-y-1">
-          <h1 className="text-4xl font-serif text-brand-brown tracking-tight">Inventory</h1>
-          <p className="text-gray-500 font-medium">Manage your premium collection and stock levels.</p>
+          <h1 className="text-3xl lg:text-4xl font-serif text-brand-brown tracking-tight">Inventory</h1>
+          <p className="text-sm lg:text-base text-gray-500 font-medium">Manage your premium collection and stock levels.</p>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2 lg:gap-3 w-full lg:w-auto">
           <button
             onClick={downloadTemplate}
-            className="bg-white text-brand-brown border border-brand-brown/10 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-brand-cream transition-all shadow-sm"
+            className="flex-1 lg:flex-none bg-white text-brand-brown border border-brand-brown/10 px-4 lg:px-6 py-3 rounded-xl lg:rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-cream transition-all shadow-sm"
           >
-            <ImageIcon size={18} className="opacity-60" />
-            Template
+            <ImageIcon size={16} className="opacity-60" />
+            <span className="text-[10px] lg:text-xs uppercase tracking-widest">Template</span>
           </button>
-          <div className="relative">
+          <div className="flex-1 lg:flex-none relative">
             <input
               type="file"
               accept=".csv"
@@ -410,38 +410,38 @@ export default function ProductManagement() {
             />
             <label
               htmlFor="bulk-upload"
-              className={`bg-white text-brand-brown border border-brand-brown/10 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-brand-cream transition-all cursor-pointer shadow-sm ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`w-full bg-white text-brand-brown border border-brand-brown/10 px-4 lg:px-6 py-3 rounded-xl lg:rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-cream transition-all cursor-pointer shadow-sm ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <Upload size={18} className="opacity-60" /> 
-              {submitting ? 'Processing...' : 'Bulk Import'}
+              <Upload size={16} className="opacity-60" /> 
+              <span className="text-[10px] lg:text-xs uppercase tracking-widest">{submitting ? 'Processing...' : 'Bulk Import'}</span>
             </label>
           </div>
           <button
             onClick={() => openModal()}
             disabled={submitting}
-            className="bg-brand-brown text-white px-8 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-brand-charcoal transition-all shadow-xl shadow-brand-brown/20 disabled:opacity-50"
+            className="w-full lg:w-auto bg-brand-brown text-white px-6 lg:px-8 py-3 rounded-xl lg:rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-charcoal transition-all shadow-xl shadow-brand-brown/20 disabled:opacity-50"
           >
-            <Plus size={20} />
-            Add Product
+            <Plus size={18} />
+            <span className="text-[10px] lg:text-xs uppercase tracking-widest">Add Product</span>
           </button>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 bg-white/50 backdrop-blur-md p-2 rounded-[2rem] border border-brand-brown/5 shadow-sm">
+      <div className="flex flex-col md:flex-row gap-3 lg:gap-4 bg-white/50 backdrop-blur-md p-2 rounded-2xl lg:rounded-[2rem] border border-brand-brown/5 shadow-sm">
         <div className="relative flex-grow">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-brown/30" size={20} />
+          <Search className="absolute left-4 lg:left-5 top-1/2 -translate-y-1/2 text-brand-brown/30" size={18} lg:size={20} />
           <input
             type="text"
             placeholder="Search by title or category..."
-            className="w-full pl-14 pr-6 py-4 bg-transparent border-none rounded-2xl focus:ring-0 text-brand-brown font-medium placeholder:text-brand-brown/30"
+            className="w-full pl-12 lg:pl-14 pr-4 lg:pr-6 py-3 lg:py-4 bg-transparent border-none rounded-xl lg:rounded-2xl focus:ring-0 text-brand-brown text-sm lg:text-base font-medium placeholder:text-brand-brown/30"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="flex items-center gap-3 bg-white rounded-[1.5rem] px-6 py-2 border border-brand-brown/5 shadow-sm min-w-[200px]">
-          <Filter size={18} className="text-brand-brown/40" />
+        <div className="flex items-center gap-3 bg-white rounded-xl lg:rounded-[1.5rem] px-4 lg:px-6 py-2 border border-brand-brown/5 shadow-sm min-w-full md:min-w-[200px]">
+          <Filter size={16} className="text-brand-brown/40" />
           <select
-            className="bg-transparent border-none focus:ring-0 text-sm font-bold text-brand-brown outline-none w-full cursor-pointer"
+            className="bg-transparent border-none focus:ring-0 text-[10px] lg:text-sm font-bold text-brand-brown outline-none w-full cursor-pointer uppercase tracking-widest"
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
           >
@@ -451,7 +451,7 @@ export default function ProductManagement() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
         <AnimatePresence mode="popLayout">
           {filteredProducts.map((product) => (
             <motion.div
@@ -460,7 +460,7 @@ export default function ProductManagement() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="group bg-white rounded-[2.5rem] shadow-sm border border-brand-brown/5 overflow-hidden hover:shadow-2xl hover:shadow-brand-brown/10 transition-all duration-500"
+              className="group bg-white rounded-3xl lg:rounded-[2.5rem] shadow-sm border border-brand-brown/5 overflow-hidden hover:shadow-2xl hover:shadow-brand-brown/10 transition-all duration-500"
             >
               <div className="relative aspect-[4/5] overflow-hidden">
                 <img
@@ -472,56 +472,56 @@ export default function ProductManagement() {
                 
                 <div className="absolute inset-0 bg-gradient-to-t from-brand-charcoal/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                <div className="absolute top-4 right-4 flex flex-col gap-2 translate-x-12 group-hover:translate-x-0 transition-transform duration-500">
+                <div className="absolute top-3 lg:top-4 right-3 lg:right-4 flex flex-col gap-2 translate-x-12 group-hover:translate-x-0 transition-transform duration-500">
                   <button
                     onClick={() => openModal(product)}
-                    className="p-3 bg-white/90 backdrop-blur-md rounded-2xl text-brand-brown hover:bg-brand-gold hover:text-white transition-all shadow-xl"
+                    className="p-2.5 lg:p-3 bg-white/90 backdrop-blur-md rounded-xl lg:rounded-2xl text-brand-brown hover:bg-brand-gold hover:text-white transition-all shadow-xl"
                   >
-                    <Edit2 size={18} />
+                    <Edit2 size={16} lg:size={18} />
                   </button>
                   <button
                     onClick={() => toggleStatus(product)}
-                    className={`p-3 bg-white/90 backdrop-blur-md rounded-2xl transition-all shadow-xl ${product.is_active ? 'text-green-600' : 'text-gray-400'}`}
+                    className={`p-2.5 lg:p-3 bg-white/90 backdrop-blur-md rounded-xl lg:rounded-2xl transition-all shadow-xl ${product.is_active ? 'text-green-600' : 'text-gray-400'}`}
                     title={product.is_active ? 'Deactivate' : 'Activate'}
                   >
-                    {product.is_active ? <Eye size={18} /> : <EyeOff size={18} />}
+                    {product.is_active ? <Eye size={16} lg:size={18} /> : <EyeOff size={16} lg:size={18} />}
                   </button>
                   <button
                     onClick={() => confirmDelete(product.id)}
-                    className="p-3 bg-white/90 backdrop-blur-md rounded-2xl text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xl"
+                    className="p-2.5 lg:p-3 bg-white/90 backdrop-blur-md rounded-xl lg:rounded-2xl text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xl"
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={16} lg:size={18} />
                   </button>
                 </div>
 
-                <div className="absolute bottom-4 left-4 flex flex-wrap gap-2">
-                  <span className="bg-white/90 backdrop-blur-md text-brand-brown px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em]">
+                <div className="absolute bottom-3 lg:bottom-4 left-3 lg:left-4 flex flex-wrap gap-1.5 lg:gap-2">
+                  <span className="bg-white/90 backdrop-blur-md text-brand-brown px-3 lg:px-4 py-1 lg:py-1.5 rounded-full text-[8px] lg:text-[10px] font-bold uppercase tracking-[0.2em]">
                     {product.category}
                   </span>
                   {product.stock < 5 && (
-                    <span className="bg-red-500/90 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] flex items-center gap-1.5">
-                      <AlertTriangle size={12} /> Low Stock
+                    <span className="bg-red-500/90 backdrop-blur-md text-white px-3 lg:px-4 py-1 lg:py-1.5 rounded-full text-[8px] lg:text-[10px] font-bold uppercase tracking-[0.2em] flex items-center gap-1.5">
+                      <AlertTriangle size={10} lg:size={12} /> Low Stock
                     </span>
                   )}
                 </div>
               </div>
               
-              <div className="p-6 space-y-3">
-                <div className="flex justify-between items-start gap-4">
-                  <h3 className="font-serif text-xl text-brand-brown line-clamp-1 leading-tight">{product.title}</h3>
+              <div className="p-5 lg:p-6 space-y-2 lg:space-y-3">
+                <div className="flex justify-between items-start gap-3 lg:gap-4">
+                  <h3 className="font-serif text-lg lg:text-xl text-brand-brown line-clamp-1 leading-tight">{product.title}</h3>
                   <div className="text-right">
-                    <p className="text-brand-gold font-bold text-lg">₹{product.price.toLocaleString()}</p>
+                    <p className="text-brand-gold font-bold text-base lg:text-lg whitespace-nowrap">₹{product.price.toLocaleString()}</p>
                   </div>
                 </div>
                 
                 <div className="flex items-center justify-between pt-2 border-t border-brand-brown/5">
                   <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${product.is_active ? 'bg-green-500' : 'bg-gray-300'}`} />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                    <div className={`w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full ${product.is_active ? 'bg-green-500' : 'bg-gray-300'}`} />
+                    <span className="text-[8px] lg:text-[10px] font-bold uppercase tracking-widest text-gray-400">
                       {product.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </div>
-                  <p className={`text-[10px] font-bold uppercase tracking-widest ${product.stock < 5 ? 'text-red-500' : 'text-gray-400'}`}>
+                  <p className={`text-[8px] lg:text-[10px] font-bold uppercase tracking-widest ${product.stock < 5 ? 'text-red-500' : 'text-gray-400'}`}>
                     Stock: <span className="text-brand-brown">{product.stock}</span>
                   </p>
                 </div>
@@ -532,67 +532,67 @@ export default function ProductManagement() {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-brand-charcoal/60 backdrop-blur-xl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center lg:p-6 bg-brand-charcoal/60 backdrop-blur-xl">
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 40 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-white w-full max-w-3xl rounded-[3rem] shadow-2xl overflow-hidden border border-brand-brown/5"
+            className="bg-white w-full h-full lg:h-auto lg:max-w-3xl lg:rounded-[3rem] shadow-2xl overflow-hidden border border-brand-brown/5 flex flex-col"
           >
-            <div className="px-10 py-8 border-b border-brand-brown/5 flex justify-between items-center bg-brand-cream/30">
+            <div className="px-6 lg:px-10 py-6 lg:py-8 border-b border-brand-brown/5 flex justify-between items-center bg-brand-cream/30">
               <div className="space-y-1">
-                <h2 className="text-3xl font-serif text-brand-brown">
+                <h2 className="text-2xl lg:text-3xl font-serif text-brand-brown">
                   {editingProduct ? 'Refine Product' : 'New Collection Item'}
                 </h2>
-                <p className="text-xs font-bold uppercase tracking-widest text-brand-brown/40">
+                <p className="text-[10px] lg:text-xs font-bold uppercase tracking-widest text-brand-brown/40">
                   {editingProduct ? 'Update existing inventory details' : 'Add a new piece to your catalog'}
                 </p>
               </div>
-              <button onClick={closeModal} className="p-3 hover:bg-brand-brown/5 rounded-2xl transition-all text-brand-brown/40 hover:text-brand-brown">
-                <X size={24} />
+              <button onClick={closeModal} className="p-2 lg:p-3 hover:bg-brand-brown/5 rounded-xl lg:rounded-2xl transition-all text-brand-brown/40 hover:text-brand-brown">
+                <X size={20} lg:size={24} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex flex-col max-h-[80vh]">
-              <div className="p-10 space-y-8 overflow-y-auto flex-grow custom-scrollbar">
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1">Title</label>
+            <form onSubmit={handleSubmit} className="flex flex-col flex-grow overflow-hidden">
+              <div className="p-6 lg:p-10 space-y-6 lg:space-y-8 overflow-y-auto flex-grow custom-scrollbar">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+                  <div className="space-y-2 lg:space-y-3">
+                    <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1">Title</label>
                     <input
                       required
                       type="text"
-                      className="w-full bg-brand-cream/20 border border-brand-brown/5 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown font-medium transition-all"
+                      className="w-full bg-brand-cream/20 border border-brand-brown/5 rounded-xl lg:rounded-2xl px-4 lg:px-5 py-3 lg:py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown text-sm font-medium transition-all"
                       placeholder="e.g. Royal Teak Bed"
                       value={formData.title}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     />
                   </div>
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1">Category</label>
+                  <div className="space-y-2 lg:space-y-3">
+                    <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1">Category</label>
                     <select
-                      className="w-full bg-brand-cream/20 border border-brand-brown/5 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown font-bold transition-all cursor-pointer"
+                      className="w-full bg-brand-cream/20 border border-brand-brown/5 rounded-xl lg:rounded-2xl px-4 lg:px-5 py-3 lg:py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown text-sm font-bold transition-all cursor-pointer"
                       value={formData.category}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     >
                       {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                     </select>
                   </div>
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1">Price (₹)</label>
+                  <div className="space-y-2 lg:space-y-3">
+                    <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1">Price (₹)</label>
                     <input
                       required
                       type="number"
-                      className="w-full bg-brand-cream/20 border border-brand-brown/5 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown font-bold transition-all"
+                      className="w-full bg-brand-cream/20 border border-brand-brown/5 rounded-xl lg:rounded-2xl px-4 lg:px-5 py-3 lg:py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown text-sm font-bold transition-all"
                       placeholder="0.00"
                       value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
                     />
                   </div>
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1">Initial Stock</label>
+                  <div className="space-y-2 lg:space-y-3">
+                    <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1">Initial Stock</label>
                     <input
                       required
                       type="number"
-                      className="w-full bg-brand-cream/20 border border-brand-brown/5 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown font-bold transition-all"
+                      className="w-full bg-brand-cream/20 border border-brand-brown/5 rounded-xl lg:rounded-2xl px-4 lg:px-5 py-3 lg:py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown text-sm font-bold transition-all"
                       placeholder="0"
                       value={formData.stock}
                       onChange={(e) => setFormData({ ...formData, stock: Number(e.target.value) })}
@@ -600,25 +600,25 @@ export default function ProductManagement() {
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1">Description</label>
+                <div className="space-y-2 lg:space-y-3">
+                  <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1">Description</label>
                   <textarea
                     required
-                    className="w-full bg-brand-cream/20 border border-brand-brown/5 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown font-medium min-h-[120px] transition-all resize-none"
+                    className="w-full bg-brand-cream/20 border border-brand-brown/5 rounded-xl lg:rounded-2xl px-4 lg:px-5 py-3 lg:py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown text-sm font-medium min-h-[100px] lg:min-h-[120px] transition-all resize-none"
                     placeholder="Crafted with precision..."
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   />
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1 flex items-center gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+                  <div className="space-y-2 lg:space-y-3">
+                    <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1 flex items-center gap-2">
                       <ImageIcon size={12} /> Visual Asset
                     </label>
                     <div className="space-y-4">
                       {formData.image_url && (
-                        <div className="relative aspect-video rounded-2xl overflow-hidden border border-brand-brown/10 group">
+                        <div className="relative aspect-video rounded-xl lg:rounded-2xl overflow-hidden border border-brand-brown/10 group">
                           <img 
                             src={formData.image_url} 
                             alt="Preview" 
@@ -628,9 +628,9 @@ export default function ProductManagement() {
                           <button
                             type="button"
                             onClick={() => setFormData(prev => ({ ...prev, image_url: '' }))}
-                            className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-md rounded-xl text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xl opacity-0 group-hover:opacity-100"
+                            className="absolute top-2 lg:top-3 right-2 lg:right-3 p-1.5 lg:p-2 bg-white/90 backdrop-blur-md rounded-lg lg:rounded-xl text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xl opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
                           >
-                            <X size={16} />
+                            <X size={14} lg:size={16} />
                           </button>
                         </div>
                       )}
@@ -644,7 +644,7 @@ export default function ProductManagement() {
                         />
                         <label
                           htmlFor="image-upload"
-                          className={`flex-grow border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all duration-300 ${
+                          className={`flex-grow border-2 border-dashed rounded-xl lg:rounded-2xl p-4 lg:p-6 text-center cursor-pointer transition-all duration-300 ${
                             uploading ? 'bg-brand-cream/10 border-brand-brown/10 cursor-not-allowed' : 
                             formData.image_url ? 'bg-white border-brand-gold/20 hover:border-brand-gold' : 
                             'bg-brand-cream/10 border-brand-brown/10 hover:border-brand-gold'
@@ -652,11 +652,11 @@ export default function ProductManagement() {
                         >
                           <div className="flex flex-col items-center gap-2">
                             {uploading ? (
-                              <div className="animate-spin rounded-full h-6 w-6 border-2 border-brand-gold/30 border-t-brand-gold"></div>
+                              <div className="animate-spin rounded-full h-5 w-5 lg:h-6 lg:w-6 border-2 border-brand-gold/30 border-t-brand-gold"></div>
                             ) : (
-                              <Upload size={24} className="text-brand-brown/30" />
+                              <Upload size={20} lg:size={24} className="text-brand-brown/30" />
                             )}
-                            <span className="text-xs font-bold uppercase tracking-widest text-brand-brown/60">
+                            <span className="text-[10px] lg:text-xs font-bold uppercase tracking-widest text-brand-brown/60">
                               {uploading ? 'Uploading...' : (formData.image_url ? 'Replace Image' : 'Select Image')}
                             </span>
                           </div>
@@ -664,53 +664,53 @@ export default function ProductManagement() {
                       </div>
                     </div>
                   </div>
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1 flex items-center gap-2">
+                  <div className="space-y-2 lg:space-y-3">
+                    <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1 flex items-center gap-2">
                       <LinkIcon size={12} /> Social Media (Reel)
                     </label>
                     <input
                       type="url"
-                      className="w-full bg-brand-cream/20 border border-brand-brown/5 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown font-medium transition-all"
+                      className="w-full bg-brand-cream/20 border border-brand-brown/5 rounded-xl lg:rounded-2xl px-4 lg:px-5 py-3 lg:py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown text-sm font-medium transition-all"
                       placeholder="https://instagram.com/reels/..."
                       value={formData.reel_link}
                       onChange={(e) => setFormData({ ...formData, reel_link: e.target.value })}
                     />
-                    <p className="text-[10px] text-brand-brown/30 italic px-1">Optional: Link to a video showcase</p>
+                    <p className="text-[9px] lg:text-[10px] text-brand-brown/30 italic px-1">Optional: Link to a video showcase</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 p-6 bg-brand-cream/20 rounded-[1.5rem] border border-brand-brown/5">
+                <div className="flex items-center gap-4 p-4 lg:p-6 bg-brand-cream/20 rounded-xl lg:rounded-[1.5rem] border border-brand-brown/5">
                   <div className="relative flex items-center">
                     <input 
                       type="checkbox" 
                       id="is_active"
                       checked={formData.is_active}
                       onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                      className="peer w-6 h-6 rounded-lg border-brand-brown/10 text-brand-gold focus:ring-brand-gold transition-all cursor-pointer"
+                      className="peer w-5 h-5 lg:w-6 lg:h-6 rounded-lg border-brand-brown/10 text-brand-gold focus:ring-brand-gold transition-all cursor-pointer"
                     />
                   </div>
-                  <label htmlFor="is_active" className="text-sm font-bold text-brand-brown/80 cursor-pointer select-none">
+                  <label htmlFor="is_active" className="text-xs lg:text-sm font-bold text-brand-brown/80 cursor-pointer select-none">
                     Publish to Storefront
-                    <span className="block text-[10px] font-medium text-brand-brown/40 uppercase tracking-widest mt-0.5">Visible to all customers immediately</span>
+                    <span className="block text-[8px] lg:text-[10px] font-medium text-brand-brown/40 uppercase tracking-widest mt-0.5">Visible to all customers immediately</span>
                   </label>
                 </div>
               </div>
 
-              <div className="p-10 border-t border-brand-brown/5 bg-brand-cream/10">
+              <div className="p-6 lg:p-10 border-t border-brand-brown/5 bg-brand-cream/10">
                 <button
                   type="submit"
                   disabled={uploading || submitting}
-                  className="w-full bg-brand-brown text-white py-5 rounded-2xl font-bold text-lg hover:bg-brand-charcoal active:scale-[0.99] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-brand-brown/30"
+                  className="w-full bg-brand-brown text-white py-4 lg:py-5 rounded-xl lg:rounded-2xl font-bold text-base lg:text-lg hover:bg-brand-charcoal active:scale-[0.99] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-brand-brown/30"
                 >
                   {submitting ? (
                     <>
-                      <div className="animate-spin rounded-full h-6 w-6 border-2 border-white/30 border-t-white"></div>
-                      <span className="tracking-widest uppercase text-sm">Processing...</span>
+                      <div className="animate-spin rounded-full h-5 w-5 lg:h-6 lg:w-6 border-2 border-white/30 border-t-white"></div>
+                      <span className="tracking-widest uppercase text-xs lg:text-sm">Processing...</span>
                     </>
                   ) : (
                     <>
-                      <span className="tracking-widest uppercase text-sm">{editingProduct ? 'Save Changes' : 'Create Product'}</span>
-                      <Package size={20} className="opacity-60" />
+                      <span className="tracking-widest uppercase text-xs lg:text-sm">{editingProduct ? 'Save Changes' : 'Create Product'}</span>
+                      <Package size={18} lg:size={20} className="opacity-60" />
                     </>
                   )}
                 </button>
@@ -725,23 +725,23 @@ export default function ProductManagement() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white w-full max-w-md rounded-[2rem] p-8 shadow-2xl text-center"
+            className="bg-white w-full max-w-md rounded-3xl lg:rounded-[2rem] p-6 lg:p-8 shadow-2xl text-center"
           >
-            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-              <AlertTriangle size={40} className="text-red-500" />
+            <div className="w-16 h-16 lg:w-20 lg:h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 lg:mb-6">
+              <AlertTriangle size={32} lg:size={40} className="text-red-500" />
             </div>
-            <h2 className="text-2xl font-serif text-brand-brown mb-4">Delete Product?</h2>
-            <p className="text-gray-500 mb-8">This action cannot be undone. All product data and images will be permanently removed.</p>
-            <div className="flex gap-4">
+            <h2 className="text-xl lg:text-2xl font-serif text-brand-brown mb-2 lg:mb-4">Delete Product?</h2>
+            <p className="text-sm lg:text-base text-gray-500 mb-6 lg:mb-8">This action cannot be undone. All product data and images will be permanently removed.</p>
+            <div className="flex gap-3 lg:gap-4">
               <button
                 onClick={() => setIsDeleteModalOpen(false)}
-                className="flex-1 px-6 py-4 border border-gray-200 rounded-xl font-bold hover:bg-gray-50 transition-all"
+                className="flex-1 px-4 lg:px-6 py-3 lg:py-4 border border-gray-200 rounded-xl font-bold hover:bg-gray-50 transition-all text-xs lg:text-sm uppercase tracking-widest"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="flex-1 px-6 py-4 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-500/20"
+                className="flex-1 px-4 lg:px-6 py-3 lg:py-4 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 text-xs lg:text-sm uppercase tracking-widest"
               >
                 Delete
               </button>

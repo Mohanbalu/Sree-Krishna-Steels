@@ -191,11 +191,11 @@ export default function AdminManagement() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 lg:space-y-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-serif text-brand-brown tracking-tight mb-2">Team Governance</h1>
-          <p className="text-brand-brown/60 font-medium">Orchestrate your administrative hierarchy and access privileges.</p>
+          <h1 className="text-3xl lg:text-4xl font-serif text-brand-brown tracking-tight mb-2">Team Governance</h1>
+          <p className="text-sm lg:text-base text-brand-brown/60 font-medium">Orchestrate your administrative hierarchy and access privileges.</p>
         </div>
       </div>
 
@@ -207,9 +207,9 @@ export default function AdminManagement() {
             exit={{ opacity: 0, height: 0, y: -20 }}
             className="overflow-hidden"
           >
-            <div className="bg-white p-10 rounded-[2.5rem] border border-brand-brown/10 shadow-2xl shadow-brand-brown/5">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-serif text-brand-brown">New Appointment</h2>
+            <div className="bg-white p-6 lg:p-10 rounded-3xl lg:rounded-[2.5rem] border border-brand-brown/10 shadow-2xl shadow-brand-brown/5">
+              <div className="flex items-center justify-between mb-6 lg:mb-8">
+                <h2 className="text-xl lg:text-2xl font-serif text-brand-brown">New Appointment</h2>
                 <button 
                   onClick={() => setIsAddingAdmin(false)}
                   className="p-2 hover:bg-brand-brown/5 rounded-xl transition-colors text-brand-brown/40"
@@ -217,7 +217,7 @@ export default function AdminManagement() {
                   <X size={20} />
                 </button>
               </div>
-              <form onSubmit={handleAddAdmin} className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <form onSubmit={handleAddAdmin} className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
                 <div className="space-y-3">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-brand-brown/40 ml-1">Email Address</label>
                   <div className="relative group">
@@ -265,7 +265,7 @@ export default function AdminManagement() {
         )}
       </AnimatePresence>
 
-      <div className="bg-white/50 backdrop-blur-md p-2 rounded-3xl border border-brand-brown/5 shadow-sm flex flex-col md:flex-row items-center gap-4">
+      <div className="bg-white/50 backdrop-blur-md p-2 rounded-2xl lg:rounded-3xl border border-brand-brown/5 shadow-sm flex flex-col md:flex-row items-center gap-4">
         <div className="relative flex-grow group w-full">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-brown/20 group-focus-within:text-brand-gold transition-colors" size={18} />
           <input 
@@ -278,7 +278,8 @@ export default function AdminManagement() {
         </div>
       </div>
 
-      <div className="bg-white rounded-[2.5rem] border border-brand-brown/5 shadow-sm overflow-hidden">
+      {/* Desktop Table View */}
+      <div className="hidden lg:block bg-white rounded-[2.5rem] border border-brand-brown/5 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -336,6 +337,46 @@ export default function AdminManagement() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="lg:hidden space-y-4">
+        {filteredAdmins.map((admin) => (
+          <div key={admin.id} className="bg-white p-6 rounded-3xl border border-brand-brown/5 shadow-sm space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-brand-cream rounded-xl flex items-center justify-center text-brand-brown font-serif text-lg border border-brand-brown/5">
+                {admin.name?.charAt(0)}
+              </div>
+              <div className="flex-grow min-w-0">
+                <div className="font-serif text-lg text-brand-brown truncate">{admin.name}</div>
+                <div className="text-xs text-brand-brown/40 font-medium truncate">{admin.email}</div>
+              </div>
+              {admin.role !== 'super_admin' && (
+                <button 
+                  onClick={() => confirmRemove(admin.id, admin.email)}
+                  className="p-2 text-brand-brown/20 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                >
+                  <Trash2 size={18} />
+                </button>
+              )}
+            </div>
+            <div className="flex items-center justify-between pt-4 border-t border-brand-brown/5">
+              <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border ${
+                admin.role === 'super_admin' ? 'bg-brand-brown text-white border-brand-brown' :
+                admin.role === 'admin' ? 'bg-brand-gold/10 text-brand-gold border-brand-gold/20' :
+                'bg-brand-cream text-brand-brown/60 border-brand-brown/10'
+              }`}>
+                {admin.role === 'super_admin' ? <Shield size={10} /> : 
+                 admin.role === 'admin' ? <UserCheck size={10} /> : null}
+                {admin.role.replace('_', ' ')}
+              </span>
+              <span className="flex items-center gap-2 text-[9px] text-green-600 font-bold uppercase tracking-widest">
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                Active
+              </span>
+            </div>
+          </div>
+        ))}
       </div>
 
       {isDeleteModalOpen && (

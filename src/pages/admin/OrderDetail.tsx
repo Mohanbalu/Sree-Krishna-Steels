@@ -237,71 +237,71 @@ export default function OrderDetail() {
   if (!order) return null;
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div className="space-y-6 lg:space-y-8 pb-10">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 lg:gap-4">
           <button 
             onClick={() => navigate('/admin/orders')}
             className="p-2 hover:bg-white rounded-xl transition-all border border-transparent hover:border-gray-200"
           >
-            <ArrowLeft size={24} className="text-gray-600" />
+            <ArrowLeft size={20} lg:size={24} className="text-gray-600" />
           </button>
           <div>
-            <h1 className="text-3xl font-serif text-brand-brown mb-1">Order Details</h1>
-            <p className="text-gray-500 font-mono text-sm">#{order.id.toUpperCase()}</p>
+            <h1 className="text-2xl lg:text-3xl font-serif text-brand-brown mb-0.5 lg:mb-1">Order Details</h1>
+            <p className="text-gray-500 font-mono text-[10px] lg:text-sm">#{order.id.toUpperCase()}</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 transition-all">
-            <Printer size={18} /> Print Invoice
+        <div className="flex items-center gap-2 lg:gap-3">
+          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 lg:px-4 py-2 bg-white border border-gray-200 rounded-xl text-[10px] lg:text-sm font-bold text-gray-700 hover:bg-gray-50 transition-all uppercase tracking-widest">
+            <Printer size={16} lg:size={18} /> Print
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-brand-brown text-white rounded-xl text-sm font-bold hover:bg-brand-brown/90 transition-all shadow-lg shadow-brand-brown/20">
-            <Download size={18} /> Export PDF
+          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 lg:px-4 py-2 bg-brand-brown text-white rounded-xl text-[10px] lg:text-sm font-bold hover:bg-brand-brown/90 transition-all shadow-lg shadow-brand-brown/20 uppercase tracking-widest">
+            <Download size={16} lg:size={18} /> Export
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-6 lg:space-y-8">
           {/* Order Items */}
-          <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="p-8 border-b border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <Package size={20} className="text-brand-gold" /> Order Items
+          <div className="bg-white rounded-2xl lg:rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="p-5 lg:p-8 border-b border-gray-100">
+              <h2 className="text-lg lg:text-xl font-bold text-gray-900 flex items-center gap-2">
+                <Package size={18} lg:size={20} className="text-brand-gold" /> Order Items
               </h2>
             </div>
-            <div className="p-8 space-y-6">
+            <div className="p-5 lg:p-8 space-y-4 lg:space-y-6">
               {order.order_items.map((item, idx) => (
-                <div key={idx} className="flex items-center gap-6 p-4 rounded-2xl hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100">
+                <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-4 lg:gap-6 p-4 rounded-2xl hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100">
                   <img
                     src={item.image_url}
                     alt={item.title}
-                    className="w-20 h-20 object-cover rounded-2xl shadow-sm"
+                    className="w-full sm:w-20 h-48 sm:h-20 object-cover rounded-xl lg:rounded-2xl shadow-sm"
                     referrerPolicy="no-referrer"
                   />
                   <div className="flex-grow">
-                    <p className="font-bold text-lg text-gray-900 mb-1">{item.title}</p>
-                    <p className="text-sm text-gray-500">Quantity: {item.quantity} × ₹{item.price.toLocaleString()}</p>
+                    <p className="font-bold text-base lg:text-lg text-gray-900 mb-1">{item.title}</p>
+                    <p className="text-xs lg:text-sm text-gray-500">Quantity: {item.quantity} × ₹{item.price.toLocaleString()}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-xl text-brand-brown">₹{(item.price * item.quantity).toLocaleString()}</p>
+                  <div className="text-left sm:text-right">
+                    <p className="font-bold text-lg lg:text-xl text-brand-brown">₹{(item.price * item.quantity).toLocaleString()}</p>
                   </div>
                 </div>
               ))}
-              <div className="mt-8 pt-8 border-t border-gray-100 flex justify-between items-center px-4">
-                <span className="text-gray-500 font-bold uppercase text-sm tracking-widest">Total Amount</span>
-                <span className="text-3xl font-serif text-brand-brown">₹{order.total_amount.toLocaleString()}</span>
+              <div className="mt-6 lg:mt-8 pt-6 lg:pt-8 border-t border-gray-100 flex justify-between items-center px-2 lg:px-4">
+                <span className="text-gray-500 font-bold uppercase text-[10px] lg:text-sm tracking-widest">Total Amount</span>
+                <span className="text-2xl lg:text-3xl font-serif text-brand-brown">₹{order.total_amount.toLocaleString()}</span>
               </div>
             </div>
           </div>
 
           {/* Timeline */}
-          <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-8 flex items-center gap-2">
-              <Calendar size={20} className="text-brand-gold" /> Fulfillment Timeline
+          <div className="bg-white rounded-2xl lg:rounded-3xl border border-gray-200 shadow-sm p-6 lg:p-8">
+            <h2 className="text-lg lg:text-xl font-bold text-gray-900 mb-6 lg:mb-8 flex items-center gap-2">
+              <Calendar size={18} lg:size={20} className="text-brand-gold" /> Fulfillment Timeline
             </h2>
-            <div className="relative pl-10 space-y-12 before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-100">
+            <div className="relative pl-8 lg:pl-10 space-y-8 lg:space-y-12 before:absolute before:left-[11px] lg:before:left-[15px] before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-100">
               {[
                 { status: 'Pending', label: 'Order Placed', date: order.created_at, desc: 'The order has been successfully placed by the customer.' },
                 { status: 'processing', label: 'Order Processing', date: null, desc: 'The order has been reviewed and is being processed by our team.' },
@@ -313,17 +313,17 @@ export default function OrderDetail() {
 
                 return (
                   <div key={step.status} className="relative">
-                    <div className={`absolute -left-10 w-8 h-8 rounded-full border-4 border-white shadow-md z-10 flex items-center justify-center transition-all ${
+                    <div className={`absolute -left-8 lg:-left-10 w-6 h-6 lg:w-8 lg:h-8 rounded-full border-4 border-white shadow-md z-10 flex items-center justify-center transition-all ${
                       isCompleted ? 'bg-brand-gold text-brand-brown' : 'bg-gray-100 text-gray-400'
                     }`}>
-                      {isCompleted ? <CheckCircle size={16} /> : <div className="w-2 h-2 bg-current rounded-full" />}
+                      {isCompleted ? <CheckCircle size={12} lg:size={16} /> : <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 bg-current rounded-full" />}
                     </div>
-                    <div className={`${isCurrent ? 'bg-brand-gold/5 p-6 rounded-2xl border border-brand-gold/10' : ''}`}>
-                      <p className={`text-lg font-bold mb-1 ${isCompleted ? 'text-gray-900' : 'text-gray-400'}`}>{step.label}</p>
-                      <p className="text-sm text-gray-500 mb-2">
+                    <div className={`${isCurrent ? 'bg-brand-gold/5 p-4 lg:p-6 rounded-2xl border border-brand-gold/10' : ''}`}>
+                      <p className={`text-base lg:text-lg font-bold mb-1 ${isCompleted ? 'text-gray-900' : 'text-gray-400'}`}>{step.label}</p>
+                      <p className="text-[10px] lg:text-sm text-gray-500 mb-2">
                         {step.date ? new Date(step.date).toLocaleString() : (isCompleted ? 'Updated just now' : 'Pending...')}
                       </p>
-                      <p className="text-sm text-gray-400 leading-relaxed">{step.desc}</p>
+                      <p className="text-xs lg:text-sm text-gray-400 leading-relaxed">{step.desc}</p>
                     </div>
                   </div>
                 );
@@ -333,17 +333,17 @@ export default function OrderDetail() {
         </div>
 
         {/* Sidebar Info */}
-        <div className="space-y-8">
+        <div className="space-y-6 lg:space-y-8">
           {/* Status Controls */}
-          <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-8">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6">Update Status</h3>
-            <div className="space-y-6">
-              <div className="space-y-3">
-                <label className="text-sm font-bold text-gray-700">Order Status</label>
+          <div className="bg-white rounded-2xl lg:rounded-3xl border border-gray-200 shadow-sm p-6 lg:p-8">
+            <h3 className="text-[10px] lg:text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 lg:mb-6">Update Status</h3>
+            <div className="space-y-4 lg:space-y-6">
+              <div className="space-y-2 lg:space-y-3">
+                <label className="text-xs lg:text-sm font-bold text-gray-700">Order Status</label>
                 <select
                   onChange={(e) => updateStatus(e.target.value)}
                   value={order.status}
-                  className={`w-full px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wider outline-none border-none focus:ring-2 focus:ring-brand-gold transition-all ${getStatusColor(order.status)}`}
+                  className={`w-full px-4 py-3 rounded-xl text-xs lg:text-sm font-bold uppercase tracking-wider outline-none border-none focus:ring-2 focus:ring-brand-gold transition-all ${getStatusColor(order.status)}`}
                 >
                   <option value="pending">Pending</option>
                   <option value="processing">Processing</option>
@@ -352,12 +352,12 @@ export default function OrderDetail() {
                   <option value="cancelled">Cancelled</option>
                 </select>
               </div>
-              <div className="space-y-3">
-                <label className="text-sm font-bold text-gray-700">Payment Status</label>
+              <div className="space-y-2 lg:space-y-3">
+                <label className="text-xs lg:text-sm font-bold text-gray-700">Payment Status</label>
                 <select
                   onChange={(e) => updatePaymentStatus(e.target.value)}
                   value={order.payment_status || 'pending'}
-                  className={`w-full px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wider outline-none border-none focus:ring-2 focus:ring-brand-gold transition-all ${getPaymentStatusColor(order.payment_status || 'pending')}`}
+                  className={`w-full px-4 py-3 rounded-xl text-xs lg:text-sm font-bold uppercase tracking-wider outline-none border-none focus:ring-2 focus:ring-brand-gold transition-all ${getPaymentStatusColor(order.payment_status || 'pending')}`}
                 >
                   <option value="pending">Pending</option>
                   <option value="paid">Paid</option>
@@ -368,45 +368,45 @@ export default function OrderDetail() {
           </div>
 
           {/* Driver Assignment */}
-          <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-8">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-2">
+          <div className="bg-white rounded-2xl lg:rounded-3xl border border-gray-200 shadow-sm p-6 lg:p-8">
+            <h3 className="text-[10px] lg:text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 lg:mb-6 flex items-center gap-2">
               <Truck size={14} /> Driver Assignment
             </h3>
-            <div className="space-y-6">
-              <div className="space-y-3">
-                <label className="text-sm font-bold text-gray-700">Assign Driver</label>
+            <div className="space-y-4 lg:space-y-6">
+              <div className="space-y-2 lg:space-y-3">
+                <label className="text-xs lg:text-sm font-bold text-gray-700">Assign Driver</label>
                 <input
                   type="text"
                   placeholder="Enter driver name"
                   value={driverName}
                   onChange={(e) => setDriverName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl text-sm border border-gray-200 focus:ring-2 focus:ring-brand-gold outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl text-xs lg:text-sm border border-gray-200 focus:ring-2 focus:ring-brand-gold outline-none transition-all"
                 />
               </div>
-              <div className="space-y-3">
-                <label className="text-sm font-bold text-gray-700">Estimated Delivery (Days)</label>
+              <div className="space-y-2 lg:space-y-3">
+                <label className="text-xs lg:text-sm font-bold text-gray-700">Estimated Delivery (Days)</label>
                 <input
                   type="number"
                   min="1"
                   max="30"
                   value={deliveryDays}
                   onChange={(e) => setDeliveryDays(parseInt(e.target.value))}
-                  className="w-full px-4 py-3 rounded-xl text-sm border border-gray-200 focus:ring-2 focus:ring-brand-gold outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl text-xs lg:text-sm border border-gray-200 focus:ring-2 focus:ring-brand-gold outline-none transition-all"
                 />
               </div>
               <button
                 onClick={handleAssignDriver}
                 disabled={updatingDriver}
-                className="w-full bg-brand-gold text-brand-brown py-3 rounded-xl font-bold text-sm hover:bg-brand-gold/90 transition-all disabled:opacity-50"
+                className="w-full bg-brand-gold text-brand-brown py-3 rounded-xl font-bold text-xs lg:text-sm hover:bg-brand-gold/90 transition-all disabled:opacity-50 uppercase tracking-widest"
               >
-                {updatingDriver ? 'Assigning...' : 'Assign & Notify Client'}
+                {updatingDriver ? 'Assigning...' : 'Assign & Notify'}
               </button>
               {order.driver_name && (
-                <div className="p-4 bg-green-50 rounded-xl border border-green-100">
-                  <p className="text-xs text-green-800 font-medium">
+                <div className="p-3 lg:p-4 bg-green-50 rounded-xl border border-green-100">
+                  <p className="text-[10px] lg:text-xs text-green-800 font-medium">
                     Currently assigned to: <span className="font-bold">{order.driver_name}</span>
                   </p>
-                  <p className="text-xs text-green-800 font-medium">
+                  <p className="text-[10px] lg:text-xs text-green-800 font-medium">
                     ETA: <span className="font-bold">{order.delivery_days} days</span>
                   </p>
                 </div>
@@ -415,31 +415,31 @@ export default function OrderDetail() {
           </div>
 
           {/* Customer Info */}
-          <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-8">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-2">
+          <div className="bg-white rounded-2xl lg:rounded-3xl border border-gray-200 shadow-sm p-6 lg:p-8">
+            <h3 className="text-[10px] lg:text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 lg:mb-6 flex items-center gap-2">
               <User size={14} /> Customer Information
             </h3>
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-brand-gold/10 rounded-2xl flex items-center justify-center text-brand-brown font-bold text-xl">
+            <div className="space-y-4 lg:space-y-6">
+              <div className="flex items-center gap-3 lg:gap-4">
+                <div className="w-10 h-10 lg:w-12 lg:h-12 bg-brand-gold/10 rounded-xl lg:rounded-2xl flex items-center justify-center text-brand-brown font-bold text-lg lg:text-xl">
                   {(order.customer_name || order.name || 'U').charAt(0)}
                 </div>
                 <div>
-                  <p className="font-bold text-gray-900">{order.customer_name || order.name || 'Unknown'}</p>
-                  <p className="text-xs text-gray-500">Customer ID: {order.user_id.slice(-8).toUpperCase()}</p>
+                  <p className="font-bold text-sm lg:text-base text-gray-900">{order.customer_name || order.name || 'Unknown'}</p>
+                  <p className="text-[10px] lg:text-xs text-gray-500">Customer ID: {order.user_id.slice(-8).toUpperCase()}</p>
                 </div>
               </div>
-              <div className="space-y-4 pt-4 border-t border-gray-100">
-                <div className="flex items-center gap-3 text-sm text-gray-600">
-                  <Phone size={16} className="text-brand-gold" />
+              <div className="space-y-3 lg:space-y-4 pt-4 border-t border-gray-100">
+                <div className="flex items-center gap-3 text-xs lg:text-sm text-gray-600">
+                  <Phone size={14} lg:size={16} className="text-brand-gold" />
                   <span className="font-medium">{order.customer_phone || order.phone || 'No phone'}</span>
                 </div>
-                <div className="flex items-start gap-3 text-sm text-gray-600">
-                  <MapPin size={16} className="text-brand-gold mt-1 shrink-0" />
+                <div className="flex items-start gap-3 text-xs lg:text-sm text-gray-600">
+                  <MapPin size={14} lg:size={16} className="text-brand-gold mt-0.5 lg:mt-1 shrink-0" />
                   <span className="font-medium leading-relaxed">{order.shipping_address}</span>
                 </div>
-                <div className="flex items-center gap-3 text-sm text-gray-600">
-                  <CreditCard size={16} className="text-brand-gold" />
+                <div className="flex items-center gap-3 text-xs lg:text-sm text-gray-600">
+                  <CreditCard size={14} lg:size={16} className="text-brand-gold" />
                   <span className="font-medium uppercase tracking-wider">{order.payment_method}</span>
                 </div>
               </div>

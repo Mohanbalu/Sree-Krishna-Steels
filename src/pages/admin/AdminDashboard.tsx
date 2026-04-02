@@ -198,70 +198,70 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-end">
-        <div>
-          <h1 className="text-3xl font-serif text-brand-brown mb-2">Dashboard Overview</h1>
-          <p className="text-gray-500">Welcome back! Here's what's happening with your store today.</p>
+    <div className="space-y-6 lg:space-y-8 pb-20">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-3xl lg:text-4xl font-serif text-brand-brown tracking-tight">Dashboard Overview</h1>
+          <p className="text-sm lg:text-base text-gray-500 font-medium">Welcome back! Here's what's happening with your store today.</p>
         </div>
-        <div className="flex items-center gap-3 bg-white p-2 rounded-xl border border-gray-200 shadow-sm">
+        <div className="flex items-center gap-3 bg-white p-2 rounded-xl border border-gray-200 shadow-sm self-start sm:self-auto">
           <Calendar size={18} className="text-gray-400" />
-          <span className="text-sm font-bold text-gray-700">Mar 29, 2026</span>
+          <span className="text-sm font-bold text-gray-700">{new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
         {statCards.map((stat, idx) => (
           <motion.div
             key={idx}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1 }}
-            className="bg-white p-8 rounded-[2rem] border border-brand-brown/5 shadow-xl shadow-brand-brown/5 hover:shadow-2xl hover:border-brand-gold/50 transition-all duration-500 group"
+            className="bg-white p-6 lg:p-8 rounded-3xl lg:rounded-[2rem] border border-brand-brown/5 shadow-xl shadow-brand-brown/5 hover:shadow-2xl hover:border-brand-gold/50 transition-all duration-500 group"
           >
-            <div className="flex justify-between items-start mb-6">
-              <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:scale-110", stat.bg)}>
-                <stat.icon className={stat.color} size={28} strokeWidth={1.5} />
+            <div className="flex justify-between items-start mb-4 lg:mb-6">
+              <div className={cn("w-12 h-12 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:scale-110", stat.bg)}>
+                <stat.icon className={stat.color} size={24} lg:size={28} strokeWidth={1.5} />
               </div>
               {stat.change !== 0 && (
                 <div className={cn(
-                  "flex items-center gap-1 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest",
+                  "flex items-center gap-1 text-[9px] lg:text-[10px] font-bold px-2 lg:px-3 py-1 rounded-full uppercase tracking-widest",
                   stat.change > 0 ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50'
                 )}>
-                  {stat.change > 0 ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+                  {stat.change > 0 ? <ArrowUpRight size={10} lg:size={12} /> : <ArrowDownRight size={10} lg:size={12} />}
                   {Math.abs(stat.change)}%
                 </div>
               )}
             </div>
-            <p className="text-[10px] font-bold text-brand-charcoal/40 uppercase tracking-[0.2em] mb-1">{stat.title}</p>
-            <p className="text-3xl font-serif text-brand-brown tracking-tight">{stat.value}</p>
+            <p className="text-[9px] lg:text-[10px] font-bold text-brand-charcoal/40 uppercase tracking-[0.2em] mb-1">{stat.title}</p>
+            <p className="text-2xl lg:text-3xl font-serif text-brand-brown tracking-tight">{stat.value}</p>
           </motion.div>
         ))}
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
         <motion.div 
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white p-10 rounded-[3rem] border border-brand-brown/5 shadow-2xl shadow-brand-brown/5"
+          className="bg-white p-6 lg:p-10 rounded-3xl lg:rounded-[3rem] border border-brand-brown/5 shadow-2xl shadow-brand-brown/5"
         >
-          <div className="flex justify-between items-center mb-10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 lg:mb-10">
             <div>
-              <h2 className="text-2xl font-serif text-brand-brown mb-1">Revenue Overview</h2>
-              <p className="text-[10px] font-bold text-brand-charcoal/40 uppercase tracking-widest">Monthly performance analytics</p>
+              <h2 className="text-xl lg:text-2xl font-serif text-brand-brown mb-1">Revenue Overview</h2>
+              <p className="text-[9px] lg:text-[10px] font-bold text-brand-charcoal/40 uppercase tracking-widest">Monthly performance analytics</p>
             </div>
-            <select className="bg-brand-cream/30 border-none text-[10px] font-bold uppercase tracking-widest rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all">
+            <select className="bg-brand-cream/30 border-none text-[9px] lg:text-[10px] font-bold uppercase tracking-widest rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all self-start sm:self-auto">
               <option>Last 7 Days</option>
               <option>Last 30 Days</option>
             </select>
           </div>
-          <div className="h-[400px] w-full min-h-[400px] flex items-center justify-center bg-brand-cream/5 rounded-[2rem] overflow-hidden">
+          <div className="h-[300px] lg:h-[400px] w-full min-h-[300px] flex items-center justify-center bg-brand-cream/5 rounded-2xl lg:rounded-[2rem] overflow-hidden">
             {isMounted && chartData.length > 0 && (
-              <div className="w-full h-full p-4">
+              <div className="w-full h-full p-2 lg:p-4">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.3}/>
@@ -273,24 +273,24 @@ export default function AdminDashboard() {
                       dataKey="name" 
                       axisLine={false} 
                       tickLine={false} 
-                      tick={{fill: '#8E9299', fontSize: 10, fontWeight: 600}} 
+                      tick={{fill: '#8E9299', fontSize: 9, fontWeight: 600}} 
                       dy={10} 
                     />
                     <YAxis 
                       axisLine={false} 
                       tickLine={false} 
-                      tick={{fill: '#8E9299', fontSize: 10, fontWeight: 600}} 
+                      tick={{fill: '#8E9299', fontSize: 9, fontWeight: 600}} 
                       tickFormatter={(value) => `₹${value}`}
                     />
                     <Tooltip 
                       contentStyle={{
                         backgroundColor: '#1A1A1A', 
-                        borderRadius: '16px', 
+                        borderRadius: '12px', 
                         border: 'none', 
-                        boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+                        boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
                         color: '#FFF',
-                        fontSize: '12px',
-                        padding: '12px 16px'
+                        fontSize: '10px',
+                        padding: '8px 12px'
                       }}
                       itemStyle={{fontWeight: 'bold', color: '#D4AF37'}}
                     />
@@ -298,7 +298,7 @@ export default function AdminDashboard() {
                       type="monotone" 
                       dataKey="total" 
                       stroke="#D4AF37" 
-                      strokeWidth={4} 
+                      strokeWidth={3} 
                       fillOpacity={1} 
                       fill="url(#colorTotal)" 
                       animationDuration={1500}
@@ -314,50 +314,50 @@ export default function AdminDashboard() {
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-white p-10 rounded-[3rem] border border-brand-brown/5 shadow-2xl shadow-brand-brown/5"
+          className="bg-white p-6 lg:p-10 rounded-3xl lg:rounded-[3rem] border border-brand-brown/5 shadow-2xl shadow-brand-brown/5"
         >
-          <div className="flex justify-between items-center mb-10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 lg:mb-10">
             <div>
-              <h2 className="text-2xl font-serif text-brand-brown mb-1">Orders by Day</h2>
-              <p className="text-[10px] font-bold text-brand-charcoal/40 uppercase tracking-widest">Daily transaction volume</p>
+              <h2 className="text-xl lg:text-2xl font-serif text-brand-brown mb-1">Orders by Day</h2>
+              <p className="text-[9px] lg:text-[10px] font-bold text-brand-charcoal/40 uppercase tracking-widest">Daily transaction volume</p>
             </div>
-            <select className="bg-brand-cream/30 border-none text-[10px] font-bold uppercase tracking-widest rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all">
+            <select className="bg-brand-cream/30 border-none text-[9px] lg:text-[10px] font-bold uppercase tracking-widest rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all self-start sm:self-auto">
               <option>Last 7 Days</option>
               <option>Last 30 Days</option>
             </select>
           </div>
-          <div className="h-[400px] w-full min-h-[400px] flex items-center justify-center bg-brand-cream/5 rounded-[2rem] overflow-hidden">
+          <div className="h-[300px] lg:h-[400px] w-full min-h-[300px] flex items-center justify-center bg-brand-cream/5 rounded-2xl lg:rounded-[2rem] overflow-hidden">
             {isMounted && chartData.length > 0 && (
-              <div className="w-full h-full p-4">
+              <div className="w-full h-full p-2 lg:p-4">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F5F5F0" />
                     <XAxis 
                       dataKey="name" 
                       axisLine={false} 
                       tickLine={false} 
-                      tick={{fill: '#8E9299', fontSize: 10, fontWeight: 600}} 
+                      tick={{fill: '#8E9299', fontSize: 9, fontWeight: 600}} 
                       dy={10} 
                     />
                     <YAxis 
                       axisLine={false} 
                       tickLine={false} 
-                      tick={{fill: '#8E9299', fontSize: 10, fontWeight: 600}} 
+                      tick={{fill: '#8E9299', fontSize: 9, fontWeight: 600}} 
                     />
                     <Tooltip 
-                      cursor={{fill: '#F5F5F0', radius: 12}}
+                      cursor={{fill: '#F5F5F0', radius: 8}}
                       contentStyle={{
                         backgroundColor: '#1A1A1A', 
-                        borderRadius: '16px', 
+                        borderRadius: '12px', 
                         border: 'none', 
-                        boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+                        boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
                         color: '#FFF',
-                        fontSize: '12px',
-                        padding: '12px 16px'
+                        fontSize: '10px',
+                        padding: '8px 12px'
                       }}
                       itemStyle={{fontWeight: 'bold', color: '#D4AF37'}}
                     />
-                    <Bar dataKey="total" fill="#3D2B1F" radius={[12, 12, 0, 0]} barSize={40} animationDuration={1500} />
+                    <Bar dataKey="total" fill="#3D2B1F" radius={[8, 8, 0, 0]} barSize={30} animationDuration={1500} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -367,42 +367,44 @@ export default function AdminDashboard() {
       </div>
 
       {/* Recent Orders & Top Products */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-12">
         {/* Recent Orders Table */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="lg:col-span-2 bg-white rounded-[3rem] border border-brand-brown/5 shadow-2xl shadow-brand-brown/5 overflow-hidden"
+          className="lg:col-span-2 bg-white rounded-3xl lg:rounded-[3rem] border border-brand-brown/5 shadow-2xl shadow-brand-brown/5 overflow-hidden"
         >
-          <div className="p-10 border-b border-brand-brown/5 flex justify-between items-center">
+          <div className="p-6 lg:p-10 border-b border-brand-brown/5 flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-serif text-brand-brown mb-1">Recent Orders</h2>
-              <p className="text-[10px] font-bold text-brand-charcoal/40 uppercase tracking-widest">Latest transactions across all channels</p>
+              <h2 className="text-xl lg:text-2xl font-serif text-brand-brown mb-1">Recent Orders</h2>
+              <p className="text-[9px] lg:text-[10px] font-bold text-brand-charcoal/40 uppercase tracking-widest">Latest transactions across all channels</p>
             </div>
-            <Link to="/admin/orders" className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-gold hover:text-brand-brown transition-colors">View All Orders</Link>
+            <Link to="/admin/orders" className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-gold hover:text-brand-brown transition-colors">View All</Link>
           </div>
-          <div className="overflow-x-auto">
+          
+          {/* Desktop Table View */}
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-brand-cream/30">
-                  <th className="px-10 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-brand-charcoal/40">Order ID</th>
-                  <th className="px-10 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-brand-charcoal/40">Customer</th>
-                  <th className="px-10 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-brand-charcoal/40">Amount</th>
-                  <th className="px-10 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-brand-charcoal/40">Status</th>
+                  <th className="px-6 lg:px-10 py-4 lg:py-6 text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-charcoal/40">Order ID</th>
+                  <th className="px-6 lg:px-10 py-4 lg:py-6 text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-charcoal/40">Customer</th>
+                  <th className="px-6 lg:px-10 py-4 lg:py-6 text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-charcoal/40">Amount</th>
+                  <th className="px-6 lg:px-10 py-4 lg:py-6 text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-charcoal/40">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-brand-brown/5">
                 {recentOrders.map((order) => (
                   <tr key={order.id} className="hover:bg-brand-cream/10 transition-colors group">
-                    <td className="px-10 py-6 font-mono text-xs font-bold text-brand-gold">#{order.id.slice(-8).toUpperCase()}</td>
-                    <td className="px-10 py-6">
-                      <p className="font-bold text-brand-brown text-sm">{order.customer_name || (order as any).name || 'Customer'}</p>
-                      <p className="text-[10px] text-brand-charcoal/40 font-medium">{order.customer_phone || (order as any).phone || 'No phone'}</p>
+                    <td className="px-6 lg:px-10 py-4 lg:py-6 font-mono text-[10px] lg:text-xs font-bold text-brand-gold">#{order.id.slice(-8).toUpperCase()}</td>
+                    <td className="px-6 lg:px-10 py-4 lg:py-6">
+                      <p className="font-bold text-brand-brown text-xs lg:text-sm">{order.customer_name || (order as any).name || 'Customer'}</p>
+                      <p className="text-[9px] lg:text-[10px] text-brand-charcoal/40 font-medium">{order.customer_phone || (order as any).phone || 'No phone'}</p>
                     </td>
-                    <td className="px-10 py-6 font-bold text-brand-brown text-sm">₹{order.total_amount.toLocaleString()}</td>
-                    <td className="px-10 py-6">
+                    <td className="px-6 lg:px-10 py-4 lg:py-6 font-bold text-brand-brown text-xs lg:text-sm">₹{order.total_amount.toLocaleString()}</td>
+                    <td className="px-6 lg:px-10 py-4 lg:py-6">
                       <span className={cn(
-                        "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm",
+                        "px-3 lg:px-4 py-1 lg:py-1.5 rounded-full text-[8px] lg:text-[9px] font-black uppercase tracking-widest shadow-sm",
                         getStatusColor(order.status)
                       )}>
                         {order.status}
@@ -413,6 +415,36 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
+
+          {/* Mobile Card View */}
+          <div className="sm:hidden divide-y divide-brand-brown/5">
+            {recentOrders.map((order) => (
+              <div key={order.id} className="p-6 space-y-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-brand-brown/30 mb-1">Order ID</p>
+                    <p className="font-mono text-xs font-bold text-brand-gold">#{order.id.slice(-8).toUpperCase()}</p>
+                  </div>
+                  <span className={cn(
+                    "px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm",
+                    getStatusColor(order.status)
+                  )}>
+                    {order.status}
+                  </span>
+                </div>
+                <div className="flex justify-between items-end">
+                  <div>
+                    <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-brand-brown/30 mb-1">Customer</p>
+                    <p className="font-bold text-brand-brown text-sm">{order.customer_name || (order as any).name || 'Customer'}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-brand-brown/30 mb-1">Amount</p>
+                    <p className="font-bold text-brand-brown text-sm">₹{order.total_amount.toLocaleString()}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </motion.div>
 
         {/* Top Selling Products */}
@@ -420,17 +452,17 @@ export default function AdminDashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-[3rem] border border-brand-brown/5 shadow-2xl shadow-brand-brown/5 overflow-hidden"
+          className="bg-white rounded-3xl lg:rounded-[3rem] border border-brand-brown/5 shadow-2xl shadow-brand-brown/5 overflow-hidden"
         >
-          <div className="p-10 border-b border-brand-brown/5">
-            <h2 className="text-2xl font-serif text-brand-brown mb-1">Top Products</h2>
-            <p className="text-[10px] font-bold text-brand-charcoal/40 uppercase tracking-widest">Most popular items this month</p>
+          <div className="p-6 lg:p-10 border-b border-brand-brown/5">
+            <h2 className="text-xl lg:text-2xl font-serif text-brand-brown mb-1">Top Products</h2>
+            <p className="text-[9px] lg:text-[10px] font-bold text-brand-charcoal/40 uppercase tracking-widest">Most popular items this month</p>
           </div>
-          <div className="p-8 space-y-8">
+          <div className="p-6 lg:p-8 space-y-6 lg:space-y-8">
             {topProducts.map((product, idx) => (
-              <div key={idx} className="flex items-center gap-6 group">
+              <div key={idx} className="flex items-center gap-4 lg:gap-6 group">
                 <div className="relative shrink-0">
-                  <div className="w-16 h-16 rounded-2xl overflow-hidden bg-brand-cream border border-brand-brown/5 shadow-lg shadow-brand-brown/5 group-hover:scale-105 transition-transform duration-500">
+                  <div className="w-14 h-14 lg:w-16 lg:h-16 rounded-xl lg:rounded-2xl overflow-hidden bg-brand-cream border border-brand-brown/5 shadow-lg shadow-brand-brown/5 group-hover:scale-105 transition-transform duration-500">
                     <img 
                       src={product.image_url} 
                       alt={product.title} 
@@ -438,25 +470,25 @@ export default function AdminDashboard() {
                       referrerPolicy="no-referrer"
                     />
                   </div>
-                  <div className="absolute -top-2 -left-2 w-6 h-6 bg-brand-gold text-brand-brown text-[10px] font-black rounded-lg flex items-center justify-center border-2 border-white shadow-md">
+                  <div className="absolute -top-1.5 -left-1.5 w-5 h-5 lg:w-6 lg:h-6 bg-brand-gold text-brand-brown text-[8px] lg:text-[10px] font-black rounded-lg flex items-center justify-center border-2 border-white shadow-md">
                     {idx + 1}
                   </div>
                 </div>
                 <div className="flex-grow min-w-0">
-                  <p className="font-bold text-brand-brown text-sm truncate group-hover:text-brand-gold transition-colors">{product.title}</p>
-                  <p className="text-[10px] text-brand-charcoal/40 font-bold uppercase tracking-widest mt-1">{product.total_sold} units sold</p>
+                  <p className="font-bold text-brand-brown text-xs lg:text-sm truncate group-hover:text-brand-gold transition-colors">{product.title}</p>
+                  <p className="text-[9px] lg:text-[10px] text-brand-charcoal/40 font-bold uppercase tracking-widest mt-1">{product.total_sold} sold</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="font-bold text-brand-gold text-sm">₹{product.price.toLocaleString()}</p>
+                  <p className="font-bold text-brand-gold text-xs lg:text-sm">₹{product.price.toLocaleString()}</p>
                 </div>
               </div>
             ))}
             {topProducts.length === 0 && (
               <div className="text-center py-12">
-                <div className="w-16 h-16 bg-brand-cream rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-14 h-14 lg:w-16 lg:h-16 bg-brand-cream rounded-full flex items-center justify-center mx-auto mb-4">
                   <Package size={24} className="text-brand-charcoal/20" />
                 </div>
-                <p className="text-brand-charcoal/40 text-[10px] font-bold uppercase tracking-widest">No sales data yet</p>
+                <p className="text-brand-charcoal/40 text-[9px] lg:text-[10px] font-bold uppercase tracking-widest">No sales data yet</p>
               </div>
             )}
           </div>
@@ -467,23 +499,23 @@ export default function AdminDashboard() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-[3rem] border border-brand-brown/5 shadow-2xl shadow-brand-brown/5 overflow-hidden"
+        className="bg-white rounded-3xl lg:rounded-[3rem] border border-brand-brown/5 shadow-2xl shadow-brand-brown/5 overflow-hidden"
       >
-        <div className="p-10 border-b border-brand-brown/5 flex justify-between items-center">
+        <div className="p-6 lg:p-10 border-b border-brand-brown/5 flex justify-between items-center">
           <div>
-            <h2 className="text-2xl font-serif text-brand-brown mb-1">Recent Activity & Notifications</h2>
-            <p className="text-[10px] font-bold text-brand-charcoal/40 uppercase tracking-widest">System logs and email confirmations</p>
+            <h2 className="text-xl lg:text-2xl font-serif text-brand-brown mb-1">Recent Activity</h2>
+            <p className="text-[9px] lg:text-[10px] font-bold text-brand-charcoal/40 uppercase tracking-widest">System logs and email confirmations</p>
           </div>
         </div>
-        <div className="p-8 space-y-4">
+        <div className="p-6 lg:p-8 space-y-4">
           {notifications.map((notif) => (
             <div key={notif.id} className="flex items-start gap-4 p-4 rounded-2xl bg-brand-cream/20 border border-brand-gold/5 hover:border-brand-gold/20 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm">
+              <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm">
                 <NotificationIcon type={notif.type} />
               </div>
-              <div className="flex-grow">
-                <p className="text-sm text-brand-brown font-medium">{notif.message}</p>
-                <p className="text-[10px] text-brand-charcoal/40 font-bold uppercase tracking-widest mt-1">
+              <div className="flex-grow min-w-0">
+                <p className="text-xs lg:text-sm text-brand-brown font-medium line-clamp-2">{notif.message}</p>
+                <p className="text-[9px] lg:text-[10px] text-brand-charcoal/40 font-bold uppercase tracking-widest mt-1">
                   {new Date(notif.created_at).toLocaleString()}
                 </p>
               </div>
@@ -491,7 +523,7 @@ export default function AdminDashboard() {
           ))}
           {notifications.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-brand-charcoal/40 text-[10px] font-bold uppercase tracking-widest">No recent activity</p>
+              <p className="text-brand-charcoal/40 text-[9px] lg:text-[10px] font-bold uppercase tracking-widest">No recent activity</p>
             </div>
           )}
         </div>
