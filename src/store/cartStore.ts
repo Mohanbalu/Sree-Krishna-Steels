@@ -100,10 +100,19 @@ export const useCartStore = create<CartState>()(
       fetchFromSupabase: async (userId: string) => {
         if (!supabase) return;
         try {
-          const { data, error } = await supabase
+          const cartPromise = supabase
             .from('cart_items')
             .select('*')
             .eq('user_id', userId);
+
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Cart fetch timeout')), 15000)
+          );
+
+          const { data, error } = await Promise.race([
+            Promise.resolve(cartPromise),
+            timeoutPromise
+          ]) as any;
           
           if (error) throw error;
           
