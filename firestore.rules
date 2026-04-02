@@ -56,7 +56,8 @@ service cloud.firestore {
     function isAdmin() {
       return isAuthenticated() &&
         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
-          (request.auth.token.email == "mohanbalu292@gmail.com" && request.auth.token.email_verified == true)); // Default admin
+          (request.auth.token.email == "support@sksfurniture.in" && request.auth.token.email_verified == true) ||
+          (request.auth.token.email == "mohanbalu292@gmail.com" && request.auth.token.email_verified == true)); // Default admins
     }
 
     function isValidUser(data) {

@@ -98,7 +98,7 @@ export default function Home() {
               </span>
             </Link>
             <a 
-              href="https://wa.me/919949666666?text=Hello%20Sree%20Krishna%20Steels,%20I'd%20like%20to%20get%20a%20quote%20for%20some%20furniture."
+              href="https://wa.me/919848082209?text=Hello%20Sree%20Krishna%20Steels,%20I'd%20like%20to%20get%20a%20quote%20for%20some%20furniture."
               target="_blank"
               rel="noopener noreferrer"
               className="text-white font-bold text-sm uppercase tracking-[0.2em] hover:text-brand-gold transition-colors duration-300 flex items-center gap-3 group"
@@ -249,15 +249,15 @@ export default function Home() {
             <p className="text-brand-brown/70 text-lg mb-12 max-w-xl mx-auto">Get a free consultation and a personalized quote for your dream furniture today.</p>
             <div className="flex flex-col sm:flex-row justify-center gap-6">
               <a 
-                href="https://wa.me/919949666666?text=Hello%20Sree%20Krishna%20Steels,%20I'm%20interested%20in%20upgrading%20my%20home%20furniture.%20Please%20provide%20more%20details."
+                href="https://wa.me/919848082209?text=Hello%20Sree%20Krishna%20Steels,%20I'm%20interested%20in%20upgrading%20my%20home%20furniture.%20Please%20provide%20more%20details."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-brand-brown text-white px-12 py-5 rounded-full font-bold text-xl hover:shadow-2xl transition-all"
               >
                 Enquire Now
               </a>
-              <a href="tel:+919949666666" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-xl hover:underline">
-                <Phone /> +91 99496 66666
+              <a href="tel:+919848082209" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-xl hover:underline">
+                <Phone /> +91 98480 82209
               </a>
             </div>
           </div>

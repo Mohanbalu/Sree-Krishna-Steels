@@ -67,7 +67,7 @@ export const useAuthStore = create<AuthState>((set) => ({
                 name: userName || 'User', 
                 email: userEmail,
                 phone: userPhone,
-                role: 'customer' 
+                role: userEmail === 'support@sksfurniture.in' ? 'super_admin' : 'customer' 
               }
             ])
             .select()
@@ -111,6 +111,11 @@ export const useAuthStore = create<AuthState>((set) => ({
           useCartStore.getState().fetchFromSupabase(session.user.id)
         ]);
         
+        // Ensure support@sksfurniture.in is always an admin
+        if (session.user.email === 'support@sksfurniture.in' && profile) {
+          profile.role = 'super_admin';
+        }
+        
         set({ user: session.user, profile, loading: false, initialized: true });
       } else {
         useCartStore.getState().clearCart(false);
@@ -135,11 +140,16 @@ export const useAuthStore = create<AuthState>((set) => ({
         // If we already have the user and profile, and it's just a token refresh or similar, 
         // we might not need to fetch the profile again unless it's a SIGNED_IN event.
         const currentUser = useAuthStore.getState().user;
-        const currentProfile = useAuthStore.getState().profile;
+        let currentProfile = useAuthStore.getState().profile;
+        
+        // Ensure support@sksfurniture.in is always an admin
+        if (session.user.email === 'support@sksfurniture.in' && currentProfile && currentProfile.role !== 'super_admin') {
+          currentProfile = { ...currentProfile, role: 'super_admin' };
+        }
         
         if (currentUser?.id === session.user.id && currentProfile && event !== 'SIGNED_IN') {
           console.log('Session refreshed, keeping existing profile');
-          set({ user: session.user, loading: false });
+          set({ user: session.user, profile: currentProfile, loading: false });
           return;
         }
 
@@ -148,7 +158,6 @@ export const useAuthStore = create<AuthState>((set) => ({
         set({ loading: true });
         
         try {
-          // Run profile and cart fetching in parallel
           const [profile] = await Promise.all([
             fetchProfile(
               session.user.id, 
@@ -158,6 +167,11 @@ export const useAuthStore = create<AuthState>((set) => ({
             ),
             useCartStore.getState().fetchFromSupabase(session.user.id)
           ]);
+          
+          // Ensure support@sksfurniture.in is always an admin
+          if (session.user.email === 'support@sksfurniture.in' && profile) {
+            profile.role = 'super_admin';
+          }
           
           console.log('Profile fetched successfully:', profile?.role);
           set({ user: session.user, profile, loading: false });
