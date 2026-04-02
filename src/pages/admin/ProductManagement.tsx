@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase, handleSupabaseError } from '../../lib/supabase';
-import { Plus, Trash2, Edit2, X, Image as ImageIcon, Link as LinkIcon, Package, Search, Upload, Filter, AlertTriangle, Eye, EyeOff } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Image as ImageIcon, Link as LinkIcon, Package, Search, Upload, Filter, AlertTriangle, Eye, EyeOff, Pin } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -14,6 +14,7 @@ interface Product {
   image_url: string;
   reel_link?: string;
   is_active?: boolean;
+  is_pinned?: boolean;
   images?: string[];
 }
 
@@ -37,13 +38,16 @@ export default function ProductManagement() {
     image_urls: [] as string[],
     reel_link: '',
     is_active: true,
+    is_pinned: false,
   });
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
   const [displayLimit, setDisplayLimit] = useState(12);
+  const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
+  const [newCategory, setNewCategory] = useState('');
 
-  const categories = ['Beds', 'Sofas', 'Dining Tables', 'Wardrobes', 'Office Furniture', 'Steel Almirahs'];
+  const [categories, setCategories] = useState(['Beds', 'Sofas', 'Dining Tables', 'Wardrobes', 'Office Furniture', 'Steel Almirahs']);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -51,10 +55,17 @@ export default function ProductManagement() {
         const { data, error } = await supabase
           .from('products')
           .select('*')
+          .order('is_pinned', { ascending: false })
           .order('created_at', { ascending: false });
 
         if (error) throw error;
         setProducts(data || []);
+        
+        // Extract unique categories
+        if (data) {
+          const uniqueCats = Array.from(new Set(data.map((p: any) => p.category)));
+          setCategories(prev => Array.from(new Set([...prev, ...uniqueCats])));
+        }
       } catch (error) {
         handleSupabaseError(error, 'fetchProducts');
       } finally {
@@ -233,6 +244,26 @@ export default function ProductManagement() {
     }
   };
 
+  const togglePin = async (product: Product) => {
+    if (!product?.id || product.id === 'undefined') {
+      console.error('Invalid product ID provided to togglePin:', product?.id);
+      toast.error('Could not toggle pin: Invalid Product ID');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('products')
+        .update({ is_pinned: !product.is_pinned })
+        .eq('id', product.id);
+      
+      if (error) throw error;
+      toast.success(`Product ${!product.is_pinned ? 'pinned' : 'unpinned'}`);
+    } catch (error) {
+      handleSupabaseError(error, 'togglePin');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -262,11 +293,16 @@ export default function ProductManagement() {
         description: formData.description,
         price: Number(formData.price),
         stock: Number(formData.stock),
-        category: formData.category,
+        category: isAddingNewCategory ? newCategory : formData.category,
         image_url: formData.image_url,
         reel_link: formData.reel_link,
         is_active: formData.is_active,
+        is_pinned: formData.is_pinned,
       };
+
+      if (isAddingNewCategory && newCategory) {
+        setCategories(prev => Array.from(new Set([...prev, newCategory])));
+      }
 
       if (editingProduct) {
         if (!editingProduct.id || editingProduct.id === 'undefined') {
@@ -385,6 +421,7 @@ export default function ProductManagement() {
         image_urls: images,
         reel_link: product.reel_link || '',
         is_active: product.is_active ?? true,
+        is_pinned: product.is_pinned ?? false,
       });
     } else {
       setEditingProduct(null);
@@ -393,13 +430,16 @@ export default function ProductManagement() {
         description: '',
         price: 0,
         stock: 0,
-        category: 'Beds',
+        category: categories[0] || 'Beds',
         image_url: '',
         image_urls: [],
         reel_link: '',
         is_active: true,
+        is_pinned: false,
       });
     }
+    setIsAddingNewCategory(false);
+    setNewCategory('');
     setIsModalOpen(true);
   };
 
@@ -530,6 +570,13 @@ export default function ProductManagement() {
                     <Edit2 size={16} lg:size={18} />
                   </button>
                   <button
+                    onClick={() => togglePin(product)}
+                    className={`p-2.5 lg:p-3 bg-white/90 backdrop-blur-md rounded-xl lg:rounded-2xl transition-all shadow-xl ${product.is_pinned ? 'text-brand-gold' : 'text-gray-400'}`}
+                    title={product.is_pinned ? 'Unpin' : 'Pin to Top'}
+                  >
+                    <Pin size={16} lg:size={18} fill={product.is_pinned ? 'currentColor' : 'none'} />
+                  </button>
+                  <button
                     onClick={() => toggleStatus(product)}
                     className={`p-2.5 lg:p-3 bg-white/90 backdrop-blur-md rounded-xl lg:rounded-2xl transition-all shadow-xl ${product.is_active ? 'text-green-600' : 'text-gray-400'}`}
                     title={product.is_active ? 'Deactivate' : 'Activate'}
@@ -558,7 +605,10 @@ export default function ProductManagement() {
               
               <div className="p-5 lg:p-6 space-y-2 lg:space-y-3">
                 <div className="flex justify-between items-start gap-3 lg:gap-4">
-                  <h3 className="font-serif text-lg lg:text-xl text-brand-brown line-clamp-1 leading-tight">{product.title}</h3>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <h3 className="font-serif text-lg lg:text-xl text-brand-brown truncate leading-tight">{product.title}</h3>
+                    {product.is_pinned && <Pin size={14} className="text-brand-gold fill-brand-gold shrink-0" />}
+                  </div>
                   <div className="text-right">
                     <p className="text-brand-gold font-bold text-base lg:text-lg whitespace-nowrap">₹{product.price.toLocaleString()}</p>
                   </div>
@@ -629,13 +679,35 @@ export default function ProductManagement() {
                   </div>
                   <div className="space-y-2 lg:space-y-3">
                     <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1">Category</label>
-                    <select
-                      className="w-full bg-brand-cream/20 border border-brand-brown/5 rounded-xl lg:rounded-2xl px-4 lg:px-5 py-3 lg:py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown text-sm font-bold transition-all cursor-pointer"
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    >
-                      {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                    </select>
+                    <div className="space-y-2">
+                      <select
+                        className="w-full bg-brand-cream/20 border border-brand-brown/5 rounded-xl lg:rounded-2xl px-4 lg:px-5 py-3 lg:py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown text-sm font-bold transition-all cursor-pointer"
+                        value={isAddingNewCategory ? 'new' : formData.category}
+                        onChange={(e) => {
+                          if (e.target.value === 'new') {
+                            setIsAddingNewCategory(true);
+                          } else {
+                            setIsAddingNewCategory(false);
+                            setFormData({ ...formData, category: e.target.value });
+                          }
+                        }}
+                      >
+                        {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                        <option value="new">+ Add New Category</option>
+                      </select>
+                      {isAddingNewCategory && (
+                        <motion.input
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          type="text"
+                          className="w-full bg-brand-cream/20 border border-brand-gold/30 rounded-xl lg:rounded-2xl px-4 lg:px-5 py-3 lg:py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown text-sm font-medium transition-all"
+                          placeholder="Enter new category name"
+                          value={newCategory}
+                          onChange={(e) => setNewCategory(e.target.value)}
+                          autoFocus
+                        />
+                      )}
+                    </div>
                   </div>
                   <div className="space-y-2 lg:space-y-3">
                     <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1">Price (₹)</label>
@@ -756,20 +828,39 @@ export default function ProductManagement() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 p-4 lg:p-6 bg-brand-cream/20 rounded-xl lg:rounded-[1.5rem] border border-brand-brown/5">
-                  <div className="relative flex items-center">
-                    <input 
-                      type="checkbox" 
-                      id="is_active"
-                      checked={formData.is_active}
-                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                      className="peer w-5 h-5 lg:w-6 lg:h-6 rounded-lg border-brand-brown/10 text-brand-gold focus:ring-brand-gold transition-all cursor-pointer"
-                    />
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-1 flex items-center gap-4 p-4 lg:p-6 bg-brand-cream/20 rounded-xl lg:rounded-[1.5rem] border border-brand-brown/5">
+                    <div className="relative flex items-center">
+                      <input 
+                        type="checkbox" 
+                        id="is_active"
+                        checked={formData.is_active}
+                        onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                        className="peer w-5 h-5 lg:w-6 lg:h-6 rounded-lg border-brand-brown/10 text-brand-gold focus:ring-brand-gold transition-all cursor-pointer"
+                      />
+                    </div>
+                    <label htmlFor="is_active" className="text-xs lg:text-sm font-bold text-brand-brown/80 cursor-pointer select-none">
+                      Publish to Storefront
+                      <span className="block text-[8px] lg:text-[10px] font-medium text-brand-brown/40 uppercase tracking-widest mt-0.5">Visible to all customers</span>
+                    </label>
                   </div>
-                  <label htmlFor="is_active" className="text-xs lg:text-sm font-bold text-brand-brown/80 cursor-pointer select-none">
-                    Publish to Storefront
-                    <span className="block text-[8px] lg:text-[10px] font-medium text-brand-brown/40 uppercase tracking-widest mt-0.5">Visible to all customers immediately</span>
-                  </label>
+
+                  <div className={`flex-1 flex items-center gap-4 p-4 lg:p-6 rounded-xl lg:rounded-[1.5rem] border transition-all ${formData.is_pinned ? 'bg-brand-gold/10 border-brand-gold/30' : 'bg-brand-cream/20 border-brand-brown/5'}`}>
+                    <div className="relative flex items-center">
+                      <input 
+                        type="checkbox" 
+                        id="is_pinned"
+                        checked={formData.is_pinned}
+                        onChange={(e) => setFormData({ ...formData, is_pinned: e.target.checked })}
+                        className="peer w-5 h-5 lg:w-6 lg:h-6 rounded-lg border-brand-brown/10 text-brand-gold focus:ring-brand-gold transition-all cursor-pointer"
+                      />
+                    </div>
+                    <label htmlFor="is_pinned" className="flex items-center gap-2 text-xs lg:text-sm font-bold text-brand-brown/80 cursor-pointer select-none">
+                      <Pin size={14} className={formData.is_pinned ? 'text-brand-gold' : 'text-brand-brown/40'} />
+                      Pin to Top
+                      <span className="block text-[8px] lg:text-[10px] font-medium text-brand-brown/40 uppercase tracking-widest mt-0.5">Show at the beginning of list</span>
+                    </label>
+                  </div>
                 </div>
               </div>
 
