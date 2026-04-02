@@ -4,7 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { cn } from '@/src/lib/utils';
 import { supabase, handleSupabaseError } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
-import { Trash2, AlertTriangle, Search, X, Play } from 'lucide-react';
+import { Trash2, AlertTriangle, Search, X, Play, Pin } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Products() {
@@ -17,7 +17,7 @@ export default function Products() {
   const [searchTerm, setSearchTerm] = useState('');
   const currentCat = searchParams.get('cat') || 'All';
 
-  const categories = ['All', 'Beds', 'Sofas', 'Dining Tables', 'Wardrobes', 'Office Furniture', 'Steel Almirahs'];
+  const [categories, setCategories] = useState(['All', 'Beds', 'Sofas', 'Dining Tables', 'Wardrobes', 'Office Furniture', 'Steel Almirahs']);
 
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
 
@@ -35,10 +35,21 @@ export default function Products() {
             image_url
           )
         `)
+        .eq('is_active', true)
+        .order('is_pinned', { ascending: false })
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       setDbProducts(data || []);
+      
+      // Dynamically update categories from database
+      if (data) {
+        const dbCats = Array.from(new Set(data.map((p: any) => p.category))).filter(Boolean);
+        setCategories(prev => {
+          const combined = Array.from(new Set(['All', ...prev, ...dbCats]));
+          return combined;
+        });
+      }
     } catch (error) {
       handleSupabaseError(error, 'fetchProducts');
     } finally {
@@ -216,6 +227,12 @@ export default function Products() {
                   {product.reel_link && (
                     <div className="absolute bottom-4 left-4 bg-brand-gold text-white p-2 rounded-xl shadow-lg flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest">
                       <Play size={12} fill="currentColor" /> Reel Available
+                    </div>
+                  )}
+
+                  {product.is_pinned && (
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-brand-gold p-2 rounded-xl shadow-lg flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest">
+                      <Pin size={12} fill="currentColor" /> Featured
                     </div>
                   )}
                 </div>

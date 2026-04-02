@@ -65,7 +65,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           .single();
 
         const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Profile fetch timeout')), 60000) // Increased to 60s
+          setTimeout(() => reject(new Error('Profile fetch timeout')), 15000) // Reduced to 15s
         );
 
         const { data, error } = await Promise.race([
@@ -128,7 +128,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           console.warn('Auth initialization taking too long, forcing loading: false');
           set({ loading: false, initialized: true });
         }
-      }, 90000); // Increased to 90s
+      }, 30000); // Reduced to 30s
 
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       

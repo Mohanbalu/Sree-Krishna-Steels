@@ -3,6 +3,7 @@ import { supabase, handleSupabaseError } from '../../lib/supabase';
 import { Plus, Trash2, Edit2, X, Image as ImageIcon, Link as LinkIcon, Package, Search, Upload, Filter, AlertTriangle, Eye, EyeOff, Pin } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
+import imageCompression from 'browser-image-compression';
 
 interface Product {
   id: string;
@@ -26,6 +27,7 @@ export default function ProductManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -54,7 +56,12 @@ export default function ProductManagement() {
       try {
         const { data, error } = await supabase
           .from('products')
-          .select('*')
+          .select(`
+            *,
+            product_images (
+              image_url
+            )
+          `)
           .order('is_pinned', { ascending: false })
           .order('created_at', { ascending: false });
 
@@ -90,15 +97,38 @@ export default function ProductManagement() {
     if (!files || files.length === 0) return;
 
     setUploading(true);
+    setUploadProgress(0);
+    const toastId = toast.loading(`Processing ${files.length} image(s)...`);
+    
     try {
-      const uploadPromises = Array.from(files).map(async (file: File) => {
-        const fileExt = file.name.split('.').pop();
+      const totalFiles = files.length;
+      let completedFiles = 0;
+
+      for (const file of Array.from(files) as File[]) {
+        // Image compression options
+        const options = {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+        };
+
+        let fileToUpload: File | Blob = file;
+        try {
+          // Only compress if it's an image and larger than 1MB
+          if (file.type.startsWith('image/') && file.size > 1024 * 1024) {
+            fileToUpload = await imageCompression(file, options);
+          }
+        } catch (compressionError) {
+          console.warn('Compression failed, uploading original:', compressionError);
+        }
+
+        const fileExt = file.name.split('.').pop() || 'jpg';
         const fileName = `${Math.random()}.${fileExt}`;
         const filePath = `products/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('products')
-          .upload(filePath, file);
+          .upload(filePath, fileToUpload);
 
         if (uploadError) throw uploadError;
 
@@ -106,24 +136,26 @@ export default function ProductManagement() {
           .from('products')
           .getPublicUrl(filePath);
         
-        return publicUrl;
-      });
+        setFormData(prev => {
+          const newImageUrls = [...prev.image_urls, publicUrl];
+          return { 
+            ...prev, 
+            image_urls: newImageUrls,
+            image_url: prev.image_url || publicUrl
+          };
+        });
 
-      const uploadedUrls = await Promise.all(uploadPromises);
-      
-      setFormData(prev => {
-        const newImageUrls = [...prev.image_urls, ...uploadedUrls];
-        return { 
-          ...prev, 
-          image_urls: newImageUrls,
-          image_url: prev.image_url || newImageUrls[0]
-        };
-      });
-      toast.success(`${files.length} image(s) uploaded successfully!`);
+        completedFiles++;
+        setUploadProgress(Math.round((completedFiles / totalFiles) * 100));
+        toast.loading(`Uploaded ${completedFiles}/${totalFiles} images...`, { id: toastId });
+      }
+
+      toast.success(`${files.length} image(s) optimized and added!`, { id: toastId });
     } catch (error: any) {
-      toast.error('Failed to upload image: ' + error.message);
+      toast.error('Failed to upload image: ' + error.message, { id: toastId });
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -399,17 +431,12 @@ export default function ProductManagement() {
     setIsDeleteModalOpen(true);
   };
 
-  const openModal = async (product: Product | null = null) => {
+  const openModal = async (product: any = null) => {
     if (product) {
       setEditingProduct(product);
       
-      // Fetch all images for this product
-      const { data: imagesData } = await supabase
-        .from('product_images')
-        .select('image_url')
-        .eq('product_id', product.id);
-      
-      const images = imagesData?.map((img: any) => img.image_url) || [product.image_url];
+      // Images are already pre-fetched in fetchProducts
+      const images = product.product_images?.map((img: any) => img.image_url) || [product.image_url];
 
       setFormData({
         title: product.title,
@@ -745,9 +772,25 @@ export default function ProductManagement() {
                 </div>
 
                 <div className="space-y-4">
-                  <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1 flex items-center gap-2">
-                    <ImageIcon size={12} /> Product Gallery
-                  </label>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1 flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <ImageIcon size={12} /> Product Gallery
+                      </span>
+                      <span className="text-[8px] text-brand-gold bg-brand-gold/5 px-2 py-0.5 rounded-full border border-brand-gold/10">
+                        Auto-Optimized
+                      </span>
+                    </label>
+                    {uploading && (
+                      <div className="w-full h-1 bg-brand-brown/5 rounded-full overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${uploadProgress}%` }}
+                          className="h-full bg-brand-gold"
+                        />
+                      </div>
+                    )}
+                  </div>
                   
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {formData.image_urls.map((url, index) => (
@@ -874,7 +917,7 @@ export default function ProductManagement() {
                     <>
                       <div className="animate-spin rounded-full h-5 w-5 lg:h-6 lg:w-6 border-2 border-white/30 border-t-white"></div>
                       <span className="tracking-widest uppercase text-xs lg:text-sm">
-                        {uploading ? 'Uploading Images...' : 'Processing...'}
+                        {uploading ? 'Optimizing & Uploading...' : 'Saving Product...'}
                       </span>
                     </>
                   ) : (

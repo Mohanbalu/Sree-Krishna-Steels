@@ -99,7 +99,7 @@ export const useCartStore = create<CartState>()(
           })();
 
           const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Cart sync timeout')), 60000) // Increased to 60s
+            setTimeout(() => reject(new Error('Cart sync timeout')), 15000) // Reduced to 15s
           );
 
           await Promise.race([syncPromise, timeoutPromise]);
@@ -123,7 +123,7 @@ export const useCartStore = create<CartState>()(
             .eq('user_id', userId);
 
           const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Cart fetch timeout')), 60000) // Increased to 60s
+            setTimeout(() => reject(new Error('Cart fetch timeout')), 15000) // Reduced to 15s
           );
 
           const { data, error } = await Promise.race([

@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { ArrowRight, Star, Shield, Truck, Settings, Phone, Quote, Play } from 'lucide-react';
+import { ArrowRight, Star, Shield, Truck, Settings, Phone, Quote, Play, Pin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { REFERENCES } from '@/src/constants';
 import { useState, useEffect, useMemo } from 'react';
@@ -20,7 +20,9 @@ export default function Home() {
               image_url
             )
           `)
-          .eq('is_best_seller', true)
+          .eq('is_active', true)
+          .order('is_pinned', { ascending: false })
+          .order('created_at', { ascending: false })
           .limit(3);
 
         if (error) throw error;
@@ -161,6 +163,11 @@ export default function Home() {
                   />
                   <div className="absolute inset-0 bg-brand-brown/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   <div className="absolute top-6 left-6 flex flex-col gap-2">
+                    {product.is_pinned && (
+                      <span className="bg-white/90 backdrop-blur-md text-brand-gold px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm flex items-center gap-2">
+                        <Pin size={10} fill="currentColor" /> Featured
+                      </span>
+                    )}
                     <span className="bg-white/90 backdrop-blur-md text-brand-brown px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm">
                       Best Seller
                     </span>
