@@ -228,9 +228,9 @@ export default function ProductDetail() {
               >
                 <MessageSquare size={20} /> Enquire on WhatsApp
               </a>
-              {product.reelLink && (
+              {product.reel_link && (
                 <a 
-                  href={product.reelLink}
+                  href={product.reel_link}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 bg-brand-gold/10 text-brand-gold py-4 rounded-2xl font-bold text-center flex items-center justify-center gap-2 hover:bg-brand-gold/20 transition-all"

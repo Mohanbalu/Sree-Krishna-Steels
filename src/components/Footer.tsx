@@ -65,7 +65,7 @@ export default function Footer() {
             </li>
             <li className="flex items-center space-x-3">
               <Mail size={18} className="text-brand-gold shrink-0" />
-              <span>sales@sreekrishnasteels.com</span>
+              <span>support@sksfurniture.in</span>
             </li>
           </ul>
         </div>

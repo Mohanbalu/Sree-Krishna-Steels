@@ -5,7 +5,7 @@ import { PRODUCTS } from '@/src/constants';
 import { cn } from '@/src/lib/utils';
 import { supabase, handleSupabaseError } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
-import { Trash2, AlertTriangle } from 'lucide-react';
+import { Trash2, AlertTriangle, Search, X, Play } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Products() {
@@ -15,6 +15,7 @@ export default function Products() {
   const { profile } = useAuthStore();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const currentCat = searchParams.get('cat') || 'All';
 
   const categories = ['All', 'Beds', 'Sofas', 'Dining Tables', 'Wardrobes', 'Office Furniture', 'Steel Almirahs'];
@@ -115,9 +116,20 @@ export default function Products() {
   }, [dbProducts]);
 
   const filteredProducts = useMemo(() => {
-    if (currentCat === 'All') return allProducts;
-    return allProducts.filter(p => p.category === currentCat);
-  }, [currentCat, allProducts]);
+    let filtered = allProducts;
+    if (currentCat !== 'All') {
+      filtered = filtered.filter(p => p.category === currentCat);
+    }
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(p => 
+        (p.title || p.name || '').toLowerCase().includes(term) ||
+        (p.description || '').toLowerCase().includes(term) ||
+        (p.category || '').toLowerCase().includes(term)
+      );
+    }
+    return filtered;
+  }, [currentCat, allProducts, searchTerm]);
 
   // No full-page loading spinner if we have static products to show
   // Only show spinner if we have no products at all and we are loading
@@ -144,22 +156,48 @@ export default function Products() {
         )}
       </div>
 
-      {/* Category Filter */}
-      <div className="flex flex-wrap justify-center gap-4 mb-16">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setSearchParams(cat === 'All' ? {} : { cat })}
-            className={cn(
-              "px-8 py-3 rounded-full text-sm font-semibold transition-all border",
-              currentCat === cat 
-                ? "bg-brand-brown text-white border-brand-brown shadow-lg" 
-                : "bg-white text-brand-charcoal border-brand-charcoal/10 hover:border-brand-gold"
+      {/* Search and Category Filter */}
+      <div className="space-y-8 mb-16">
+        <div className="max-w-2xl mx-auto relative group">
+          <div className="absolute inset-0 bg-brand-gold/5 blur-2xl rounded-full group-focus-within:bg-brand-gold/10 transition-all"></div>
+          <div className="relative flex items-center bg-white rounded-3xl shadow-xl shadow-brand-brown/5 border border-brand-brown/5 overflow-hidden">
+            <div className="pl-6 text-brand-brown/30">
+              <Search size={24} />
+            </div>
+            <input
+              type="text"
+              placeholder="Search for beds, sofas, wardrobes..."
+              className="w-full px-6 py-6 bg-transparent border-none focus:ring-0 text-brand-brown font-medium placeholder:text-brand-brown/30"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            {searchTerm && (
+              <button 
+                onClick={() => setSearchTerm('')}
+                className="pr-6 text-brand-brown/30 hover:text-brand-brown transition-colors"
+              >
+                <X size={20} />
+              </button>
             )}
-          >
-            {cat}
-          </button>
-        ))}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-4">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSearchParams(cat === 'All' ? {} : { cat })}
+              className={cn(
+                "px-8 py-3 rounded-full text-sm font-semibold transition-all border",
+                currentCat === cat 
+                  ? "bg-brand-brown text-white border-brand-brown shadow-lg" 
+                  : "bg-white text-brand-charcoal border-brand-charcoal/10 hover:border-brand-gold"
+              )}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Product Grid */}
@@ -182,6 +220,12 @@ export default function Products() {
                     referrerPolicy="no-referrer"
                   />
                   <div className="absolute inset-0 bg-brand-brown/0 group-hover:bg-brand-brown/10 transition-colors"></div>
+                  
+                  {product.reel_link && (
+                    <div className="absolute bottom-4 left-4 bg-brand-gold text-white p-2 rounded-xl shadow-lg flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest">
+                      <Play size={12} fill="currentColor" /> Reel Available
+                    </div>
+                  )}
                 </div>
               </Link>
 

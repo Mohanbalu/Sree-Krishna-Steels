@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { ArrowRight, Star, Shield, Truck, Settings, Phone, Quote } from 'lucide-react';
+import { ArrowRight, Star, Shield, Truck, Settings, Phone, Quote, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PRODUCTS, REFERENCES } from '@/src/constants';
 import { useState, useEffect, useMemo } from 'react';
@@ -156,10 +156,15 @@ export default function Home() {
                     referrerPolicy="no-referrer"
                   />
                   <div className="absolute inset-0 bg-brand-brown/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  <div className="absolute top-6 left-6">
+                  <div className="absolute top-6 left-6 flex flex-col gap-2">
                     <span className="bg-white/90 backdrop-blur-md text-brand-brown px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm">
                       Best Seller
                     </span>
+                    {product.reel_link && (
+                      <div className="bg-brand-gold text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm flex items-center gap-2">
+                        <Play size={10} fill="currentColor" /> Reel Available
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-3 px-2">
