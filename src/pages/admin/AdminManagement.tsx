@@ -50,24 +50,83 @@ export default function AdminManagement() {
     }
     setSubmitting(true);
     try {
+      const trimmedEmail = newAdminEmail.trim().toLowerCase();
+      
+      // Try to find the user by email (case-insensitive)
+      const { data: userData, error: fetchError } = await supabase
+        .from('profiles')
+        .select('*')
+        .ilike('email', trimmedEmail)
+        .maybeSingle();
+
+      if (fetchError) {
+        console.error('Error fetching user profile:', fetchError);
+        toast.error('Error checking user profile. Please try again.');
+        setSubmitting(false);
+        return;
+      }
+
+      if (!userData) {
+        toast.error('User with this email not found. They must sign up first.');
+        setSubmitting(false);
+        return;
+      }
+
+      // Check if the user already has an admin/staff role
+      if (['super_admin', 'admin', 'staff'].includes(userData.role)) {
+        if (userData.role === newAdminRole) {
+          toast.error(`This user is already a ${userData.role.replace('_', ' ')}.`);
+        } else {
+          toast.error(`This user is already a ${userData.role.replace('_', ' ')}. Use the table below to change their role.`);
+        }
+        setSubmitting(false);
+        return;
+      }
+
+      // Update the user's role
+      console.log('Updating user role:', { id: userData.id, newRole: newAdminRole });
       const { data, error } = await supabase
         .from('profiles')
         .update({ role: newAdminRole })
-        .eq('email', newAdminEmail)
+        .eq('id', userData.id)
         .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase update error:', error);
+        toast.error(`Failed to update role: ${error.message}`);
+        setSubmitting(false);
+        return;
+      }
       
       if (data && data.length > 0) {
-        setAdmins([data[0], ...admins.filter(a => a.email !== newAdminEmail)]);
+        setAdmins([data[0], ...admins.filter(a => a.id !== userData.id)]);
         setIsAddingAdmin(false);
         setNewAdminEmail('');
         toast.success('Admin added successfully!');
       } else {
-        toast.error('User with this email not found. They must sign up first.');
+        // Verification step
+        const { data: verifyData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userData.id)
+          .single();
+        
+        if (verifyData && verifyData.role === newAdminRole) {
+          setAdmins([verifyData, ...admins.filter(a => a.id !== userData.id)]);
+          setIsAddingAdmin(false);
+          setNewAdminEmail('');
+          toast.success('Admin added successfully!');
+        } else {
+          console.error('Update failed to return data and verification failed:', { verifyData, targetRole: newAdminRole });
+          toast.error(
+            'Database restriction: Your account may not have permission to update roles in the database. ' +
+            'Please ensure your role is set to "super_admin" in the Supabase SQL Editor.',
+            { duration: 6000 }
+          );
+        }
       }
     } catch (error: any) {
-      toast.error('Failed to add admin: ' + (error.message || 'Unknown error'));
+      toast.error('An unexpected error occurred: ' + (error.message || 'Unknown error'));
       console.error('Add Admin Error:', error);
     } finally {
       setSubmitting(false);
@@ -138,13 +197,6 @@ export default function AdminManagement() {
           <h1 className="text-4xl font-serif text-brand-brown tracking-tight mb-2">Team Governance</h1>
           <p className="text-brand-brown/60 font-medium">Orchestrate your administrative hierarchy and access privileges.</p>
         </div>
-        <button 
-          onClick={() => setIsAddingAdmin(true)}
-          className="bg-brand-brown text-white px-8 py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-brand-gold transition-all duration-300 shadow-xl shadow-brand-brown/10 group active:scale-95"
-        >
-          <UserPlus size={20} className="group-hover:scale-110 transition-transform" />
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Appoint New Member</span>
-        </button>
       </div>
 
       <AnimatePresence>

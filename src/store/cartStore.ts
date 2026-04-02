@@ -19,8 +19,8 @@ interface CartState {
   setItems: (items: CartItem[]) => void;
   clearCart: (sync?: boolean) => void;
   total: () => number;
-  syncToSupabase: (userId: string) => Promise<void>;
-  fetchFromSupabase: (userId: string) => Promise<void>;
+  syncToSupabase: (userId: string, retryCount?: number) => Promise<void>;
+  fetchFromSupabase: (userId: string, retryCount?: number) => Promise<void>;
 }
 
 export const useCartStore = create<CartState>()(
@@ -71,33 +71,50 @@ export const useCartStore = create<CartState>()(
       },
       total: () => get().items.reduce((acc, item) => acc + item.price * item.quantity, 0),
       
-      syncToSupabase: async (userId: string) => {
+      syncToSupabase: async (userId: string, retryCount = 0): Promise<void> => {
         if (!supabase) return;
         try {
           const items = get().items;
-          // First, delete existing cart items for this user
-          await supabase.from('cart_items').delete().eq('user_id', userId);
           
-          if (items.length > 0) {
-            const toInsert = items.map(item => ({
-              user_id: userId,
-              product_id: item.id,
-              quantity: item.quantity,
-              // We store metadata to handle static products easily
-              metadata: {
-                title: item.title,
-                price: item.price,
-                image: item.image
-              }
-            }));
-            await supabase.from('cart_items').insert(toInsert);
+          const syncPromise = (async () => {
+            // First, delete existing cart items for this user
+            const { error: deleteError } = await supabase.from('cart_items').delete().eq('user_id', userId);
+            if (deleteError) throw deleteError;
+            
+            if (items.length > 0) {
+              const toInsert = items.map(item => ({
+                user_id: userId,
+                product_id: item.id,
+                quantity: item.quantity,
+                // We store metadata to handle static products easily
+                metadata: {
+                  title: item.title,
+                  price: item.price,
+                  image: item.image
+                }
+              }));
+              const { error: insertError } = await supabase.from('cart_items').insert(toInsert);
+              if (insertError) throw insertError;
+            }
+          })();
+
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Cart sync timeout')), 60000) // Increased to 60s
+          );
+
+          await Promise.race([syncPromise, timeoutPromise]);
+        } catch (error: any) {
+          // Retry on transient errors or timeouts
+          if (retryCount < 2 && (error.code === '503' || error.code === '504' || error.message?.includes('timeout'))) {
+            console.warn(`Cart sync failed (attempt ${retryCount + 1}) with ${error.code || 'timeout'}, retrying in 2s...`);
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            return get().syncToSupabase(userId, retryCount + 1);
           }
-        } catch (error) {
           console.error('Error syncing cart to Supabase:', error);
         }
       },
 
-      fetchFromSupabase: async (userId: string) => {
+      fetchFromSupabase: async (userId: string, retryCount = 0): Promise<void> => {
         if (!supabase) return;
         try {
           const cartPromise = supabase
@@ -106,7 +123,7 @@ export const useCartStore = create<CartState>()(
             .eq('user_id', userId);
 
           const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Cart fetch timeout')), 15000)
+            setTimeout(() => reject(new Error('Cart fetch timeout')), 60000) // Increased to 60s
           );
 
           const { data, error } = await Promise.race([
@@ -114,7 +131,15 @@ export const useCartStore = create<CartState>()(
             timeoutPromise
           ]) as any;
           
-          if (error) throw error;
+          if (error) {
+            // Retry on transient errors or timeouts
+            if (retryCount < 2 && (error.code === '503' || error.code === '504' || error.message?.includes('timeout'))) {
+              console.warn(`Cart fetch failed (attempt ${retryCount + 1}) with ${error.code || 'timeout'}, retrying in 2s...`);
+              await new Promise(resolve => setTimeout(resolve, 2000));
+              return get().fetchFromSupabase(userId, retryCount + 1);
+            }
+            throw error;
+          }
           
           if (data) {
             const items: CartItem[] = data.map(row => ({
@@ -126,7 +151,12 @@ export const useCartStore = create<CartState>()(
             }));
             set({ items });
           }
-        } catch (error) {
+        } catch (error: any) {
+          if (retryCount < 2 && error.message?.includes('timeout')) {
+            console.warn(`Cart fetch timed out (attempt ${retryCount + 1}), retrying in 2s...`);
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            return get().fetchFromSupabase(userId, retryCount + 1);
+          }
           console.error('Error fetching cart from Supabase:', error);
         }
       }

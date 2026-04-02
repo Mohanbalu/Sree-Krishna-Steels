@@ -65,7 +65,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           .single();
 
         const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Profile fetch timeout')), 30000) // Increased to 30s
+          setTimeout(() => reject(new Error('Profile fetch timeout')), 60000) // Increased to 60s
         );
 
         const { data, error } = await Promise.race([
@@ -85,7 +85,7 @@ export const useAuthStore = create<AuthState>((set) => ({
                   name: userName || 'User', 
                   email: userEmail,
                   phone: userPhone,
-                  role: userEmail === 'support@sksfurniture.in' ? 'super_admin' : 'customer' 
+                  role: (userEmail === 'support@sksfurniture.in' || userEmail === 'mohanbalu292@gmail.com') ? 'super_admin' : 'customer' 
                 }
               ])
               .select()
@@ -100,7 +100,8 @@ export const useAuthStore = create<AuthState>((set) => ({
 
           // Retry on transient errors or timeouts
           if (retryCount < 2 && (error.code === '503' || error.code === '504' || error.message?.includes('timeout'))) {
-            console.warn(`Profile fetch failed with ${error.code}, retrying...`);
+            console.warn(`Profile fetch failed (attempt ${retryCount + 1}) with ${error.code || 'timeout'}, retrying in 2s...`);
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Wait before retry
             return fetchProfile(userId, userEmail, userName, userPhone, retryCount + 1);
           }
 
@@ -110,7 +111,8 @@ export const useAuthStore = create<AuthState>((set) => ({
         return data as UserProfile;
       } catch (err: any) {
         if (retryCount < 2 && err.message?.includes('timeout')) {
-          console.warn('Profile fetch timed out, retrying...');
+          console.warn(`Profile fetch timed out (attempt ${retryCount + 1}), retrying in 2s...`);
+          await new Promise(resolve => setTimeout(resolve, 2000));
           return fetchProfile(userId, userEmail, userName, userPhone, retryCount + 1);
         }
         console.error('fetchProfile error or timeout:', err);
@@ -126,7 +128,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           console.warn('Auth initialization taking too long, forcing loading: false');
           set({ loading: false, initialized: true });
         }
-      }, 45000);
+      }, 90000); // Increased to 90s
 
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
@@ -153,8 +155,8 @@ export const useAuthStore = create<AuthState>((set) => ({
           useCartStore.getState().fetchFromSupabase(session.user.id)
         ]);
         
-        // Ensure support@sksfurniture.in is always an admin
-        if (session.user.email === 'support@sksfurniture.in' && profile) {
+        // Ensure specific emails are always admins
+        if ((session.user.email === 'support@sksfurniture.in' || session.user.email === 'mohanbalu292@gmail.com') && profile) {
           profile.role = 'super_admin';
         }
         
@@ -186,8 +188,8 @@ export const useAuthStore = create<AuthState>((set) => ({
         const currentUser = useAuthStore.getState().user;
         let currentProfile = useAuthStore.getState().profile;
         
-        // Ensure support@sksfurniture.in is always an admin
-        if (session.user.email === 'support@sksfurniture.in' && currentProfile && currentProfile.role !== 'super_admin') {
+        // Ensure specific emails are always admins
+        if ((session.user.email === 'support@sksfurniture.in' || session.user.email === 'mohanbalu292@gmail.com') && currentProfile && currentProfile.role !== 'super_admin') {
           currentProfile = { ...currentProfile, role: 'super_admin' };
         }
         
@@ -217,8 +219,8 @@ export const useAuthStore = create<AuthState>((set) => ({
 
           const [profile] = await Promise.all([profilePromise, cartPromise]);
           
-          // Ensure support@sksfurniture.in is always an admin
-          if (session.user.email === 'support@sksfurniture.in' && profile) {
+          // Ensure specific emails are always admins
+          if ((session.user.email === 'support@sksfurniture.in' || session.user.email === 'mohanbalu292@gmail.com') && profile) {
             profile.role = 'super_admin';
           }
           
