@@ -50,9 +50,9 @@ export default function ProductManagement() {
 
   const [categories, setCategories] = useState(['Beds', 'Sofas', 'Dining Tables', 'Wardrobes', 'Office Furniture', 'Steel Almirahs']);
 
-  const fetchProducts = React.useCallback(async (retryCount = 0) => {
+  const fetchProducts = React.useCallback(async () => {
     try {
-      const productPromise = supabase
+      const { data, error } = await supabase
         .from('products')
         .select(`
           *,
@@ -63,29 +63,14 @@ export default function ProductManagement() {
         .order('is_pinned', { ascending: false })
         .order('created_at', { ascending: false });
 
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Products fetch timeout')), 60000)
-      );
-
-      const { data, error } = await Promise.race([
-        Promise.resolve(productPromise),
-        timeoutPromise
-      ]) as any;
-
       if (error) throw error;
       setProducts(data || []);
       
-      // Extract unique categories
       if (data) {
         const uniqueCats = Array.from(new Set(data.map((p: any) => p.category)));
         setCategories(prev => Array.from(new Set([...prev, ...uniqueCats])));
       }
     } catch (error: any) {
-      if (retryCount < 2 && error.message?.includes('timeout')) {
-        console.warn(`Products fetch timed out (attempt ${retryCount + 1}), retrying in 2s...`);
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        return fetchProducts(retryCount + 1);
-      }
       handleSupabaseError(error, 'fetchProducts');
     } finally {
       setLoading(false);
@@ -314,7 +299,7 @@ export default function ProductManagement() {
 
     setSubmitting(true);
     try {
-      const data = {
+      const productData = {
         title: formData.title,
         description: formData.description,
         price: Number(formData.price),
@@ -330,67 +315,38 @@ export default function ProductManagement() {
         setCategories(prev => Array.from(new Set([...prev, newCategory])));
       }
 
-      const saveProduct = async () => {
-        if (editingProduct) {
-          if (!editingProduct.id || editingProduct.id === 'undefined') {
-            throw new Error('Invalid product ID for editing');
-          }
-
-          const { error } = await supabase
-            .from('products')
-            .update(data)
-            .eq('id', editingProduct.id);
-          
-          if (error) throw error;
-
-          // Update product_images as well
-          await supabase
-            .from('product_images')
-            .delete()
-            .eq('product_id', editingProduct.id);
-          
-          if (formData.image_urls.length > 0) {
-            const imageInserts = formData.image_urls.map(url => ({
-              product_id: editingProduct.id,
-              image_url: url
-            }));
-            await supabase
-              .from('product_images')
-              .insert(imageInserts);
-          }
-
-          toast.success('Product updated successfully!');
-        } else {
-          const { data: newProduct, error } = await supabase
-            .from('products')
-            .insert([data])
-            .select()
-            .single();
-
-          if (error) throw error;
-
-          if (formData.image_urls.length > 0) {
-            const imageInserts = formData.image_urls.map(url => ({
-              product_id: newProduct.id,
-              image_url: url
-            }));
-            await supabase
-              .from('product_images')
-              .insert(imageInserts);
-          }
-
-          toast.success('Product added successfully!');
+      if (editingProduct) {
+        if (!editingProduct.id || editingProduct.id === 'undefined') {
+          throw new Error('Invalid product ID for editing');
         }
-      };
 
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Save operation timed out')), 45000)
-      );
+        const { data: updatedProduct, error } = await supabase
+          .from('products')
+          .update(productData)
+          .eq('id', editingProduct.id)
+          .select()
+          .single();
+        
+        if (error) throw error;
 
-      await Promise.race([saveProduct(), timeoutPromise]);
+        // Update local state directly
+        setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...p, ...updatedProduct } : p));
+        toast.success('Product updated successfully!');
+      } else {
+        const { data: newProduct, error } = await supabase
+          .from('products')
+          .insert([productData])
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        // Update local state directly
+        setProducts(prev => [newProduct, ...prev]);
+        toast.success('Product added successfully!');
+      }
+
       closeModal();
-      // Manually trigger fetch to ensure UI is updated even if real-time is slow
-      fetchProducts();
     } catch (error: any) {
       console.error('Save Product Error:', error);
       const errorMessage = error.message || error.details || 'Unknown error';
