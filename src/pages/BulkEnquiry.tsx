@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Send, CheckCircle2, Briefcase, TrendingUp, Handshake } from 'lucide-react';
+import { CheckCircle2, Briefcase, TrendingUp, Handshake } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 
 export default function BulkEnquiry() {
   const [submitted, setSubmitted] = useState(false);
@@ -160,8 +161,8 @@ export default function BulkEnquiry() {
                       onChange={(e) => setFormData({ ...formData, requirement: e.target.value })}
                     ></textarea>
                   </div>
-                  <button type="submit" className="w-full bg-brand-brown text-white py-5 rounded-xl font-bold text-lg hover:bg-brand-charcoal transition-colors flex items-center justify-center gap-2">
-                    Submit Enquiry <Send size={20} />
+                  <button type="submit" className="w-full bg-[#25D366] text-white py-5 rounded-xl font-bold text-lg hover:bg-[#128C7E] transition-all flex items-center justify-center gap-2 shadow-xl shadow-green-500/20">
+                    Submit Enquiry <FaWhatsapp size={22} />
                   </button>
                 </form>
               </>

@@ -1,6 +1,7 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Check, ArrowLeft, Phone, MessageSquare, ShieldCheck, Package, Ruler, ShoppingCart, Minus, Plus } from 'lucide-react';
+import { Check, ArrowLeft, Phone, ShieldCheck, Package, Ruler, ShoppingCart, Minus, Plus } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { useState, useEffect } from 'react';
 import { supabase, handleSupabaseError } from '../lib/supabase';
 import { useCartStore } from '../store/cartStore';
@@ -211,9 +212,9 @@ export default function ProductDetail() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 bg-white border-2 border-brand-gold text-brand-gold py-4 rounded-2xl font-bold text-center flex items-center justify-center gap-2 hover:bg-brand-gold hover:text-white transition-all"
+                className="flex-1 bg-[#25D366] text-white py-4 rounded-2xl font-bold text-center flex items-center justify-center gap-2 hover:bg-[#128C7E] transition-all shadow-lg shadow-green-500/20"
               >
-                <MessageSquare size={20} /> Enquire on WhatsApp
+                <FaWhatsapp size={22} /> Enquire on WhatsApp
               </a>
               {product.reel_link && (
                 <a 

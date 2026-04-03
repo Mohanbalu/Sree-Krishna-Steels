@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Phone, Mail, MapPin, Clock, Send, CheckCircle2 } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
@@ -115,8 +116,8 @@ export default function Contact() {
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     ></textarea>
                   </div>
-                  <button type="submit" className="w-full bg-brand-gold text-brand-brown py-5 rounded-xl font-bold text-lg hover:bg-white transition-all flex items-center justify-center gap-2">
-                    Send Message <Send size={20} />
+                  <button type="submit" className="w-full bg-[#25D366] text-white py-5 rounded-xl font-bold text-lg hover:bg-[#128C7E] transition-all flex items-center justify-center gap-2 shadow-xl shadow-green-500/20">
+                    Send Message <FaWhatsapp size={22} />
                   </button>
                 </form>
               </div>

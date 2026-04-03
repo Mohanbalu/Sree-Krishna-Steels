@@ -1,4 +1,4 @@
-import { MessageSquare } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { motion } from 'motion/react';
 
 export default function WhatsAppButton() {
@@ -15,7 +15,7 @@ export default function WhatsAppButton() {
       whileTap={{ scale: 0.9 }}
       className="fixed bottom-8 right-8 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl flex items-center justify-center group"
     >
-      <MessageSquare size={28} fill="currentColor" />
+      <FaWhatsapp size={28} />
       <span className="max-w-0 overflow-hidden group-hover:max-w-xs group-hover:ml-2 transition-all duration-300 whitespace-nowrap font-semibold">
         Chat with us
       </span>
