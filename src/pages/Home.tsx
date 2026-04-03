@@ -60,10 +60,9 @@ export default function Home() {
   return (
     <div className="pt-0">
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-sky-600">
+      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-[#660033]">
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-sky-600/80 via-sky-500/60 to-sky-700/90"></div>
-          <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+          {/* Plain background */}
         </div>
         
         <div className="relative z-10 text-center px-6 max-w-7xl">
@@ -72,21 +71,21 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center justify-center gap-4 mb-8"
           >
-            <div className="h-px w-12 bg-white/50"></div>
+            <div className="h-px w-12 bg-white/30"></div>
             <span className="text-gold-metallic font-cinzel font-bold tracking-[0.5em] uppercase text-xs md:text-sm">
               Est. 1999
             </span>
-            <div className="h-px w-12 bg-white/50"></div>
+            <div className="h-px w-12 bg-white/30"></div>
           </motion.div>
 
           <motion.h1 
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-serif text-gold-metallic mb-8 leading-tight tracking-tight uppercase font-bold flex flex-wrap items-center justify-center gap-x-2 md:gap-x-4 w-full mx-auto pl-4 md:pl-12 lg:pl-24 xl:pl-32"
+            className="text-sm sm:text-xl md:text-2xl lg:text-4xl xl:text-5xl font-serif text-gold-metallic mb-8 leading-tight tracking-tight uppercase font-bold flex flex-wrap items-center justify-center gap-x-2 md:gap-x-4 w-full mx-auto pl-4 md:pl-12 lg:pl-24 xl:pl-32 drop-shadow-[0_0_15px_rgba(197,160,89,0.3)]"
           >
             <span>Sree Krishna Steels & Furniture</span>
-            <span className="text-[0.6em] opacity-90 font-cinzel font-normal align-middle">(Netra Brand)</span>
+            <span className="text-[0.5em] opacity-90 font-cinzel font-normal align-middle">(Netra Brand)</span>
           </motion.h1>
 
           <motion.div
@@ -95,11 +94,11 @@ export default function Home() {
             transition={{ delay: 0.4, duration: 0.8 }}
             className="space-y-6 mb-12"
           >
-            <p className="text-white/90 text-xs sm:text-sm md:text-base font-light tracking-[0.2em] uppercase whitespace-nowrap">
+            <p className="text-white/80 text-xs sm:text-sm md:text-base font-light tracking-[0.2em] uppercase whitespace-nowrap">
               The complete customized manufacturing unit
             </p>
-            <p className="text-gold-metallic text-lg md:text-2xl font-cinzel font-bold tracking-[0.3em] uppercase flex items-center justify-center gap-3 md:gap-6">
-              DESIGN <span className="text-xs md:text-sm align-middle">★</span> DURABILITY <span className="text-xs md:text-sm align-middle">★</span> DEDICATION
+            <p className="text-gold-metallic text-[10px] sm:text-xs md:text-sm lg:text-base font-cinzel font-bold tracking-[0.3em] uppercase flex items-center justify-center gap-3 md:gap-6">
+              DESIGN <span className="text-[8px] md:text-[10px] align-middle">★</span> DURABILITY <span className="text-[8px] md:text-[10px] align-middle">★</span> DEDICATION
             </p>
           </motion.div>
 
@@ -109,7 +108,7 @@ export default function Home() {
             transition={{ delay: 0.6, duration: 0.8 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-8"
           >
-            <Link to="/products" className="group relative px-12 py-5 overflow-hidden rounded-full bg-white text-sky-700 font-bold text-sm uppercase tracking-[0.2em] transition-all duration-500 hover:bg-brand-gold hover:text-brand-brown">
+            <Link to="/products" className="group relative px-12 py-5 overflow-hidden rounded-full bg-white text-[#660033] font-bold text-sm uppercase tracking-[0.2em] transition-all duration-500 hover:bg-brand-gold hover:text-brand-brown">
               <span className="relative z-10 flex items-center gap-3">
                 Shop Collection <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform duration-500" />
               </span>
