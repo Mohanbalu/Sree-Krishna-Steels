@@ -98,7 +98,7 @@ export default function ProductDetail() {
     toast.success('Added to cart!');
   };
 
-  const whatsappUrl = `https://wa.me/919949666666?text=${encodeURIComponent(`Hi, I'm interested in the ${product.title || product.name}. Please provide more details.`)}`;
+  const whatsappUrl = `https://wa.me/9848082209?text=${encodeURIComponent(`Hi, I'm interested in the ${product.title || product.name}. Please provide more details.`)}`;
 
   return (
     <div className="pt-32 pb-24 px-6 max-w-7xl mx-auto">
