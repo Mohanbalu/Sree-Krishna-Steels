@@ -77,7 +77,10 @@ export default function Footer() {
             <li><Link to="/products?cat=Sofas" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors">Luxury Sofas</Link></li>
             <li><Link to="/products?cat=Dining Tables" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors">Dining Tables</Link></li>
             <li><Link to="/products?cat=Dressing Tables" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors">Dressing Tables</Link></li>
+            <li><Link to="/products?cat=Iron Safe" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors">Iron Safe</Link></li>
           </ul>
+
+
         </div>
 
         <div>

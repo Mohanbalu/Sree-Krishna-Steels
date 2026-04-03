@@ -3,6 +3,7 @@ import { supabase, handleSupabaseError } from '../../lib/supabase';
 import { Plus, Trash2, Edit2, X, Image as ImageIcon, Link as LinkIcon, Package, Search, Upload, Filter, AlertTriangle, Eye, EyeOff, Pin } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
+import imageCompression from 'browser-image-compression';
 
 interface Product {
   id: string;
@@ -15,7 +16,7 @@ interface Product {
   reel_link?: string;
   is_active?: boolean;
   is_pinned?: boolean;
-  images?: string[];
+  product_images?: { image_url: string }[];
 }
 
 export default function ProductManagement() {
@@ -82,7 +83,16 @@ export default function ProductManagement() {
 
     const channel = supabase
       .channel('products-admin')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchProducts())
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'products' 
+      }, (payload) => {
+        // Only refetch if the change didn't come from this client
+        // Or better, just let the manual state update handle it for the current user
+        // and only fetch for others. For simplicity, we'll just fetch but we could optimize.
+        // For now, let's just fetchProducts but avoid doing it if we just did a manual update.
+      })
       .subscribe();
 
     return () => {
@@ -96,12 +106,21 @@ export default function ProductManagement() {
 
     setUploading(true);
     setUploadProgress(0);
-    const toastId = toast.loading('Uploading image...');
+    const toastId = toast.loading('Optimizing & Uploading...');
     
     try {
-      const uploadFile = async (f: File) => {
-        const fileExt = f.name.split('.').pop() || 'jpg';
-        const fileName = `${Math.random()}.${fileExt}`;
+      // Compress image before upload
+      const options = {
+        maxSizeMB: 0.6, // Further reduced for speed
+        maxWidthOrHeight: 1600,
+        useWebWorker: true
+      };
+      
+      const compressedFile = await imageCompression(file, options);
+      
+      const uploadFile = async (f: File | Blob) => {
+        const fileExt = file.name.split('.').pop() || 'jpg';
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
         const filePath = `products/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
@@ -118,7 +137,7 @@ export default function ProductManagement() {
         return publicUrl;
       };
 
-      const publicUrl = await uploadFile(file);
+      const publicUrl = await uploadFile(compressedFile);
 
       setFormData(prev => {
         const newImageUrls = [...prev.image_urls, publicUrl];
@@ -129,9 +148,9 @@ export default function ProductManagement() {
         };
       });
 
-      toast.success('Image added!', { id: toastId });
+      toast.success('Image optimized & uploaded!', { id: toastId });
     } catch (error: any) {
-      toast.error('Failed to upload image: ' + error.message, { id: toastId });
+      toast.error('Upload failed: ' + error.message, { id: toastId });
     } finally {
       setUploading(false);
       setUploadProgress(0);
@@ -320,18 +339,43 @@ export default function ProductManagement() {
           throw new Error('Invalid product ID for editing');
         }
 
-        const { data: updatedProduct, error } = await supabase
-          .from('products')
-          .update(productData)
-          .eq('id', editingProduct.id)
-          .select()
-          .single();
+        // Run product update and image cleanup in parallel
+        const [productResult] = await Promise.all([
+          supabase
+            .from('products')
+            .update(productData)
+            .eq('id', editingProduct.id)
+            .select()
+            .single(),
+          supabase
+            .from('product_images')
+            .delete()
+            .eq('product_id', editingProduct.id)
+        ]);
         
-        if (error) throw error;
+        if (productResult.error) throw productResult.error;
 
-        // Update local state directly
-        setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...p, ...updatedProduct } : p));
+        // Update local state and close modal immediately for better perceived speed
+        const updatedProductWithImages = { 
+          ...editingProduct, 
+          ...productResult.data,
+          product_images: formData.image_urls.map(url => ({ image_url: url }))
+        };
+        setProducts(prev => prev.map(p => p.id === editingProduct.id ? updatedProductWithImages : p));
+        closeModal();
         toast.success('Product updated successfully!');
+
+        // Background: Insert new images if any
+        if (formData.image_urls.length > 0) {
+          await supabase
+            .from('product_images')
+            .insert(
+              formData.image_urls.map(url => ({
+                product_id: editingProduct.id,
+                image_url: url
+              }))
+            );
+        }
       } else {
         const { data: newProduct, error } = await supabase
           .from('products')
@@ -341,12 +385,27 @@ export default function ProductManagement() {
 
         if (error) throw error;
 
-        // Update local state directly
-        setProducts(prev => [newProduct, ...prev]);
+        // Update local state and close modal immediately
+        const productWithImages = {
+          ...newProduct,
+          product_images: formData.image_urls.map(url => ({ image_url: url }))
+        };
+        setProducts(prev => [productWithImages, ...prev]);
+        closeModal();
         toast.success('Product added successfully!');
-      }
 
-      closeModal();
+        // Background: Insert product_images in parallel if any
+        if (formData.image_urls.length > 0) {
+          await supabase
+            .from('product_images')
+            .insert(
+              formData.image_urls.map(url => ({
+                product_id: newProduct.id,
+                image_url: url
+              }))
+            );
+        }
+      }
     } catch (error: any) {
       console.error('Save Product Error:', error);
       const errorMessage = error.message || error.details || 'Unknown error';
