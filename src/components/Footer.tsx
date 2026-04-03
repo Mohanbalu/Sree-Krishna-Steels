@@ -14,14 +14,9 @@ export default function Footer() {
             <img 
               src="https://i.ibb.co/tdhSTyc/netra.png" 
               alt="Sree Krishna Steels Logo" 
-              className="w-16 h-16 object-contain"
+              className="w-24 h-24 object-contain"
               referrerPolicy="no-referrer"
             />
-            <div className="flex flex-col">
-              <span className="text-[10px] font-sans tracking-[0.3em] text-brand-gold font-black uppercase mb-0.5">Netra Brand</span>
-              <span className="text-2xl font-serif font-bold tracking-tighter text-blue-400 leading-none">SREE KRISHNA</span>
-              <span className="text-xs font-sans tracking-[0.2em] text-[#ff4d4d] font-semibold uppercase mt-1">STEELS & FURNITURE</span>
-            </div>
           </Link>
           <p className="text-brand-cream/70 text-sm leading-relaxed">
             Premium furniture manufacturers dedicated to bringing elegance and durability to your modern living spaces. Direct from factory to your home.

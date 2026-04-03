@@ -72,21 +72,29 @@ export default function Home() {
             className="flex items-center justify-center gap-4 mb-8"
           >
             <div className="h-px w-12 bg-white/30"></div>
-            <span className="text-gold-metallic font-cinzel font-bold tracking-[0.5em] uppercase text-xs md:text-sm">
-              Est. 1999
+            <span className="text-gold-metallic font-cinzel font-bold tracking-[0.80em] uppercase text-base md:text-lg">
+              Estd:1999
             </span>
             <div className="h-px w-12 bg-white/30"></div>
           </motion.div>
 
           <motion.h1 
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-sm sm:text-xl md:text-2xl lg:text-4xl xl:text-5xl font-serif text-gold-metallic mb-8 leading-tight tracking-tight uppercase font-bold flex flex-wrap items-center justify-center gap-x-2 md:gap-x-4 w-full mx-auto pl-4 md:pl-12 lg:pl-24 xl:pl-32 drop-shadow-[0_0_15px_rgba(197,160,89,0.3)]"
-          >
-            <span>Sree Krishna Steels & Furniture</span>
-            <span className="text-[0.5em] opacity-90 font-cinzel font-normal align-middle">(Netra Brand)</span>
-          </motion.h1>
+  initial={{ opacity: 0, y: 40 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: 0.2, duration: 0.8 }}
+  className="text-base sm:text-2xl md:text-3xl lg:text-5xl xl:text-6xl font-serif text-gold-metallic mb-4 leading-tight tracking-tight uppercase font-bold flex flex-wrap items-center justify-center gap-x-2 md:gap-x-4 w-full mx-auto drop-shadow-[0_0_15px_rgba(197,160,89,0.3)]"
+>
+  <span>Sree Krishna Steels & Furniture</span>
+</motion.h1>
+
+<motion.p
+  initial={{ opacity: 0, y: 30 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: 0.3, duration: 0.8 }}
+  className="text-gold-metallic font-cinzel font-semibold tracking-[0.5em] uppercase text-lg sm:text-xl md:text-2xl lg:text-3xl mb-6"
+>
+  Netra Brand
+</motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -94,12 +102,16 @@ export default function Home() {
             transition={{ delay: 0.4, duration: 0.8 }}
             className="space-y-6 mb-12"
           >
-            <p className="text-white/80 text-xs sm:text-sm md:text-base font-light tracking-[0.2em] uppercase whitespace-nowrap">
-              The complete customized manufacturing unit
+            <p className="text-white/80 text-base sm:text-lg md:text-xl font-light tracking-[0.2em] uppercase whitespace-nowrap">
+              The complete customized furniture manufacturing unit
             </p>
-            <p className="text-gold-metallic text-[10px] sm:text-xs md:text-sm lg:text-base font-cinzel font-bold tracking-[0.3em] uppercase flex items-center justify-center gap-3 md:gap-6">
-              DESIGN <span className="text-[8px] md:text-[10px] align-middle">★</span> DURABILITY <span className="text-[8px] md:text-[10px] align-middle">★</span> DEDICATION
-            </p>
+            <p className="text-gold-metallic text-[14px] sm:text-base md:text-lg lg:text-xl font-cinzel font-bold tracking-[0.3em] uppercase flex items-center justify-center gap-3 md:gap-6">
+  DESIGN 
+  <span className="text-[18px] md:text-[22px] align-middle leading-none">★</span> 
+  DURABILITY 
+  <span className="text-[18px] md:text-[22px] align-middle leading-none">★</span> 
+  DEDICATION
+</p>
           </motion.div>
 
           <motion.div 

@@ -60,24 +60,21 @@ export default function Navbar() {
             <img 
               src="https://i.ibb.co/tdhSTyc/netra.png" 
               alt="Sree Krishna Steels Logo" 
-              className="w-14 h-14 object-contain transition-transform duration-500 group-hover:scale-110"
+              className="w-50 h-50 object-contain transition-transform duration-500 group-hover:scale-110"
               referrerPolicy="no-referrer"
             />
             <div className="absolute -inset-2 bg-brand-gold/5 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           </div>
           <div className="flex flex-col">
-            <span className={cn(
-              "text-[9px] font-sans tracking-[0.3em] font-black uppercase mb-0.5 transition-colors duration-500",
-              scrolled ? "text-brand-gold" : (isHome ? "text-brand-gold" : "text-brand-gold")
-            )}>Netra Brand</span>
-            <span className={cn(
-              "text-2xl font-serif font-bold tracking-tight leading-none transition-colors duration-500 whitespace-nowrap",
-              scrolled ? "text-blue-600" : (isHome ? "text-blue-400" : "text-blue-600")
-            )}>SREE KRISHNA</span>
-            <span className={cn(
-              "text-[10px] font-sans tracking-[0.2em] font-bold uppercase mt-1 transition-colors duration-500",
-              scrolled ? "text-[#800000]" : (isHome ? "text-red-200" : "text-[#800000]")
-            )}>STEELS & FURNITURE</span>
+<span
+  className={cn(
+    "text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-[Algerian] leading-none transition-all duration-500 whitespace-nowrap text-[#0096FF] drop-shadow-[0_0_12px_rgba(0,150,255,0.6)] drop-shadow-[0_0_28px_rgba(0,150,255,0.4)]",
+    scrolled ? "" : ""
+  )}
+>
+  SKS
+</span>
+
           </div>
         </Link>
 
