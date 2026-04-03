@@ -211,7 +211,7 @@ export default function Home() {
       <section className="bg-brand-brown py-24 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
-            <span className="text-brand-gold font-bold tracking-[0.3em] uppercase text-[10px] mb-4 block">A Nethra Brand</span>
+            <span className="text-brand-gold font-bold tracking-[0.3em] uppercase text-[10px] mb-4 block">A Netra Brand</span>
             <h2 className="text-4xl md:text-5xl font-serif text-white mb-6">The Sree Krishna Edge</h2>
             <p className="text-brand-cream/60 max-w-2xl mx-auto">We don't just make furniture; we create legacies of comfort and durability for your home.</p>
           </div>

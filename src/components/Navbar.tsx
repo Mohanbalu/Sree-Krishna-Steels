@@ -58,7 +58,7 @@ export default function Navbar() {
         >
           <div className="relative">
             <img 
-              src="https://i.ibb.co/C3vGrKVv/Screenshot-2026-03-29-113001-removebg-preview.png" 
+              src="https://i.ibb.co/tdhSTyc/netra.png" 
               alt="Sree Krishna Steels Logo" 
               className="w-14 h-14 object-contain transition-transform duration-500 group-hover:scale-110"
               referrerPolicy="no-referrer"
@@ -69,7 +69,7 @@ export default function Navbar() {
             <span className={cn(
               "text-[9px] font-sans tracking-[0.3em] font-black uppercase mb-0.5 transition-colors duration-500",
               scrolled ? "text-brand-gold" : (isHome ? "text-brand-gold" : "text-brand-gold")
-            )}>Nethra Brand</span>
+            )}>Netra Brand</span>
             <span className={cn(
               "text-2xl font-serif font-bold tracking-tight leading-none transition-colors duration-500 whitespace-nowrap",
               scrolled ? "text-blue-600" : (isHome ? "text-blue-400" : "text-blue-600")

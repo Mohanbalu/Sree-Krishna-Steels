@@ -12,7 +12,7 @@ export default function About() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <span className="text-brand-gold font-bold uppercase tracking-widest text-sm mb-4 block">A Nethra Brand</span>
+            <span className="text-brand-gold font-bold uppercase tracking-widest text-sm mb-4 block">A Netra Brand</span>
             <h1 className="text-5xl md:text-6xl font-serif text-brand-brown mb-8">Legacy of Excellence in Furniture</h1>
             <p className="text-brand-charcoal/70 text-lg leading-relaxed mb-6">
               Founded with a vision to revolutionize the furniture industry, Sree Krishna Steels & Furniture has grown from a small workshop to a leading manufacturer of premium furniture.

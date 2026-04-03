@@ -12,13 +12,13 @@ export default function Footer() {
             className="flex items-center gap-3"
           >
             <img 
-              src="https://i.ibb.co/C3vGrKVv/Screenshot-2026-03-29-113001-removebg-preview.png" 
+              src="https://i.ibb.co/tdhSTyc/netra.png" 
               alt="Sree Krishna Steels Logo" 
               className="w-16 h-16 object-contain"
               referrerPolicy="no-referrer"
             />
             <div className="flex flex-col">
-              <span className="text-[10px] font-sans tracking-[0.3em] text-brand-gold font-black uppercase mb-0.5">Nethra Brand</span>
+              <span className="text-[10px] font-sans tracking-[0.3em] text-brand-gold font-black uppercase mb-0.5">Netra Brand</span>
               <span className="text-2xl font-serif font-bold tracking-tighter text-blue-400 leading-none">SREE KRISHNA</span>
               <span className="text-xs font-sans tracking-[0.2em] text-[#ff4d4d] font-semibold uppercase mt-1">STEELS & FURNITURE</span>
             </div>
@@ -73,7 +73,7 @@ export default function Footer() {
       </div>
       
       <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/10 text-center text-xs text-brand-cream/40">
-        <p>&copy; {new Date().getFullYear()} Sree Krishna Steels & Furniture | A Nethra Brand. All Rights Reserved. Designed for Excellence.</p>
+        <p>&copy; {new Date().getFullYear()} Sree Krishna Steels & Furniture | A Netra Brand. All Rights Reserved. Designed for Excellence.</p>
       </div>
     </footer>
   );

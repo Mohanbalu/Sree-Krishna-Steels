@@ -68,7 +68,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           >
             <div className="relative">
               <img 
-                src="https://i.ibb.co/C3vGrKVv/Screenshot-2026-03-29-113001-removebg-preview.png" 
+                src="https://i.ibb.co/tdhSTyc/netra.png" 
                 alt="Logo" 
                 className="w-10 h-10 object-contain brightness-0 invert"
                 referrerPolicy="no-referrer"
