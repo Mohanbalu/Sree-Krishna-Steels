@@ -188,11 +188,10 @@ export default function Login() {
                 <input
                   required
                   type="text"
-                  className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none text-center text-2xl tracking-[0.5em] font-mono"
-                  placeholder="000000"
-                  maxLength={6}
+                  className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none text-center text-2xl tracking-[0.2em] font-mono text-brand-brown"
+                  placeholder="Enter Code"
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                  onChange={(e) => setOtp(e.target.value.replace(/\s/g, ''))}
                 />
               </div>
               
