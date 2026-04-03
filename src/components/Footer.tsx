@@ -58,7 +58,7 @@ export default function Footer() {
           <ul className="space-y-4 text-sm text-brand-cream/70">
             <li className="flex items-start space-x-3">
               <MapPin size={18} className="text-brand-gold shrink-0" />
-              <span>Main Road, Jaggaiahpet, NTR District, Andhra Pradesh - 521175</span>
+              <span>Auto Nagar, Jaggayyapeta, NTR District, Andhra Pradesh- 521175</span>
             </li>
             <li className="flex items-center space-x-3">
               <Phone size={18} className="text-brand-gold shrink-0" />

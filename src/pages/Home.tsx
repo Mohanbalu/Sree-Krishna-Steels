@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { ArrowRight, Star, Shield, Truck, Settings, Phone, Quote, Play, Pin } from 'lucide-react';
+import { ArrowRight, Star, Shield, Truck, Settings, Phone, Quote, Play, Pin, MapPin, Clock, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { REFERENCES } from '@/src/constants';
 import { useState, useEffect, useMemo } from 'react';
@@ -83,7 +83,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-serif text-gold-metallic mb-8 leading-tight tracking-tight uppercase font-bold flex flex-wrap items-center justify-center gap-x-2 md:gap-x-4 w-full mx-auto pl-2 md:pl-4"
+            className="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-serif text-gold-metallic mb-8 leading-tight tracking-tight uppercase font-bold flex flex-wrap items-center justify-center gap-x-2 md:gap-x-4 w-full mx-auto pl-4 md:pl-12 lg:pl-24 xl:pl-32"
           >
             <span>Sree Krishna Steels & Furniture</span>
             <span className="text-[0.6em] opacity-90 font-cinzel font-normal align-middle">(Netra Brand)</span>
@@ -95,8 +95,8 @@ export default function Home() {
             transition={{ delay: 0.4, duration: 0.8 }}
             className="space-y-6 mb-12"
           >
-            <p className="text-white/90 text-xl md:text-2xl font-light tracking-wide italic">
-              Customized manufacturing unit
+            <p className="text-white/90 text-xs sm:text-sm md:text-base font-light tracking-[0.2em] uppercase whitespace-nowrap">
+              The complete customized manufacturing unit
             </p>
             <p className="text-gold-metallic text-lg md:text-2xl font-cinzel font-bold tracking-[0.3em] uppercase flex items-center justify-center gap-3 md:gap-6">
               DESIGN <span className="text-xs md:text-sm align-middle">★</span> DURABILITY <span className="text-xs md:text-sm align-middle">★</span> DEDICATION
@@ -264,6 +264,71 @@ export default function Home() {
                 </div>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Location Section */}
+      <section className="py-24 px-6 bg-brand-charcoal text-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-serif text-brand-gold mb-4">Visit Our Showroom</h2>
+            <p className="text-white/60 max-w-2xl mx-auto">Experience our premium quality furniture in person at our manufacturing unit and showroom.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <div className="flex items-start gap-6">
+                <div className="w-12 h-12 rounded-full bg-brand-gold/10 flex items-center justify-center shrink-0">
+                  <MapPin className="text-brand-gold" size={24} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Our Address</h3>
+                  <p className="text-white/70 leading-relaxed">
+                    SREE KRISHNA STEELS (Netra Brand),<br />
+                    Auto Nagar, Jaggayyapeta,<br />
+                    NTR District, Andhra Pradesh- 521175
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-6">
+                <div className="w-12 h-12 rounded-full bg-brand-gold/10 flex items-center justify-center shrink-0">
+                  <Clock className="text-brand-gold" size={24} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Business Hours</h3>
+                  <p className="text-white/70">Monday - Saturday: 9:00 AM - 8:00 PM</p>
+                  <p className="text-white/70">Sunday: Closed</p>
+                </div>
+              </div>
+
+              <div className="pt-4">
+                <a 
+                  href="https://www.google.com/maps/place/SREE+KRISHNA+STEELS+(Netra+Brand),+Autonagar+sm+peta+plot+no:42,43+100+feet+road+ARC+Transport+back+side+SM+peta,+Shermohammedpet,+Andhra+Pradesh+521178/data=!4m2!3m1!1s0x3a35a9d03adec16b:0x8463fd1ff0bb6f95!18m1!1e1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-3 bg-brand-gold text-brand-brown px-8 py-4 rounded-full font-bold hover:bg-white transition-colors"
+                >
+                  Get Directions <ExternalLink size={20} />
+                </a>
+              </div>
+            </div>
+            
+            <div className="h-[400px] rounded-3xl overflow-hidden relative group shadow-2xl border border-white/10">
+              <iframe 
+                title="Google Maps Location"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3824.23456789!2d80.12345678!3d16.12345678!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a35a9d03adec16b%3A0x8463fd1ff0bb6f95!2sSREE%20KRISHNA%20STEELS%20(Netra%20Brand)!5e0!3m2!1sen!2sin!4v1712134567890!5m2!1sen!2sin"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen={true}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+              ></iframe>
+              <div className="absolute inset-0 pointer-events-none border-[12px] border-brand-charcoal/50 rounded-3xl"></div>
+            </div>
           </div>
         </div>
       </section>

@@ -52,8 +52,8 @@ export default function Contact() {
               <MapPin className="text-brand-gold" size={32} />
             </div>
             <h3 className="text-xl font-serif text-brand-brown mb-4">Visit Us</h3>
-            <p className="text-brand-charcoal/60 mb-2">Main Road, Jaggaiahpet</p>
-            <p className="text-brand-charcoal/60">NTR District, Andhra Pradesh - 521175</p>
+            <p className="text-brand-charcoal/60 mb-2">Auto Nagar, Jaggayyapeta</p>
+            <p className="text-brand-charcoal/60">NTR District, Andhra Pradesh- 521175</p>
           </div>
         </div>
 
@@ -135,9 +135,9 @@ export default function Contact() {
               <div className="bg-white p-8 rounded-3xl shadow-2xl text-center max-w-xs">
                 <MapPin className="text-brand-gold mx-auto mb-4" size={40} />
                 <h4 className="font-serif text-xl text-brand-brown mb-2">Our Showroom</h4>
-                <p className="text-brand-charcoal/60 text-sm mb-6">Visit us to experience our premium collection in person at Jaggaiahpet.</p>
+                <p className="text-brand-charcoal/60 text-sm mb-6">Visit us to experience our premium collection in person at Jaggayyapeta.</p>
                 <a 
-                  href="https://www.google.com/maps/place/Jaggaiahpet,+Andhra+Pradesh/@16.8985619,80.1032325,16.88z/data=!4m6!3m5!1s0x3a35a827dab5b061:0xe71bc8a82fcc172a!8m2!3d16.898534!4d80.103347!16zL20vMGY0X3hz" 
+                  href="https://www.google.com/maps/place/SREE+KRISHNA+STEELS+(Netra+Brand),+Autonagar+sm+peta+plot+no:42,43+100+feet+road+ARC+Transport+back+side+SM+peta,+Shermohammedpet,+Andhra+Pradesh+521178/data=!4m2!3m1!1s0x3a35a9d03adec16b:0x8463fd1ff0bb6f95!18m1!1e1" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="inline-block bg-brand-brown text-white px-6 py-2 rounded-full text-sm font-bold"
