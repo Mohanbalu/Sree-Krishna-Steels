@@ -180,21 +180,29 @@ export default function Login() {
           </div>
 
           {isOtpSent ? (
-            <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-              <label className="text-xs font-bold uppercase tracking-widest text-brand-charcoal/40 flex items-center gap-2">
-                <Lock size={14} /> OTP Code
-              </label>
-              <input
-                required
-                type="text"
-                className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none"
-                placeholder="Enter 6-digit code"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-              />
-              <p className="text-[10px] text-brand-charcoal/40 px-1 italic">
-                Please check your email for the verification code.
-              </p>
+            <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-widest text-brand-charcoal/40 flex items-center gap-2">
+                  <Lock size={14} /> OTP Code
+                </label>
+                <input
+                  required
+                  type="text"
+                  className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none text-center text-2xl tracking-[0.5em] font-mono"
+                  placeholder="000000"
+                  maxLength={6}
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                />
+              </div>
+              
+              <div className="bg-brand-gold/5 border border-brand-gold/20 rounded-2xl p-4">
+                <p className="text-[11px] text-brand-brown/70 leading-relaxed">
+                  <span className="font-bold block mb-1">Check your email:</span>
+                  If you received a <strong>6-digit code</strong>, enter it above. 
+                  If you received a <strong>Magic Link</strong>, simply click it to log in automatically.
+                </p>
+              </div>
             </div>
           ) : (
             !ADMIN_EMAILS.includes(email.toLowerCase()) && (
