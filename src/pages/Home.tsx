@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { REFERENCES } from '@/src/constants';
 import { useState, useEffect, useMemo } from 'react';
 import { supabase, handleSupabaseError } from '../lib/supabase';
-
+import { Store } from "lucide-react";
 export default function Home() {
   const [dbFeatured, setDbFeatured] = useState<any[]>([]);
 
@@ -294,15 +294,29 @@ export default function Home() {
                   <MapPin className="text-brand-gold" size={24} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold mb-2">Our Address</h3>
+                  <h3 className="text-xl font-bold mb-2">Our workshop Address</h3>
                   <p className="text-white/70 leading-relaxed">
                     SREE KRISHNA STEELS (Netra Brand),<br />
+                    Plot no : 42-43, 100 Feets road,<br />
                     Auto Nagar, Jaggayyapeta,<br />
                     NTR District, Andhra Pradesh- 521175
                   </p>
                 </div>
               </div>
-              
+              <div className="flex items-start gap-6">
+  <div className="w-12 h-12 rounded-full bg-brand-gold/10 flex items-center justify-center shrink-0">
+    <Store className="text-brand-gold" size={24} />
+  </div>
+  <div>
+    <h3 className="text-xl font-bold mb-2">Our Showroom Address</h3>
+    <p className="text-white/70 leading-relaxed">
+      D FURNITURE,<br />
+      Beside Bhupathi Residency,<br />
+      Kodad Road,<br />
+      Jaggayyapeta - 521175
+    </p>
+  </div>
+</div>
               <div className="flex items-start gap-6">
                 <div className="w-12 h-12 rounded-full bg-brand-gold/10 flex items-center justify-center shrink-0">
                   <Clock className="text-brand-gold" size={24} />
@@ -360,14 +374,18 @@ export default function Home() {
               >
                 Enquire Now
               </a>
-              <div className="flex flex-col items-center gap-2">
-                <a href="tel:+919848082209" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-xl hover:underline">
-                  <Phone size={20} /> +91 98480 82209
-                </a>
-                <a href="tel:+919247256067" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-xl hover:underline">
-                  <Phone size={20} /> +91 92472 56067
-                </a>
-              </div>
+            <div className="flex flex-col items-center gap-2">
+  <a href="tel:+919848082209" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-xl hover:underline">
+    <Phone size={20} /> +91 98480 82209
+  </a>
+  <a href="tel:+919247256067" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-xl hover:underline">
+    <Phone size={20} /> +91 92472 56067
+  </a>
+  <a href="tel:+919948545035" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-xl hover:underline">
+    <Phone size={20} /> +91 99485 45035
+    <span className="text-sm font-medium text-brand-brown/70">(9 AM – 9 PM)</span>
+  </a>
+</div>
             </div>
           </div>
         </div>

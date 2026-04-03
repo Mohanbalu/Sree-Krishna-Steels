@@ -21,10 +21,34 @@ export default function Footer() {
           <p className="text-brand-cream/70 text-sm leading-relaxed">
             Premium furniture manufacturers dedicated to bringing elegance and durability to your modern living spaces. Direct from factory to your home.
           </p>
-          <div className="flex space-x-4">
-            <a href="https://www.instagram.com/sreekrishnasteelsofficial/" target="_blank" rel="noopener noreferrer" className="hover:text-brand-gold transition-colors"><Instagram size={20} /></a>
-            <a href="https://www.youtube.com/@sreekrishnasteelsfurniture" target="_blank" rel="noopener noreferrer" className="hover:text-brand-gold transition-colors"><Youtube size={20} /></a>
-          </div>
+          <div className="flex space-x-5">
+  <a 
+    href="https://www.instagram.com/sreekrishnasteelsofficial/" 
+    target="_blank" 
+    rel="noopener noreferrer" 
+    className="hover:text-brand-gold transition-colors"
+  >
+    <Instagram size={26} />
+  </a>
+
+  <a 
+    href="https://www.youtube.com/@sreekrishnasteelsfurniture" 
+    target="_blank" 
+    rel="noopener noreferrer" 
+    className="hover:text-brand-gold transition-colors"
+  >
+    <Youtube size={26} />
+  </a>
+
+  <a 
+    href="https://www.facebook.com/share/18qiMVqfU8/" 
+    target="_blank" 
+    rel="noopener noreferrer" 
+    className="hover:text-brand-gold transition-colors"
+  >
+    <Facebook size={26} />
+  </a>
+</div>
         </div>
 
         <div>
@@ -53,7 +77,7 @@ export default function Footer() {
           <ul className="space-y-4 text-sm text-brand-cream/70">
             <li className="flex items-start space-x-3">
               <MapPin size={18} className="text-brand-gold shrink-0" />
-              <span>Auto Nagar, Jaggayyapeta, NTR District, Andhra Pradesh- 521175</span>
+              <span>Plot no : 42-43, 100 Feet's road, Auto Nagar, Jaggayyapeta, NTR District, Andhra Pradesh- 521175</span>
             </li>
             <li className="flex items-center space-x-3">
               <Phone size={18} className="text-brand-gold shrink-0" />
