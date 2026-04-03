@@ -140,7 +140,7 @@ export default function Login() {
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-gold/30 to-transparent" />
         <div className="text-center mb-8">
           <h1 className="text-3xl font-serif text-brand-brown mb-2">Welcome Back</h1>
-          <p className="text-brand-charcoal/60">Login to your Sree Krishna account</p>
+          <p className="text-brand-charcoal/60">Login to your Sree Krishna Steels & Furniture account</p>
         </div>
 
         {showGoogleHint && (
