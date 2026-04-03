@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Youtube, MapPin, Phone, Mail } from 'lucide-react';
-
+import { FaWhatsapp } from "react-icons/fa";
 export default function Footer() {
   return (
     <footer className="bg-brand-brown text-brand-cream pt-20 pb-10 px-6">
@@ -47,6 +47,14 @@ export default function Footer() {
     className="hover:text-brand-gold transition-colors"
   >
     <Facebook size={26} />
+  </a>
+   <a 
+    href="https://whatsapp.com/channel/0029VbB90wKCXC3SWvFULf1P" 
+    target="_blank" 
+    rel="noopener noreferrer" 
+    className="hover:text-brand-gold transition-colors"
+  >
+    <FaWhatsapp size={26} />
   </a>
 </div>
         </div>
