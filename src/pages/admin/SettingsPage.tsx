@@ -107,7 +107,7 @@ export default function SettingsPage() {
                       <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-brown/20 group-focus-within:text-brand-gold transition-colors" size={18} />
                       <input 
                         type="text" 
-                        defaultValue="+91 98480 82209" 
+                        defaultValue="+91 98480 82209, +91 92472 56067" 
                         className="w-full pl-12 pr-4 py-3.5 lg:py-4 bg-brand-cream/20 border border-brand-brown/5 rounded-xl lg:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:bg-white transition-all outline-none text-xs lg:text-sm font-medium" 
                       />
                     </div>

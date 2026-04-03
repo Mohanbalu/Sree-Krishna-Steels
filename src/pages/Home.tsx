@@ -60,51 +60,48 @@ export default function Home() {
   return (
     <div className="pt-0">
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-sky-600">
         <div className="absolute inset-0 z-0">
-          <motion.img 
-            initial={{ scale: 1.1 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 10, ease: "easeOut" }}
-            src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1920" 
-            alt="Luxury Living Room" 
-            className="w-full h-full object-cover"
-            referrerPolicy="no-referrer"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-brand-brown/60 via-brand-brown/40 to-brand-brown/80"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-sky-600/80 via-sky-500/60 to-sky-700/90"></div>
+          <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
         </div>
         
-        <div className="relative z-10 text-center px-6 max-w-5xl">
+        <div className="relative z-10 text-center px-6 max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center justify-center gap-4 mb-8"
           >
-            <div className="h-px w-12 bg-brand-gold/50"></div>
-            <span className="text-brand-gold font-bold tracking-[0.5em] uppercase text-[10px]">
-              Est. 1995 • Premium Quality
+            <div className="h-px w-12 bg-white/50"></div>
+            <span className="text-gold-metallic font-cinzel font-bold tracking-[0.5em] uppercase text-xs md:text-sm">
+              Est. 1999
             </span>
-            <div className="h-px w-12 bg-brand-gold/50"></div>
+            <div className="h-px w-12 bg-white/50"></div>
           </motion.div>
 
           <motion.h1 
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-6xl md:text-9xl font-serif text-white mb-10 leading-[0.9] tracking-tighter"
+            className="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-serif text-gold-metallic mb-8 leading-tight tracking-tight uppercase font-bold flex flex-wrap items-center justify-center gap-x-2 md:gap-x-4 w-full mx-auto pl-2 md:pl-4"
           >
-            Timeless <br /> 
-            <span className="italic font-normal text-brand-gold">Elegance</span>
+            <span>Sree Krishna Steels & Furniture</span>
+            <span className="text-[0.6em] opacity-90 font-cinzel font-normal align-middle">(Netra Brand)</span>
           </motion.h1>
 
-          <motion.p 
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="text-white/70 text-lg md:text-xl mb-12 max-w-xl mx-auto font-light leading-relaxed"
+            className="space-y-6 mb-12"
           >
-            Crafting the finest steel and wood furniture for those who appreciate the art of living well.
-          </motion.p>
+            <p className="text-white/90 text-xl md:text-2xl font-light tracking-wide italic">
+              Customized manufacturing unit
+            </p>
+            <p className="text-gold-metallic text-lg md:text-2xl font-cinzel font-bold tracking-[0.3em] uppercase flex items-center justify-center gap-3 md:gap-6">
+              DESIGN <span className="text-xs md:text-sm align-middle">★</span> DURABILITY <span className="text-xs md:text-sm align-middle">★</span> DEDICATION
+            </p>
+          </motion.div>
 
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
@@ -112,7 +109,7 @@ export default function Home() {
             transition={{ delay: 0.6, duration: 0.8 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-8"
           >
-            <Link to="/products" className="group relative px-12 py-5 overflow-hidden rounded-full bg-brand-gold text-brand-brown font-bold text-sm uppercase tracking-[0.2em] transition-all duration-500 hover:bg-white">
+            <Link to="/products" className="group relative px-12 py-5 overflow-hidden rounded-full bg-white text-sky-700 font-bold text-sm uppercase tracking-[0.2em] transition-all duration-500 hover:bg-brand-gold hover:text-brand-brown">
               <span className="relative z-10 flex items-center gap-3">
                 Shop Collection <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform duration-500" />
               </span>
@@ -121,9 +118,9 @@ export default function Home() {
               href="https://wa.me/919848082209?text=Hello%20Sree%20Krishna%20Steels%20%26%20Furniture,%20I'd%20like%20to%20get%20a%20quote%20for%20some%20furniture."
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white font-bold text-sm uppercase tracking-[0.2em] hover:text-brand-gold transition-colors duration-300 flex items-center gap-3 group"
+              className="text-white font-bold text-sm uppercase tracking-[0.2em] hover:text-gold-metallic transition-colors duration-300 flex items-center gap-3 group"
             >
-              Get a Quote <div className="w-8 h-px bg-white/30 group-hover:w-12 group-hover:bg-brand-gold transition-all duration-300"></div>
+              Get a Quote <div className="w-8 h-px bg-white/30 group-hover:w-12 group-hover:bg-gold-metallic transition-all duration-300"></div>
             </a>
           </motion.div>
         </div>
@@ -287,9 +284,14 @@ export default function Home() {
               >
                 Enquire Now
               </a>
-              <a href="tel:+919848082209" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-xl hover:underline">
-                <Phone /> +91 98480 82209
-              </a>
+              <div className="flex flex-col items-center gap-2">
+                <a href="tel:+919848082209" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-xl hover:underline">
+                  <Phone size={20} /> +91 98480 82209
+                </a>
+                <a href="tel:+919247256067" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-xl hover:underline">
+                  <Phone size={20} /> +91 92472 56067
+                </a>
+              </div>
             </div>
           </div>
         </div>

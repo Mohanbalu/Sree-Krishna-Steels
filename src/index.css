@@ -8,6 +8,14 @@
   
   --font-serif: "Playfair Display", serif;
   --font-sans: "Inter", sans-serif;
+  --font-cinzel: "Cinzel", serif;
+}
+
+@utility text-gold-metallic {
+  background: linear-gradient(to bottom, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 1px rgba(0,0,0,0.3));
 }
 
 @layer base {
@@ -42,4 +50,4 @@
   }
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;700&display=swap');
