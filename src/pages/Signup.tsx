@@ -14,9 +14,16 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const ADMIN_EMAILS = ['support@sksfurniture.in', 'mohanbalu292@gmail.com'];
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (ADMIN_EMAILS.includes(email.toLowerCase())) {
+      toast.error('Admin accounts must be created by the system administrator.');
+      return;
+    }
+
     const cleanedPhone = phone.replace(/\D/g, '');
     if (!validatePhone(cleanedPhone)) {
       toast.error('Please enter a valid 10-digit phone number (starts with 6-9)');

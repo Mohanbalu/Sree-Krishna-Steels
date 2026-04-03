@@ -53,25 +53,13 @@ export const useAuthStore = create<AuthState>((set) => ({
       return;
     }
 
-    const fetchProfile = async (userId: string, userEmail?: string, userName?: string, userPhone?: string, retryCount = 0): Promise<UserProfile | null> => {
+    const fetchProfile = async (userId: string, userEmail?: string, userName?: string, userPhone?: string): Promise<UserProfile | null> => {
       try {
-        console.log(`Fetching profile for ${userId} (attempt ${retryCount + 1})...`);
-        
-        // Use a shorter timeout but more retries for better responsiveness
-        const profilePromise = supabase
+        const { data, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', userId)
           .single();
-
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Profile fetch timeout')), 15000) // 15s timeout
-        );
-
-        const { data, error } = await Promise.race([
-          Promise.resolve(profilePromise), 
-          timeoutPromise
-        ]) as any;
         
         if (error) {
           // If profile is missing (PGRST116), try to create it immediately
@@ -98,42 +86,21 @@ export const useAuthStore = create<AuthState>((set) => ({
             return newProfile as UserProfile;
           }
 
-          // Retry on transient errors or timeouts
-          if (retryCount < 3 && (error.code === '503' || error.code === '504' || error.message?.includes('timeout'))) {
-            console.warn(`Profile fetch failed (attempt ${retryCount + 1}), retrying in 1s...`);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            return fetchProfile(userId, userEmail, userName, userPhone, retryCount + 1);
-          }
-
           console.error('Error fetching profile:', error);
           return null;
         }
         return data as UserProfile;
       } catch (err: any) {
-        if (retryCount < 3 && err.message?.includes('timeout')) {
-          console.warn(`Profile fetch timed out (attempt ${retryCount + 1}), retrying in 1s...`);
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          return fetchProfile(userId, userEmail, userName, userPhone, retryCount + 1);
-        }
-        console.error('fetchProfile error or timeout:', err);
+        console.error('fetchProfile error:', err);
         return null;
       }
     };
 
     // Initial session check
     try {
-      // Add a safety timeout to the entire initialization process
-      const initTimeout = setTimeout(() => {
-        if (useAuthStore.getState().loading) {
-          console.warn('Auth initialization taking too long, forcing loading: false');
-          set({ loading: false, initialized: true });
-        }
-      }, 60000); // Increased to 60s
-
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
-        clearTimeout(initTimeout);
         if (sessionError.message.includes('Refresh Token Not Found') || sessionError.message.includes('Invalid Refresh Token')) {
           console.warn('Stale session found, clearing...');
           await supabase.auth.signOut();
@@ -165,11 +132,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         useCartStore.getState().clearCart(false);
         set({ user: null, profile: null, loading: false, initialized: true });
       }
-      clearTimeout(initTimeout);
     } catch (error) {
-      // The timeout might have already fired, but it's safe to clear it again
-      // @ts-ignore
-      if (typeof initTimeout !== 'undefined') clearTimeout(initTimeout);
       console.error('Auth initialization error:', error);
       set({ user: null, profile: null, loading: false, initialized: true });
     }

@@ -8,6 +8,8 @@ import { LogIn, Mail, Lock, Chrome, Eye, EyeOff, AlertCircle, Loader2 } from 'lu
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
+  const [isOtpSent, setIsOtpSent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showGoogleHint, setShowGoogleHint] = useState(false);
@@ -15,7 +17,14 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const ADMIN_EMAILS = ['support@sksfurniture.in', 'mohanbalu292@gmail.com'];
+
   const from = location.state?.from?.pathname || '/';
+
+  useEffect(() => {
+    setIsOtpSent(false);
+    setOtp('');
+  }, [email]);
 
   useEffect(() => {
     if (user && profile) {
@@ -30,7 +39,49 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     setShowGoogleHint(false);
+
+    const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
+
     try {
+      if (isAdmin && !isOtpSent) {
+        // Step 1 for Admin: Send OTP
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            shouldCreateUser: false,
+          }
+        });
+
+        if (error) {
+          if (error.message.includes('User not found')) {
+            toast.error('Admin account not found. Please contact support.');
+          } else {
+            throw error;
+          }
+          setLoading(false);
+          return;
+        }
+
+        setIsOtpSent(true);
+        toast.success('OTP sent to your email!');
+        setLoading(false);
+        return;
+      }
+
+      if (isAdmin && isOtpSent) {
+        // Step 2 for Admin: Verify OTP
+        const { error } = await supabase.auth.verifyOtp({
+          email,
+          token: otp,
+          type: 'email'
+        });
+
+        if (error) throw error;
+        toast.success('Logged in successfully!');
+        return;
+      }
+
+      // Standard login for non-admins
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -42,6 +93,7 @@ export default function Login() {
         } else {
           throw error;
         }
+        setLoading(false);
         return;
       }
       toast.success('Logged in successfully!');
@@ -50,8 +102,6 @@ export default function Login() {
       toast.error(error.message);
       setLoading(false);
     }
-    // Note: setLoading(false) is NOT in finally because we want to keep 
-    // the button in loading state until the useEffect triggers navigation
   };
 
   const handleGoogleLogin = async () => {
@@ -121,45 +171,69 @@ export default function Login() {
             <input
               required
               type="email"
-              className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none"
+              disabled={isOtpSent}
+              className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none disabled:opacity-50"
               placeholder="email@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-brand-charcoal/40 flex items-center gap-2">
-              <Lock size={14} /> Password
-            </label>
-            <div className="relative">
+          {isOtpSent ? (
+            <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+              <label className="text-xs font-bold uppercase tracking-widest text-brand-charcoal/40 flex items-center gap-2">
+                <Lock size={14} /> OTP Code
+              </label>
               <input
                 required
-                type={showPassword ? "text" : "password"}
-                className="w-full bg-brand-cream border-none rounded-xl p-4 pr-12 focus:ring-2 focus:ring-brand-gold outline-none"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                type="text"
+                className="w-full bg-brand-cream border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-gold outline-none"
+                placeholder="Enter 6-digit code"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
               />
+              <p className="text-[10px] text-brand-charcoal/40 px-1 italic">
+                Please check your email for the verification code.
+              </p>
+            </div>
+          ) : (
+            !ADMIN_EMAILS.includes(email.toLowerCase()) && (
+              <div className="space-y-2 animate-in fade-in duration-300">
+                <label className="text-xs font-bold uppercase tracking-widest text-brand-charcoal/40 flex items-center gap-2">
+                  <Lock size={14} /> Password
+                </label>
+                <div className="relative">
+                  <input
+                    required
+                    type={showPassword ? "text" : "password"}
+                    className="w-full bg-brand-cream border-none rounded-xl p-4 pr-12 focus:ring-2 focus:ring-brand-gold outline-none"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-charcoal/40 hover:text-brand-gold transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+            )
+          )}
+
+          {!isOtpSent && !ADMIN_EMAILS.includes(email.toLowerCase()) && (
+            <div className="flex justify-end">
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-charcoal/40 hover:text-brand-gold transition-colors"
+                onClick={handleForgotPassword}
+                className="text-xs font-bold text-brand-gold hover:underline"
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                Forgot Password?
               </button>
             </div>
-          </div>
-
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={handleForgotPassword}
-              className="text-xs font-bold text-brand-gold hover:underline"
-            >
-              Forgot Password?
-            </button>
-          </div>
+          )}
 
           <button
             type="submit"
@@ -168,14 +242,27 @@ export default function Login() {
           >
             {loading ? (
               <>
-                <Loader2 className="animate-spin" size={20} /> Logging in...
+                <Loader2 className="animate-spin" size={20} /> {isOtpSent ? 'Verifying...' : 'Processing...'}
               </>
             ) : (
               <>
-                Login <LogIn size={20} />
+                {isOtpSent ? 'Verify OTP' : (ADMIN_EMAILS.includes(email.toLowerCase()) ? 'Send OTP' : 'Login')} <LogIn size={20} />
               </>
             )}
           </button>
+
+          {isOtpSent && (
+            <button
+              type="button"
+              onClick={() => {
+                setIsOtpSent(false);
+                setOtp('');
+              }}
+              className="w-full text-xs font-bold text-brand-gold hover:underline mt-2"
+            >
+              Back to Email
+            </button>
+          )}
         </form>
 
         <div className="mt-6">

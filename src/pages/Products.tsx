@@ -21,13 +21,13 @@ export default function Products() {
 
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
 
-  const fetchProducts = async (retryCount = 0) => {
+  const fetchProducts = async () => {
     if (!supabase) {
       setLoading(false);
       return;
     }
     try {
-      const fetchPromise = supabase
+      const { data, error } = await supabase
         .from('products')
         .select(`
           *,
@@ -38,15 +38,6 @@ export default function Products() {
         .eq('is_active', true)
         .order('is_pinned', { ascending: false })
         .order('created_at', { ascending: false });
-
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Products fetch timeout')), 60000)
-      );
-
-      const { data, error } = await Promise.race([
-        Promise.resolve(fetchPromise),
-        timeoutPromise
-      ]) as any;
 
       if (error) throw error;
       setDbProducts(data || []);
@@ -60,11 +51,6 @@ export default function Products() {
         });
       }
     } catch (error: any) {
-      if (retryCount < 2 && error.message?.includes('timeout')) {
-        console.warn(`Products fetch timed out (attempt ${retryCount + 1}), retrying in 2s...`);
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        return fetchProducts(retryCount + 1);
-      }
       handleSupabaseError(error, 'fetchProducts');
     } finally {
       setLoading(false);

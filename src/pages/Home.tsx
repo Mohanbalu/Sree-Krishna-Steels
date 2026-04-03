@@ -9,10 +9,10 @@ export default function Home() {
   const [dbFeatured, setDbFeatured] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchFeatured = async (retryCount = 0) => {
+    const fetchFeatured = async () => {
       if (!supabase) return;
       try {
-        const fetchPromise = supabase
+        const { data, error } = await supabase
           .from('products')
           .select(`
             *,
@@ -25,23 +25,9 @@ export default function Home() {
           .order('created_at', { ascending: false })
           .limit(3);
 
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Featured products fetch timeout')), 60000)
-        );
-
-        const { data, error } = await Promise.race([
-          Promise.resolve(fetchPromise),
-          timeoutPromise
-        ]) as any;
-
         if (error) throw error;
         setDbFeatured(data || []);
       } catch (error: any) {
-        if (retryCount < 2 && error.message?.includes('timeout')) {
-          console.warn(`Featured fetch timed out (attempt ${retryCount + 1}), retrying in 2s...`);
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          return fetchFeatured(retryCount + 1);
-        }
         handleSupabaseError(error, 'fetchFeatured');
       }
     };

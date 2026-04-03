@@ -106,25 +106,22 @@ export default function ProductManagement() {
   }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
 
     setUploading(true);
     setUploadProgress(0);
-    const toastId = toast.loading(`Uploading ${files.length} image(s)...`);
+    const toastId = toast.loading('Uploading image...');
     
     try {
-      const totalFiles = files.length;
-      let completedFiles = 0;
-
-      const uploadFile = async (file: File) => {
-        const fileExt = file.name.split('.').pop() || 'jpg';
+      const uploadFile = async (f: File) => {
+        const fileExt = f.name.split('.').pop() || 'jpg';
         const fileName = `${Math.random()}.${fileExt}`;
         const filePath = `products/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('products')
-          .upload(filePath, file);
+          .upload(filePath, f);
 
         if (uploadError) throw uploadError;
 
@@ -132,32 +129,22 @@ export default function ProductManagement() {
           .from('products')
           .getPublicUrl(filePath);
         
-        completedFiles++;
-        setUploadProgress(Math.round((completedFiles / totalFiles) * 100));
-        toast.loading(`Uploaded ${completedFiles}/${totalFiles} images...`, { id: toastId });
-        
+        setUploadProgress(100);
         return publicUrl;
       };
 
-      // Process in parallel batches of 3 for faster upload without compression
-      const results: string[] = [];
-      const fileArray = Array.from(files) as File[];
-      for (let i = 0; i < fileArray.length; i += 3) {
-        const chunk = fileArray.slice(i, i + 3);
-        const chunkUrls = await Promise.all(chunk.map(uploadFile));
-        results.push(...chunkUrls);
-      }
+      const publicUrl = await uploadFile(file);
 
       setFormData(prev => {
-        const newImageUrls = [...prev.image_urls, ...results];
+        const newImageUrls = [...prev.image_urls, publicUrl];
         return { 
           ...prev, 
           image_urls: newImageUrls,
-          image_url: prev.image_url || results[0]
+          image_url: prev.image_url || publicUrl
         };
       });
 
-      toast.success(`${files.length} image(s) added!`, { id: toastId });
+      toast.success('Image added!', { id: toastId });
     } catch (error: any) {
       toast.error('Failed to upload image: ' + error.message, { id: toastId });
     } finally {
@@ -872,7 +859,6 @@ export default function ProductManagement() {
                       <input
                         type="file"
                         accept="image/*"
-                        multiple
                         onChange={handleImageUpload}
                         className="hidden"
                         disabled={uploading}
@@ -951,7 +937,7 @@ export default function ProductManagement() {
                     <>
                       <div className="animate-spin rounded-full h-5 w-5 lg:h-6 lg:w-6 border-2 border-white/30 border-t-white"></div>
                       <span className="tracking-widest uppercase text-xs lg:text-sm">
-                        {uploading ? 'Optimizing & Uploading...' : 'Saving Product...'}
+                        {uploading ? 'Uploading...' : 'Saving Product...'}
                       </span>
                     </>
                   ) : (
