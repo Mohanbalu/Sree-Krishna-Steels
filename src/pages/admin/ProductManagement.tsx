@@ -49,7 +49,7 @@ export default function ProductManagement() {
   const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
   const [newCategory, setNewCategory] = useState('');
 
-  const [categories, setCategories] = useState(['Beds', 'Sofas', 'Dining Tables', 'Wardrobes', 'Office Furniture', 'Steel Almirahs']);
+  const [categories, setCategories] = useState(['Beds', 'Sofas', 'Dining Tables', 'Wardrobes', 'Office Furniture', 'Steel Almirahs', 'Iron Safe']);
 
   const fetchProducts = React.useCallback(async () => {
     try {

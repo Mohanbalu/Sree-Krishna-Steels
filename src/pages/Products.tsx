@@ -17,7 +17,7 @@ export default function Products() {
   const [searchTerm, setSearchTerm] = useState('');
   const currentCat = searchParams.get('cat') || 'All';
 
-  const [categories, setCategories] = useState(['All', 'Beds', 'Sofas', 'Dining Tables', 'Wardrobes', 'Office Furniture', 'Steel Almirahs']);
+  const [categories, setCategories] = useState(['All', 'Beds', 'Sofas', 'Dining Tables', 'Wardrobes', 'Office Furniture', 'Steel Almirahs', 'Iron Safe']);
 
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
 
