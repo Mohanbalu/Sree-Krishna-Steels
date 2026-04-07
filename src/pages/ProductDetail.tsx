@@ -109,12 +109,12 @@ export default function ProductDetail() {
   const whatsappUrl = `https://wa.me/9848082209?text=${encodeURIComponent(`Hi, I'm interested in the ${product.title || product.name}. Please provide more details.`)}`;
 
   return (
-    <div className="pt-32 pb-24 px-6 max-w-7xl mx-auto">
+    <div className="pt-24 sm:pt-32 pb-16 sm:pb-24 px-4 sm:px-6 max-w-7xl mx-auto">
       <button 
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-brand-charcoal/60 hover:text-brand-brown mb-12 transition-colors group"
+        className="flex items-center gap-2 text-brand-charcoal/60 hover:text-brand-brown mb-8 sm:mb-12 transition-colors group text-sm"
       >
-        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> Back to Collection
+        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" /> Back to Collection
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
@@ -150,10 +150,10 @@ export default function ProductDetail() {
         {/* Info */}
         <div className="flex flex-col">
           <div className="mb-8">
-            <span className="text-brand-gold font-bold uppercase tracking-widest text-sm mb-2 block">{product.category}</span>
-            <h1 className="text-4xl md:text-5xl font-serif text-brand-brown mb-4">{product.title || product.name}</h1>
-            <p className="text-3xl font-bold text-brand-gold mb-6">{price}</p>
-            <p className="text-brand-charcoal/70 leading-relaxed text-lg mb-8">{product.description || product.fullDescription}</p>
+            <span className="text-brand-gold font-bold uppercase tracking-widest text-[10px] sm:text-sm mb-2 block">{product.category}</span>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-brown mb-4 leading-tight">{product.title || product.name}</h1>
+            <p className="text-2xl sm:text-3xl font-bold text-brand-gold mb-6">{price}</p>
+            <p className="text-brand-charcoal/70 leading-relaxed text-base sm:text-lg mb-8">{product.description || product.fullDescription}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-10">
@@ -206,8 +206,8 @@ export default function ProductDetail() {
           )}
 
           <div className="space-y-6 mt-auto pt-8 border-t border-brand-gold/10">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-4 bg-brand-cream rounded-2xl p-2 border border-brand-gold/10">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+              <div className="flex items-center gap-4 bg-brand-cream rounded-2xl p-2 border border-brand-gold/10 w-full sm:w-auto justify-between sm:justify-start">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   className="w-10 h-10 rounded-xl hover:bg-white transition-colors flex items-center justify-center disabled:opacity-30"
@@ -227,7 +227,7 @@ export default function ProductDetail() {
               <button
                 onClick={handleAddToCart}
                 disabled={product.stock <= 0}
-                className="flex-grow bg-brand-brown text-white py-4 rounded-2xl font-bold text-lg hover:bg-brand-charcoal transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-brown/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:flex-grow bg-brand-brown text-white py-4 rounded-2xl font-bold text-lg hover:bg-brand-charcoal transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-brown/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {product.stock > 0 ? (
                   <>

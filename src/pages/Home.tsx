@@ -68,7 +68,7 @@ export default function Home() {
   initial={{ opacity: 0, y: 40 }}
   animate={{ opacity: 1, y: 0 }}
   transition={{ delay: 0.2, duration: 0.8 }}
-  className="text-base sm:text-2xl md:text-3xl lg:text-5xl xl:text-6xl font-serif text-gold-metallic mb-4 leading-tight tracking-tight uppercase font-bold flex flex-wrap items-center justify-center gap-x-2 md:gap-x-4 w-full mx-auto drop-shadow-[0_0_15px_rgba(197,160,89,0.3)]"
+  className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-serif text-gold-metallic mb-4 leading-tight tracking-tight uppercase font-bold flex flex-wrap items-center justify-center gap-x-2 md:gap-x-4 w-full mx-auto drop-shadow-[0_0_15px_rgba(197,160,89,0.3)]"
 >
   <span>Sree Krishna Steels & Furniture</span>
 </motion.h1>
@@ -88,14 +88,14 @@ export default function Home() {
             transition={{ delay: 0.4, duration: 0.8 }}
             className="space-y-6 mb-12"
           >
-            <p className="text-white/80 text-base sm:text-lg md:text-xl font-light tracking-[0.2em] uppercase whitespace-nowrap">
+            <p className="text-white/80 text-sm sm:text-base md:text-lg lg:text-xl font-light tracking-[0.2em] uppercase">
               The complete customized furniture manufacturing unit
             </p>
-            <p className="text-gold-metallic text-[14px] sm:text-base md:text-lg lg:text-xl font-cinzel font-bold tracking-[0.3em] uppercase flex items-center justify-center gap-3 md:gap-6">
+            <p className="text-gold-metallic text-[12px] sm:text-sm md:text-base lg:text-lg xl:text-xl font-cinzel font-bold tracking-[0.2em] sm:tracking-[0.3em] uppercase flex items-center justify-center gap-2 sm:gap-3 md:gap-6">
   DESIGN 
-  <span className="text-[18px] md:text-[22px] align-middle leading-none">★</span> 
+  <span className="text-[14px] md:text-[22px] align-middle leading-none">★</span> 
   DURABILITY 
-  <span className="text-[18px] md:text-[22px] align-middle leading-none">★</span> 
+  <span className="text-[14px] md:text-[22px] align-middle leading-none">★</span> 
   DEDICATION
 </p>
           </motion.div>
@@ -134,8 +134,8 @@ export default function Home() {
       </section>
 
       {/* Featured Products */}
-      <section className="py-32 px-8 max-w-[1400px] mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-baseline mb-24 gap-8">
+      <section className="py-16 sm:py-24 lg:py-32 px-4 sm:px-8 max-w-[1400px] mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-baseline mb-12 sm:mb-24 gap-8">
           <div className="max-w-2xl">
             <motion.span 
               initial={{ opacity: 0, x: -20 }}
@@ -144,7 +144,7 @@ export default function Home() {
             >
               Curated Selection
             </motion.span>
-            <h2 className="text-5xl md:text-7xl font-serif text-brand-brown mb-6 leading-tight">The Signature <br /><span className="italic font-normal">Collection</span></h2>
+            <h2 className="text-3xl sm:text-5xl md:text-7xl font-serif text-brand-brown mb-6 leading-tight">The Signature <br /><span className="italic font-normal">Collection</span></h2>
           </div>
           <Link to="/products" className="group flex items-center gap-4 text-sm font-bold uppercase tracking-[0.2em] text-brand-charcoal hover:text-brand-gold transition-colors">
             View All <div className="w-12 h-px bg-brand-charcoal/20 group-hover:w-20 group-hover:bg-brand-gold transition-all duration-500"></div>
@@ -207,12 +207,12 @@ export default function Home() {
       </section>
 
       {/* Why Choose Us */}
-      <section className="bg-brand-brown py-24 px-6">
+      <section className="bg-brand-brown py-16 sm:py-24 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
+          <div className="text-center mb-12 sm:mb-20">
             <span className="text-brand-gold font-bold tracking-[0.3em] uppercase text-[10px] mb-4 block">A Netra Brand</span>
-            <h2 className="text-4xl md:text-5xl font-serif text-white mb-6">The Sree Krishna Edge</h2>
-            <p className="text-brand-cream/60 max-w-2xl mx-auto">We don't just make furniture; we create legacies of comfort and durability for your home.</p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-6">The Sree Krishna Edge</h2>
+            <p className="text-brand-cream/60 max-w-2xl mx-auto text-sm sm:text-base">We don't just make furniture; we create legacies of comfort and durability for your home.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
@@ -233,11 +233,11 @@ export default function Home() {
       </section>
 
       {/* References Section */}
-      <section className="py-24 px-6 bg-brand-cream">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-brand-cream">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-serif text-brand-brown mb-4">What Our Clients Say</h2>
-            <p className="text-brand-charcoal/60">Real stories from people who transformed their homes with us.</p>
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-brown mb-4">What Our Clients Say</h2>
+            <p className="text-brand-charcoal/60 text-sm sm:text-base">Real stories from people who transformed their homes with us.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -271,11 +271,11 @@ export default function Home() {
       </section>
 
       {/* Location Section */}
-      <section className="py-24 px-6 bg-brand-charcoal text-white">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-brand-charcoal text-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-serif text-brand-gold mb-4">Visit Our Showroom</h2>
-            <p className="text-white/60 max-w-2xl mx-auto">Experience our premium quality furniture in person at our manufacturing unit and showroom.</p>
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-gold mb-4">Visit Our Showroom</h2>
+            <p className="text-white/60 max-w-2xl mx-auto text-sm sm:text-base">Experience our premium quality furniture in person at our manufacturing unit and showroom.</p>
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -350,31 +350,31 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-6">
-        <div className="max-w-5xl mx-auto bg-brand-gold rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden">
+      <section className="py-16 sm:py-24 px-4 sm:px-6">
+        <div className="max-w-5xl mx-auto bg-brand-gold rounded-[2rem] sm:rounded-[3rem] p-8 sm:p-12 md:p-20 text-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
           <div className="relative z-10">
-            <h2 className="text-4xl md:text-6xl font-serif text-brand-brown mb-8">Ready to upgrade your home?</h2>
-            <p className="text-brand-brown/70 text-lg mb-12 max-w-xl mx-auto">Get a free consultation and a personalized quote for your dream furniture today.</p>
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-serif text-brand-brown mb-8 leading-tight">Ready to upgrade your home?</h2>
+            <p className="text-brand-brown/70 text-base sm:text-lg mb-8 sm:mb-12 max-w-xl mx-auto">Get a free consultation and a personalized quote for your dream furniture today.</p>
             <div className="flex flex-col sm:flex-row justify-center gap-6">
               <a 
                 href="https://wa.me/919848082209?text=Hello%20Sree%20Krishna%20Steels%20%26%20Furniture,%20I'm%20interested%20in%20upgrading%20my%20home%20furniture.%20Please%20provide%20more%20details."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-brand-brown text-white px-12 py-5 rounded-full font-bold text-xl hover:shadow-2xl transition-all"
+                className="bg-brand-brown text-white px-8 sm:px-12 py-4 sm:py-5 rounded-full font-bold text-lg sm:text-xl hover:shadow-2xl transition-all"
               >
                 Enquire Now
               </a>
             <div className="flex flex-col items-center gap-2">
-  <a href="tel:+919848082209" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-xl hover:underline">
+  <a href="tel:+919848082209" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-lg sm:text-xl hover:underline">
     <Phone size={20} /> +91 98480 82209
   </a>
-  <a href="tel:+919247256067" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-xl hover:underline">
+  <a href="tel:+919247256067" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-lg sm:text-xl hover:underline">
     <Phone size={20} /> +91 92472 56067
   </a>
-  <a href="tel:+919948545035" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-xl hover:underline">
+  <a href="tel:+919948545035" className="flex items-center justify-center gap-3 text-brand-brown font-bold text-lg sm:text-xl hover:underline">
     <Phone size={20} /> +91 99485 45035
-    <span className="text-sm font-medium text-brand-brown/70">(9 AM – 9 PM)</span>
+    <span className="text-xs sm:text-sm font-medium text-brand-brown/70">(9 AM – 9 PM)</span>
   </a>
 </div>
             </div>

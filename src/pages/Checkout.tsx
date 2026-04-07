@@ -243,16 +243,16 @@ export default function Checkout() {
   };
 
   return (
-    <div className="pt-32 pb-24 px-6 bg-brand-cream min-h-screen">
+    <div className="pt-24 sm:pt-32 pb-16 sm:pb-24 px-4 sm:px-6 bg-brand-cream min-h-screen">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-serif text-brand-brown mb-12">Checkout</h1>
+        <h1 className="text-3xl sm:text-4xl font-serif text-brand-brown mb-8 sm:mb-12">Checkout</h1>
 
         <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-12">
           {/* Shipping Details */}
-          <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white p-8 rounded-3xl shadow-xl border border-brand-gold/10">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                <h2 className="text-2xl font-serif text-brand-brown flex items-center gap-3">
+          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+            <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-brand-gold/10">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+                <h2 className="text-xl sm:text-2xl font-serif text-brand-brown flex items-center gap-3">
                   <MapPin className="text-brand-gold" /> Shipping Details
                 </h2>
                 <button
@@ -363,8 +363,8 @@ export default function Checkout() {
               </div>
             </div>
 
-            <div className="bg-white p-8 rounded-3xl shadow-xl border border-brand-gold/10">
-              <h2 className="text-2xl font-serif text-brand-brown mb-8 flex items-center gap-3">
+            <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-brand-gold/10">
+              <h2 className="text-xl sm:text-2xl font-serif text-brand-brown mb-6 sm:mb-8 flex items-center gap-3">
                 <CreditCard className="text-brand-gold" /> Payment Method
               </h2>
 
@@ -406,8 +406,8 @@ export default function Checkout() {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white p-8 rounded-3xl shadow-xl border border-brand-gold/10 sticky top-32">
-              <h2 className="text-2xl font-serif text-brand-brown mb-6">Order Summary</h2>
+            <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-brand-gold/10 sticky top-32">
+              <h2 className="text-xl sm:text-2xl font-serif text-brand-brown mb-6">Order Summary</h2>
               
               <div className="space-y-4 mb-8 max-h-60 overflow-y-auto pr-2">
                 {items.map((item) => (

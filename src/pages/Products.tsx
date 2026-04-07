@@ -147,10 +147,10 @@ export default function Products() {
   }
 
   return (
-    <div className="pt-32 pb-24 px-6 max-w-7xl mx-auto">
-      <div className="text-center mb-16">
-        <h1 className="text-5xl md:text-6xl font-serif text-brand-brown mb-6">Our Collection</h1>
-        <p className="text-brand-charcoal/60 max-w-2xl mx-auto">Explore our range of premium furniture, meticulously designed for modern homes and lasting comfort.</p>
+    <div className="pt-24 sm:pt-32 pb-16 sm:pb-24 px-4 sm:px-6 max-w-7xl mx-auto">
+      <div className="text-center mb-12 sm:mb-16">
+        <h1 className="text-3xl sm:text-5xl md:text-6xl font-serif text-brand-brown mb-6">Our Collection</h1>
+        <p className="text-brand-charcoal/60 max-w-2xl mx-auto text-sm sm:text-base">Explore our range of premium furniture, meticulously designed for modern homes and lasting comfort.</p>
         {loading && (
           <div className="mt-4 flex items-center justify-center gap-2 text-brand-gold animate-pulse">
             <div className="w-2 h-2 rounded-full bg-brand-gold"></div>
@@ -169,8 +169,8 @@ export default function Products() {
             </div>
             <input
               type="text"
-              placeholder="Search for beds, sofas, wardrobes..."
-              className="w-full px-6 py-6 bg-transparent border-none focus:ring-0 text-brand-brown font-medium placeholder:text-brand-brown/30"
+              placeholder="Search for beds, sofas..."
+              className="w-full px-4 sm:px-6 py-4 sm:py-6 bg-transparent border-none focus:ring-0 text-brand-brown font-medium placeholder:text-brand-brown/30 text-sm sm:text-base"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -185,13 +185,13 @@ export default function Products() {
           </div>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-4">
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setSearchParams(cat === 'All' ? {} : { cat })}
               className={cn(
-                "px-8 py-3 rounded-full text-sm font-semibold transition-all border",
+                "px-4 sm:px-8 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-semibold transition-all border",
                 currentCat === cat 
                   ? "bg-brand-brown text-white border-brand-brown shadow-lg" 
                   : "bg-white text-brand-charcoal border-brand-charcoal/10 hover:border-brand-gold"

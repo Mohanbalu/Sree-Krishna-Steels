@@ -158,9 +158,9 @@ export default function Orders() {
   }
 
   return (
-    <div className="pt-32 pb-24 px-6 bg-brand-cream min-h-screen">
+    <div className="pt-24 sm:pt-32 pb-16 sm:pb-24 px-4 sm:px-6 bg-brand-cream min-h-screen">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-serif text-brand-brown mb-12">My Orders</h1>
+        <h1 className="text-3xl sm:text-4xl font-serif text-brand-brown mb-8 sm:mb-12">My Orders</h1>
 
         {orders.length === 0 ? (
           <div className="bg-white p-12 rounded-3xl shadow-xl border border-brand-gold/10 text-center">
@@ -203,8 +203,8 @@ export default function Orders() {
                   </div>
 
                   {/* Order Progress Tracker */}
-                  <div className="px-8 py-6 border-b border-brand-gold/5 bg-brand-cream/10">
-                    <div className="relative flex items-center justify-between">
+                  <div className="px-4 sm:px-8 py-6 border-b border-brand-gold/5 bg-brand-cream/10 overflow-x-auto custom-scrollbar">
+                    <div className="relative flex items-center justify-between min-w-[300px]">
                       {/* Background Line */}
                       <div className="absolute left-0 top-2 -translate-y-1/2 w-full h-1 bg-brand-gold/10 rounded-full z-0"></div>
                       

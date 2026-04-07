@@ -56,9 +56,9 @@ export default function Cart() {
   }
 
   return (
-    <div className="pt-32 pb-24 px-6 bg-brand-cream min-h-screen">
+    <div className="pt-24 sm:pt-32 pb-16 sm:pb-24 px-4 sm:px-6 bg-brand-cream min-h-screen">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-serif text-brand-brown mb-12">Shopping Cart</h1>
+        <h1 className="text-3xl sm:text-4xl font-serif text-brand-brown mb-8 sm:mb-12">Shopping Cart</h1>
 
         <div className="grid lg:grid-cols-3 gap-12">
           {/* Cart Items */}
@@ -67,20 +67,20 @@ export default function Cart() {
               <motion.div
                 layout
                 key={item.id}
-                className="bg-white p-6 rounded-2xl shadow-sm border border-brand-gold/10 flex gap-6 items-center"
+                className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-brand-gold/10 flex flex-col sm:flex-row gap-4 sm:gap-6 items-center"
               >
                 <img
                   src={item.image}
                   alt={item.title}
-                  className="w-24 h-24 object-cover rounded-xl"
+                  className="w-full sm:w-24 h-48 sm:h-24 object-cover rounded-xl"
                   referrerPolicy="no-referrer"
                 />
-                <div className="flex-grow">
+                <div className="flex-grow text-center sm:text-left">
                   <h3 className="text-lg font-bold text-brand-brown">{item.title}</h3>
                   <p className="text-brand-gold font-bold">₹{item.price.toLocaleString()}</p>
                 </div>
                 
-                <div className="flex items-center gap-4 bg-brand-cream rounded-lg p-1">
+                <div className="flex items-center gap-4 bg-brand-cream rounded-lg p-1 w-full sm:w-auto justify-between sm:justify-start">
                   <button
                     onClick={() => updateQuantity(item.id, item.quantity - 1)}
                     className="p-1 hover:text-brand-gold transition-colors disabled:opacity-30"

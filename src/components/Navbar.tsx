@@ -44,11 +44,12 @@ export default function Navbar() {
 
   const isHome = location.pathname === '/';
   const textColor = scrolled ? "text-brand-brown" : (isHome ? "text-white" : "text-brand-brown");
+  const logoTextColor = scrolled ? "text-[#0096FF]" : (isHome ? "text-white" : "text-[#0096FF]");
 
   return (
     <nav className={cn(
-      "fixed w-full z-50 transition-all duration-500 px-8 py-6",
-      scrolled ? "bg-white/80 backdrop-blur-xl shadow-sm py-4" : "bg-transparent"
+      "fixed w-full z-50 transition-all duration-500 px-4 sm:px-8 py-4 sm:py-6",
+      scrolled ? "bg-white/80 backdrop-blur-xl shadow-sm py-3 sm:py-4" : "bg-transparent"
     )}>
       <div className="max-w-[1400px] mx-auto flex justify-between items-center">
         <Link 
@@ -60,7 +61,7 @@ export default function Navbar() {
             <img 
               src="https://i.ibb.co/tdhSTyc/netra.png" 
               alt="Sree Krishna Steels Logo" 
-              className="w-50 h-50 object-contain transition-transform duration-500 group-hover:scale-110"
+              className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 object-contain transition-transform duration-500 group-hover:scale-110"
               referrerPolicy="no-referrer"
             />
             <div className="absolute -inset-2 bg-brand-gold/5 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -68,8 +69,8 @@ export default function Navbar() {
           <div className="flex flex-col">
 <span
   className={cn(
-    "text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-[Algerian] leading-none transition-all duration-500 whitespace-nowrap text-[#0096FF] drop-shadow-[0_0_12px_rgba(0,150,255,0.6)] drop-shadow-[0_0_28px_rgba(0,150,255,0.4)]",
-    scrolled ? "" : ""
+    "text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-[Algerian] leading-none transition-all duration-500 whitespace-nowrap drop-shadow-[0_0_12px_rgba(0,150,255,0.6)] drop-shadow-[0_0_28px_rgba(0,150,255,0.4)]",
+    logoTextColor
   )}
 >
   SKS
