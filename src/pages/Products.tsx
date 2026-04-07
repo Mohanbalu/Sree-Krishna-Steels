@@ -235,6 +235,12 @@ export default function Products() {
                       <Pin size={12} fill="currentColor" /> Featured
                     </div>
                   )}
+
+                  {product.stock <= 0 && (
+                    <div className="absolute top-4 right-4 bg-red-500 text-white p-2 px-4 rounded-xl shadow-lg text-[10px] font-bold uppercase tracking-widest z-10">
+                      Out of Stock
+                    </div>
+                  )}
                 </div>
               </Link>
 

@@ -9,6 +9,7 @@ export interface CartItem {
   price: number;
   quantity: number;
   image: string;
+  stock: number;
 }
 
 interface CartState {
@@ -31,8 +32,10 @@ export const useCartStore = create<CartState>()(
         const existing = get().items.find((i) => i.id === item.id);
         let newItems;
         if (existing) {
+          // Ensure we don't exceed stock
+          const newQuantity = Math.min(existing.quantity + item.quantity, item.stock);
           newItems = get().items.map((i) =>
-            i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i
+            i.id === item.id ? { ...i, quantity: newQuantity } : i
           );
         } else {
           newItems = [...get().items, item];
@@ -52,8 +55,12 @@ export const useCartStore = create<CartState>()(
         if (userId) get().syncToSupabase(userId);
       },
       updateQuantity: (id, quantity) => {
+        const item = get().items.find(i => i.id === id);
+        if (!item) return;
+
+        const newQuantity = Math.min(Math.max(1, quantity), item.stock);
         const newItems = get().items.map((i) =>
-          i.id === id ? { ...i, quantity: Math.max(1, quantity) } : i
+          i.id === id ? { ...i, quantity: newQuantity } : i
         );
         set({ items: newItems });
         
@@ -89,7 +96,8 @@ export const useCartStore = create<CartState>()(
               metadata: {
                 title: item.title,
                 price: item.price,
-                image: item.image
+                image: item.image,
+                stock: item.stock
               }
             }));
             const { error: insertError } = await supabase.from('cart_items').insert(toInsert);
@@ -116,7 +124,8 @@ export const useCartStore = create<CartState>()(
               quantity: row.quantity,
               title: row.metadata?.title || 'Product',
               price: row.metadata?.price || 0,
-              image: row.metadata?.image || ''
+              image: row.metadata?.image || '',
+              stock: row.metadata?.stock || 999 // Fallback if missing
             }));
             set({ items });
           }

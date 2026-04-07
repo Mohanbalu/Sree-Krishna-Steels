@@ -1,6 +1,6 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Check, ArrowLeft, Phone, ShieldCheck, Package, Ruler, ShoppingCart, Minus, Plus } from 'lucide-react';
+import { Check, ArrowLeft, Phone, ShieldCheck, Package, Ruler, ShoppingCart, Minus, Plus, AlertTriangle } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { useState, useEffect } from 'react';
 import { supabase, handleSupabaseError } from '../lib/supabase';
@@ -89,12 +89,19 @@ export default function ProductDetail() {
       navigate('/login', { state: { from: { pathname: `/products/${id}` } } });
       return;
     }
+
+    if (product.stock <= 0) {
+      toast.error('This product is currently out of stock');
+      return;
+    }
+
     addItem({
       id: product.id,
       title: product.title || product.name,
       price: numericPrice,
       quantity: quantity,
-      image: product.image || product.images?.[0]
+      image: product.image || product.images?.[0],
+      stock: product.stock
     });
     toast.success('Added to cart!');
   };
@@ -187,25 +194,39 @@ export default function ProductDetail() {
               <div className="flex items-center gap-4 bg-brand-cream rounded-2xl p-2 border border-brand-gold/10">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 rounded-xl hover:bg-white transition-colors flex items-center justify-center"
+                  className="w-10 h-10 rounded-xl hover:bg-white transition-colors flex items-center justify-center disabled:opacity-30"
+                  disabled={product.stock <= 0}
                 >
                   <Minus size={18} />
                 </button>
-                <span className="w-8 text-center font-bold text-lg">{quantity}</span>
+                <span className="w-8 text-center font-bold text-lg">{product.stock > 0 ? quantity : 0}</span>
                 <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-10 rounded-xl hover:bg-white transition-colors flex items-center justify-center"
+                  onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                  className="w-10 h-10 rounded-xl hover:bg-white transition-colors flex items-center justify-center disabled:opacity-30"
+                  disabled={product.stock <= 0 || quantity >= product.stock}
                 >
                   <Plus size={18} />
                 </button>
               </div>
               <button
                 onClick={handleAddToCart}
-                className="flex-grow bg-brand-brown text-white py-4 rounded-2xl font-bold text-lg hover:bg-brand-charcoal transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-brown/20"
+                disabled={product.stock <= 0}
+                className="flex-grow bg-brand-brown text-white py-4 rounded-2xl font-bold text-lg hover:bg-brand-charcoal transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-brown/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <ShoppingCart size={22} /> Add to Cart
+                {product.stock > 0 ? (
+                  <>
+                    <ShoppingCart size={22} /> Add to Cart
+                  </>
+                ) : (
+                  'Out of Stock'
+                )}
               </button>
             </div>
+            {product.stock > 0 && product.stock <= 5 && (
+              <p className="text-amber-600 text-sm font-bold flex items-center gap-2">
+                <AlertTriangle size={16} /> Only {product.stock} items left in stock!
+              </p>
+            )}
 
             <div className="flex flex-col sm:flex-row gap-4">
               <a 

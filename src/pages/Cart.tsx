@@ -83,14 +83,16 @@ export default function Cart() {
                 <div className="flex items-center gap-4 bg-brand-cream rounded-lg p-1">
                   <button
                     onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                    className="p-1 hover:text-brand-gold transition-colors"
+                    className="p-1 hover:text-brand-gold transition-colors disabled:opacity-30"
+                    disabled={item.quantity <= 1}
                   >
                     <Minus size={18} />
                   </button>
                   <span className="w-8 text-center font-bold">{item.quantity}</span>
                   <button
                     onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                    className="p-1 hover:text-brand-gold transition-colors"
+                    className="p-1 hover:text-brand-gold transition-colors disabled:opacity-30"
+                    disabled={item.quantity >= item.stock}
                   >
                     <Plus size={18} />
                   </button>

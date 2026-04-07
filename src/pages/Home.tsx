@@ -184,6 +184,11 @@ export default function Home() {
                         <Play size={10} fill="currentColor" /> Reel Available
                       </div>
                     )}
+                    {product.stock <= 0 && (
+                      <span className="bg-red-500 text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm">
+                        Out of Stock
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-3 px-2">

@@ -121,6 +121,25 @@ export default function Checkout() {
         throw new Error('Database connection not available. Please check your environment variables.');
       }
 
+      // 0. Verify Stock
+      console.log('🔍 Verifying stock for all items...');
+      const { data: latestProducts, error: stockError } = await supabase
+        .from('products')
+        .select('id, title, stock')
+        .in('id', items.map(i => i.id));
+
+      if (stockError) throw stockError;
+
+      for (const item of items) {
+        const product = latestProducts?.find(p => p.id === item.id);
+        if (!product) {
+          throw new Error(`Product "${item.title}" no longer exists.`);
+        }
+        if (product.stock < item.quantity) {
+          throw new Error(`Insufficient stock for "${item.title}". Available: ${product.stock}, Requested: ${item.quantity}`);
+        }
+      }
+
       // 1. Create the order
       console.log('📦 Creating order in Supabase...');
       const { data: order, error: orderError } = await supabase
@@ -175,6 +194,23 @@ export default function Checkout() {
 
       console.log('✅ Order items created successfully');
       
+      // 3. Decrement stock for each product
+      console.log('📉 Decrementing stock...');
+      for (const item of items) {
+        const product = latestProducts?.find(p => p.id === item.id);
+        if (product) {
+          const { error: updateStockError } = await supabase
+            .from('products')
+            .update({ stock: product.stock - item.quantity })
+            .eq('id', item.id);
+          
+          if (updateStockError) {
+            console.error(`Failed to update stock for ${item.title}:`, updateStockError);
+            // We continue even if one stock update fails, but log it
+          }
+        }
+      }
+
       // Send mock email
       console.log('📧 Sending confirmation email to:', formData.email);
       await emailService.sendOrderConfirmation({
