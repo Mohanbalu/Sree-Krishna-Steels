@@ -45,27 +45,10 @@ export default function Signup() {
 
       if (error) throw error;
 
-      // Create profile immediately if user was created
-      if (data.user) {
-        try {
-          await supabase
-            .from('profiles')
-            .insert([
-              {
-                id: data.user.id,
-                name: name,
-                email: email,
-                phone: cleanedPhone,
-                role: 'customer'
-              }
-            ]);
-        } catch (profileError) {
-          console.warn('Could not create profile during signup (might be RLS), authStore will retry on login:', profileError);
-        }
-      }
-
+      // Profile creation is now handled by the database trigger (handle_new_user)
+      // to ensure compatibility with "Confirm Email" settings.
       toast.success('Account created! Please check your email for verification.');
-      navigate('/');
+      navigate('/login');
     } catch (error: any) {
       toast.error(error.message);
     } finally {

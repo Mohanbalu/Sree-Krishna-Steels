@@ -13,6 +13,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showGoogleHint, setShowGoogleHint] = useState(false);
+  const [resending, setResending] = useState(false);
   const { user, profile, loading: authLoading } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
@@ -131,6 +132,26 @@ export default function Login() {
       toast.success('Password reset email sent!');
     } catch (error: any) {
       toast.error(error.message);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!email) {
+      toast.error('Please enter your email address first.');
+      return;
+    }
+    setResending(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+      });
+      if (error) throw error;
+      toast.success('Verification email resent! Please check your inbox.');
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setResending(false);
     }
   };
 
@@ -257,6 +278,17 @@ export default function Login() {
               </>
             )}
           </button>
+
+          {!isOtpSent && !ADMIN_EMAILS.includes(email.toLowerCase()) && (
+            <button
+              type="button"
+              onClick={handleResendVerification}
+              disabled={resending}
+              className="w-full text-[11px] font-bold text-brand-gold uppercase tracking-widest hover:underline disabled:opacity-50"
+            >
+              {resending ? 'Resending...' : "Didn't get the email? Resend verification"}
+            </button>
+          )}
 
           {isOtpSent && (
             <button
