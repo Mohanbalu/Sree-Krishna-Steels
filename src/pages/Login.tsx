@@ -107,10 +107,29 @@ export default function Login() {
 
   const handleGoogleLogin = async () => {
     try {
+      // Debugging: See what the browser thinks the origin is
+      console.log('[Auth] Current Origin:', window.location.origin);
+      
+      // Determine the best redirect URL
+      // 1. Check for a manual override in environment variables
+      // 2. If on sksfurniture.in, force that domain
+      // 3. Fallback to current origin
+      let redirectTo = import.meta.env.VITE_REDIRECT_URL || window.location.origin;
+      
+      if (window.location.hostname.includes('sksfurniture.in')) {
+        redirectTo = 'https://www.sksfurniture.in';
+      }
+      
+      console.log('[Auth] Redirecting to:', redirectTo);
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin,
+          redirectTo,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         },
       });
       if (error) throw error;
