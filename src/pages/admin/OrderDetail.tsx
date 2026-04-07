@@ -103,41 +103,6 @@ export default function OrderDetail() {
   const updateStatus = async (newStatus: string) => {
     console.log(`🔄 Attempting to update order ${id} status to: ${newStatus}`);
     try {
-      // If status is being changed to 'shipped', decrement stock if not already done
-      if (newStatus === 'shipped' && !order?.stock_decremented) {
-        console.log('📉 Decrementing stock for shipped order...');
-        for (const item of order?.order_items || []) {
-          // Fetch latest stock
-          const { data: product, error: fetchError } = await supabase
-            .from('products')
-            .select('stock')
-            .eq('id', item.product_id)
-            .single();
-          
-          if (fetchError) {
-            console.error(`Failed to fetch stock for ${item.title}:`, fetchError);
-            continue;
-          }
-
-          if (product) {
-            const { error: updateStockError } = await supabase
-              .from('products')
-              .update({ stock: product.stock - item.quantity })
-              .eq('id', item.product_id);
-            
-            if (updateStockError) {
-              console.error(`Failed to update stock for ${item.title}:`, updateStockError);
-            }
-          }
-        }
-        
-        // Mark as decremented
-        await supabase
-          .from('orders')
-          .update({ stock_decremented: true })
-          .eq('id', id);
-      }
-
       const { error, count } = await supabase
         .from('orders')
         .update({ status: newStatus }, { count: 'exact' })
@@ -225,12 +190,42 @@ export default function OrderDetail() {
     );
 
     try {
-      // Race the update against the timeout
+      // 1. Decrement stock if not already done
+      if (!order?.stock_decremented) {
+        console.log('📉 Decrementing stock for order items...');
+        for (const item of order?.order_items || []) {
+          const { data: product, error: fetchError } = await supabase
+            .from('products')
+            .select('stock')
+            .eq('id', item.product_id)
+            .single();
+          
+          if (fetchError) {
+            console.error(`Failed to fetch stock for ${item.title}:`, fetchError);
+            continue;
+          }
+
+          if (product) {
+            const { error: updateStockError } = await supabase
+              .from('products')
+              .update({ stock: product.stock - item.quantity })
+              .eq('id', item.product_id);
+            
+            if (updateStockError) {
+              console.error(`Failed to update stock for ${item.title}:`, updateStockError);
+            }
+          }
+        }
+      }
+
+      // 2. Update order with driver info, status 'shipped', and stock_decremented flag
       const updatePromise = supabase
         .from('orders')
         .update({ 
           driver_name: driverName,
-          delivery_days: deliveryDays
+          delivery_days: deliveryDays,
+          status: 'shipped',
+          stock_decremented: true
         }, { count: 'exact' })
         .eq('id', id);
 
@@ -260,7 +255,9 @@ export default function OrderDetail() {
         return {
           ...prev,
           driver_name: driverName,
-          delivery_days: deliveryDays
+          delivery_days: deliveryDays,
+          status: 'shipped',
+          stock_decremented: true
         };
       });
       
