@@ -16,6 +16,10 @@ interface Product {
   reel_link?: string;
   is_active?: boolean;
   is_pinned?: boolean;
+  width?: string;
+  height?: string;
+  color?: string;
+  weight?: string;
   product_images?: { image_url: string }[];
 }
 
@@ -42,6 +46,10 @@ export default function ProductManagement() {
     reel_link: '',
     is_active: true,
     is_pinned: false,
+    width: '',
+    height: '',
+    color: '',
+    weight: '',
   });
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -230,7 +238,7 @@ export default function ProductManagement() {
         const rows = parseCSV(text).slice(1); // Skip header
         
         const productsToInsert = rows.map(row => {
-          const [title, description, price, stock, category, image_url, reel_link] = row;
+          const [title, description, price, stock, category, image_url, reel_link, width, height, color, weight] = row;
           if (!title?.trim()) return null;
           return {
             title: title.trim(),
@@ -240,6 +248,10 @@ export default function ProductManagement() {
             category: category?.trim() || 'Beds',
             image_url: image_url?.trim() || '',
             reel_link: reel_link?.trim() || '',
+            width: width?.trim() || '',
+            height: height?.trim() || '',
+            color: color?.trim() || '',
+            weight: weight?.trim() || '',
             is_active: true
           };
         }).filter((p): p is NonNullable<typeof p> => p !== null);
@@ -283,8 +295,8 @@ export default function ProductManagement() {
   };
 
   const downloadTemplate = () => {
-    const headers = ['title', 'description', 'price', 'stock', 'category', 'image_url', 'reel_link'];
-    const sample = ['Luxury Teak Bed', 'Handcrafted teak wood bed with premium finish', '45000', '10', 'Beds', 'https://example.com/image.jpg', 'https://instagram.com/reels/...'];
+    const headers = ['title', 'description', 'price', 'stock', 'category', 'image_url', 'reel_link', 'width', 'height', 'color', 'weight'];
+    const sample = ['Luxury Teak Bed', 'Handcrafted teak wood bed with premium finish', '45000', '10', 'Beds', 'https://example.com/image.jpg', 'https://instagram.com/reels/...', '180cm', '200cm', 'Teak Brown', '80kg'];
     const csvContent = [headers, sample].map(row => row.join(',')).join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -369,6 +381,10 @@ export default function ProductManagement() {
         reel_link: formData.reel_link,
         is_active: formData.is_active,
         is_pinned: formData.is_pinned,
+        width: formData.width,
+        height: formData.height,
+        color: formData.color,
+        weight: formData.weight,
       };
 
       if (isAddingNewCategory && newCategory) {
@@ -561,6 +577,10 @@ export default function ProductManagement() {
         reel_link: product.reel_link || '',
         is_active: product.is_active ?? true,
         is_pinned: product.is_pinned ?? false,
+        width: product.width || '',
+        height: product.height || '',
+        color: product.color || '',
+        weight: product.weight || '',
       });
     } else {
       setEditingProduct(null);
@@ -575,6 +595,10 @@ export default function ProductManagement() {
         reel_link: '',
         is_active: true,
         is_pinned: false,
+        width: '',
+        height: '',
+        color: '',
+        weight: '',
       });
     }
     setIsAddingNewCategory(false);
@@ -885,6 +909,49 @@ export default function ProductManagement() {
                       placeholder="0"
                       value={formData.stock}
                       onChange={(e) => setFormData({ ...formData, stock: Number(e.target.value) })}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-6">
+                  <div className="space-y-2 lg:space-y-3">
+                    <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1">Width</label>
+                    <input
+                      type="text"
+                      className="w-full bg-brand-cream/20 border border-brand-brown/5 rounded-xl lg:rounded-2xl px-4 lg:px-5 py-3 lg:py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown text-sm font-medium transition-all"
+                      placeholder="e.g. 180cm"
+                      value={formData.width}
+                      onChange={(e) => setFormData({ ...formData, width: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2 lg:space-y-3">
+                    <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1">Height</label>
+                    <input
+                      type="text"
+                      className="w-full bg-brand-cream/20 border border-brand-brown/5 rounded-xl lg:rounded-2xl px-4 lg:px-5 py-3 lg:py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown text-sm font-medium transition-all"
+                      placeholder="e.g. 200cm"
+                      value={formData.height}
+                      onChange={(e) => setFormData({ ...formData, height: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2 lg:space-y-3">
+                    <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1">Color</label>
+                    <input
+                      type="text"
+                      className="w-full bg-brand-cream/20 border border-brand-brown/5 rounded-xl lg:rounded-2xl px-4 lg:px-5 py-3 lg:py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown text-sm font-medium transition-all"
+                      placeholder="e.g. Teak"
+                      value={formData.color}
+                      onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2 lg:space-y-3">
+                    <label className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-brand-brown/40 ml-1">Weight</label>
+                    <input
+                      type="text"
+                      className="w-full bg-brand-cream/20 border border-brand-brown/5 rounded-xl lg:rounded-2xl px-4 lg:px-5 py-3 lg:py-4 focus:ring-2 focus:ring-brand-gold outline-none text-brand-brown text-sm font-medium transition-all"
+                      placeholder="e.g. 80kg"
+                      value={formData.weight}
+                      onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
                     />
                   </div>
                 </div>

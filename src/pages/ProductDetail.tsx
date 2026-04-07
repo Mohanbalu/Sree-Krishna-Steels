@@ -156,19 +156,35 @@ export default function ProductDetail() {
             <p className="text-brand-charcoal/70 leading-relaxed text-lg mb-8">{product.description || product.fullDescription}</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-            <div className="flex items-start gap-3 p-5 bg-white rounded-3xl shadow-sm border border-brand-gold/10">
-              <Package className="text-brand-gold shrink-0" size={24} />
+          <div className="grid grid-cols-2 gap-4 mb-10">
+            <div className="flex items-start gap-3 p-4 bg-white rounded-2xl shadow-sm border border-brand-gold/10">
+              <Ruler className="text-brand-gold shrink-0" size={20} />
               <div>
-                <h4 className="font-bold text-sm text-brand-brown uppercase tracking-wider">Material</h4>
-                <p className="text-sm text-brand-charcoal/60">{product.material || 'Premium Quality'}</p>
+                <h4 className="font-bold text-[10px] text-brand-brown uppercase tracking-wider">Dimensions</h4>
+                <p className="text-xs text-brand-charcoal/60">
+                  {product.width && product.height ? `${product.width} x ${product.height}` : product.size || 'Standard Size'}
+                </p>
               </div>
             </div>
-            <div className="flex items-start gap-3 p-5 bg-white rounded-3xl shadow-sm border border-brand-gold/10">
-              <Ruler className="text-brand-gold shrink-0" size={24} />
+            <div className="flex items-start gap-3 p-4 bg-white rounded-2xl shadow-sm border border-brand-gold/10">
+              <Package className="text-brand-gold shrink-0" size={20} />
               <div>
-                <h4 className="font-bold text-sm text-brand-brown uppercase tracking-wider">Dimensions</h4>
-                <p className="text-sm text-brand-charcoal/60">{product.size || 'Standard Size'}</p>
+                <h4 className="font-bold text-[10px] text-brand-brown uppercase tracking-wider">Weight</h4>
+                <p className="text-xs text-brand-charcoal/60">{product.weight || 'Premium Build'}</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-4 bg-white rounded-2xl shadow-sm border border-brand-gold/10">
+              <Check className="text-brand-gold shrink-0" size={20} />
+              <div>
+                <h4 className="font-bold text-[10px] text-brand-brown uppercase tracking-wider">Color</h4>
+                <p className="text-xs text-brand-charcoal/60">{product.color || 'As Shown'}</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-4 bg-white rounded-2xl shadow-sm border border-brand-gold/10">
+              <ShieldCheck className="text-brand-gold shrink-0" size={20} />
+              <div>
+                <h4 className="font-bold text-[10px] text-brand-brown uppercase tracking-wider">Material</h4>
+                <p className="text-xs text-brand-charcoal/60">{product.material || 'Premium Quality'}</p>
               </div>
             </div>
           </div>
