@@ -37,6 +37,9 @@ interface Order {
   driver_name?: string;
   delivery_days?: number;
   customer_email?: string;
+  subtotal?: number;
+  gst_amount?: number;
+  delivery_fee?: number;
 }
 
 export default function OrderDetail() {
@@ -174,8 +177,15 @@ export default function OrderDetail() {
 
     console.log(`🚚 Assigning driver "${driverName}" to order ${id}`);
     setUpdatingDriver(true);
+    
+    // Create a timeout promise
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Request timed out after 10 seconds')), 10000)
+    );
+
     try {
-      const { error, count } = await supabase
+      // Race the update against the timeout
+      const updatePromise = supabase
         .from('orders')
         .update({ 
           driver_name: driverName,
@@ -183,12 +193,21 @@ export default function OrderDetail() {
         }, { count: 'exact' })
         .eq('id', id);
 
+      const { error, count } = await Promise.race([updatePromise, timeoutPromise]) as any;
+
       if (error) {
         console.warn('⚠️ Could not update driver info in DB:', error);
-        toast.info('Driver assigned (simulated - DB columns might be missing)');
+        // If it's a column missing error, we still want to proceed with the notification
+        if (error.code === 'PGRST204' || error.message?.includes('column')) {
+          toast.info('Driver assigned (Note: DB columns might need update)');
+        } else {
+          throw error;
+        }
       } else if (count === 0) {
         console.warn(`⚠️ Update matched 0 rows for driver assignment. User role: ${profile?.role}.`);
-        toast.error(`Failed to assign driver: Access denied for your role (${profile?.role?.replace('_', ' ') || 'unknown'}).`);
+        toast.error(`Failed to assign driver: Access denied or order not found.`);
+        setUpdatingDriver(false);
+        return;
       } else {
         console.log('✅ Driver assigned in DB. Rows affected:', count);
         toast.success('Driver assigned successfully');
@@ -289,9 +308,24 @@ export default function OrderDetail() {
                   </div>
                 </div>
               ))}
-              <div className="mt-6 lg:mt-8 pt-6 lg:pt-8 border-t border-gray-100 flex justify-between items-center px-2 lg:px-4">
-                <span className="text-gray-500 font-bold uppercase text-[10px] lg:text-sm tracking-widest">Total Amount</span>
-                <span className="text-2xl lg:text-3xl font-serif text-brand-brown">₹{order.total_amount.toLocaleString()}</span>
+              <div className="mt-6 lg:mt-8 pt-6 lg:pt-8 border-t border-gray-100 space-y-3 px-2 lg:px-4">
+                <div className="flex justify-between items-center text-sm text-gray-500">
+                  <span>Subtotal</span>
+                  <span className="font-bold">₹{(order.subtotal || (order.total_amount - (order.gst_amount || 0) - (order.delivery_fee || 0))).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm text-gray-500">
+                  <span>GST (18%)</span>
+                  <span className="font-bold">₹{(order.gst_amount || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm text-gray-500">
+                  <span>Delivery Fee</span>
+                  <span className="font-bold">₹{(order.delivery_fee || 0).toLocaleString()}</span>
+                </div>
+                <div className="h-px bg-gray-100 my-2"></div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 font-bold uppercase text-[10px] lg:text-sm tracking-widest">Total Amount</span>
+                  <span className="text-2xl lg:text-3xl font-serif text-brand-brown">₹{order.total_amount.toLocaleString()}</span>
+                </div>
               </div>
             </div>
           </div>

@@ -11,9 +11,10 @@ export const emailService = {
     
     // Log to Supabase notifications table for admin visibility
     try {
+      const breakdown = `Subtotal: ₹${orderData.subtotal.toLocaleString()} | GST (18%): ₹${orderData.gst_amount.toLocaleString()} | Delivery: ₹${orderData.delivery_fee.toLocaleString()}`;
       await supabase.from('notifications').insert([{
         type: 'order_confirmation',
-        message: `Order #${orderData.order_id} confirmed for ${orderData.customer_name} (${orderData.customer_email}). Total: ₹${orderData.total_amount.toLocaleString()}`,
+        message: `Order #${orderData.order_id} confirmed for ${orderData.customer_name}. Total: ₹${orderData.total_amount.toLocaleString()} (${breakdown})`,
         user_id: orderData.user_id || null,
         created_at: new Date().toISOString(),
         read: false

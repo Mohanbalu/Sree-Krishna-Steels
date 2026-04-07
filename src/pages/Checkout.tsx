@@ -15,6 +15,13 @@ export default function Checkout() {
   const [loading, setLoading] = useState(false);
   const [locating, setLocating] = useState(false);
 
+  const GST_RATE = 0.18;
+  const DELIVERY_FEE = 500;
+
+  const subtotal = total();
+  const gstAmount = Math.round(subtotal * GST_RATE);
+  const finalTotal = subtotal + gstAmount + DELIVERY_FEE;
+
   const [formData, setFormData] = useState({
     name: profile?.name || '',
     phone: profile?.phone || '',
@@ -147,7 +154,10 @@ export default function Checkout() {
         .insert([
           {
             user_id: user.id,
-            total_amount: total(),
+            total_amount: finalTotal,
+            subtotal: subtotal,
+            gst_amount: gstAmount,
+            delivery_fee: DELIVERY_FEE,
             status: 'pending',
             payment_status: 'pending',
             shipping_address: `${formData.address}, ${formData.city} - ${formData.pincode}`,
@@ -218,7 +228,10 @@ export default function Checkout() {
         user_id: user.id,
         customer_name: formData.name,
         customer_email: formData.email,
-        total_amount: total(),
+        subtotal: subtotal,
+        gst_amount: gstAmount,
+        delivery_fee: DELIVERY_FEE,
+        total_amount: finalTotal,
         items: items.map(i => i.title)
       });
       
@@ -412,9 +425,26 @@ export default function Checkout() {
               </div>
 
               <div className="h-px bg-brand-gold/10 my-4"></div>
+              
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between text-sm text-brand-charcoal/60">
+                  <span>Subtotal</span>
+                  <span>₹{subtotal.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm text-brand-charcoal/60">
+                  <span>Delivery Fee</span>
+                  <span>₹{DELIVERY_FEE.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm text-brand-charcoal/60">
+                  <span>GST (18%)</span>
+                  <span>₹{gstAmount.toLocaleString()}</span>
+                </div>
+              </div>
+
+              <div className="h-px bg-brand-gold/10 my-4"></div>
               <div className="flex justify-between text-xl font-bold text-brand-brown mb-8">
                 <span>Total</span>
-                <span>₹{total().toLocaleString()}</span>
+                <span>₹{finalTotal.toLocaleString()}</span>
               </div>
 
               <button
