@@ -53,10 +53,23 @@ export default function Checkout() {
       async (position) => {
         try {
           const { latitude, longitude } = position.coords;
+          console.log(`📍 Coordinates obtained: ${latitude}, ${longitude}. Fetching address...`);
+          
           const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
+            {
+              headers: {
+                'User-Agent': 'FurnitureStoreApp/1.0'
+              }
+            }
           );
+
+          if (!response.ok) {
+            throw new Error(`Geocoding API responded with status: ${response.status}`);
+          }
+
           const data = await response.json();
+          console.log('🗺️ Geocoding data received:', data);
 
           if (data.address) {
             const addr = data.address;
