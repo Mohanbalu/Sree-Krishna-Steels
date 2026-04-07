@@ -646,30 +646,6 @@ export default function ProductManagement() {
         </div>
         <div className="flex flex-wrap gap-2 lg:gap-3 w-full lg:w-auto">
           <button
-            onClick={downloadTemplate}
-            className="flex-1 lg:flex-none bg-white text-brand-brown border border-brand-brown/10 px-4 lg:px-6 py-3 rounded-xl lg:rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-cream transition-all shadow-sm"
-          >
-            <ImageIcon size={16} className="opacity-60" />
-            <span className="text-[10px] lg:text-xs uppercase tracking-widest">Template</span>
-          </button>
-          <div className="flex-1 lg:flex-none relative">
-            <input
-              type="file"
-              accept=".csv"
-              onChange={handleBulkUpload}
-              className="hidden"
-              id="bulk-upload"
-              disabled={submitting}
-            />
-            <label
-              htmlFor="bulk-upload"
-              className={`w-full bg-white text-brand-brown border border-brand-brown/10 px-4 lg:px-6 py-3 rounded-xl lg:rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-cream transition-all cursor-pointer shadow-sm ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              <Upload size={16} className="opacity-60" /> 
-              <span className="text-[10px] lg:text-xs uppercase tracking-widest">{submitting ? 'Processing...' : 'Bulk Import'}</span>
-            </label>
-          </div>
-          <button
             onClick={() => openModal()}
             disabled={submitting}
             className="w-full lg:w-auto bg-brand-brown text-white px-6 lg:px-8 py-3 rounded-xl lg:rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-charcoal transition-all shadow-xl shadow-brand-brown/20 disabled:opacity-50"
