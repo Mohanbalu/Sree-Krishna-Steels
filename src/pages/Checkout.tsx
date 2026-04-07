@@ -15,12 +15,10 @@ export default function Checkout() {
   const [loading, setLoading] = useState(false);
   const [locating, setLocating] = useState(false);
 
-  const GST_RATE = 0.18;
-  const DELIVERY_FEE = 500;
-
   const subtotal = total();
-  const gstAmount = Math.round(subtotal * GST_RATE);
-  const finalTotal = subtotal + gstAmount + DELIVERY_FEE;
+  const gstAmount = 0; // Admin will assign later
+  const deliveryFee = 0; // Admin will assign later
+  const finalTotal = subtotal;
 
   const [formData, setFormData] = useState({
     name: profile?.name || '',
@@ -157,7 +155,7 @@ export default function Checkout() {
             total_amount: finalTotal,
             subtotal: subtotal,
             gst_amount: gstAmount,
-            delivery_fee: DELIVERY_FEE,
+            delivery_fee: deliveryFee,
             status: 'pending',
             payment_status: 'pending',
             shipping_address: `${formData.address}, ${formData.city} - ${formData.pincode}`,
@@ -204,23 +202,6 @@ export default function Checkout() {
 
       console.log('✅ Order items created successfully');
       
-      // 3. Decrement stock for each product
-      console.log('📉 Decrementing stock...');
-      for (const item of items) {
-        const product = latestProducts?.find(p => p.id === item.id);
-        if (product) {
-          const { error: updateStockError } = await supabase
-            .from('products')
-            .update({ stock: product.stock - item.quantity })
-            .eq('id', item.id);
-          
-          if (updateStockError) {
-            console.error(`Failed to update stock for ${item.title}:`, updateStockError);
-            // We continue even if one stock update fails, but log it
-          }
-        }
-      }
-
       // Send mock email
       console.log('📧 Sending confirmation email to:', formData.email);
       await emailService.sendOrderConfirmation({
@@ -230,7 +211,7 @@ export default function Checkout() {
         customer_email: formData.email,
         subtotal: subtotal,
         gst_amount: gstAmount,
-        delivery_fee: DELIVERY_FEE,
+        delivery_fee: deliveryFee,
         total_amount: finalTotal,
         items: items.map(i => i.title)
       });
@@ -433,7 +414,7 @@ export default function Checkout() {
                 </div>
                 <div className="flex justify-between text-sm text-brand-charcoal/60">
                   <span>Delivery Fee</span>
-                  <span>₹{DELIVERY_FEE.toLocaleString()}</span>
+                  <span>₹{deliveryFee.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm text-brand-charcoal/60">
                   <span>GST (18%)</span>

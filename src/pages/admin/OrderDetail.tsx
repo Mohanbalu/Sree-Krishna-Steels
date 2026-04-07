@@ -40,6 +40,7 @@ interface Order {
   subtotal?: number;
   gst_amount?: number;
   delivery_fee?: number;
+  stock_decremented?: boolean;
 }
 
 export default function OrderDetail() {
@@ -48,8 +49,11 @@ export default function OrderDetail() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [updatingDriver, setUpdatingDriver] = useState(false);
+  const [updatingPrices, setUpdatingPrices] = useState(false);
   const [driverName, setDriverName] = useState('');
   const [deliveryDays, setDeliveryDays] = useState(3);
+  const [adminGst, setAdminGst] = useState(0);
+  const [adminDelivery, setAdminDelivery] = useState(0);
   const { profile } = useAuthStore();
 
   useEffect(() => {
@@ -82,6 +86,8 @@ export default function OrderDetail() {
         setOrder(data);
         setDriverName(data.driver_name || '');
         setDeliveryDays(data.delivery_days || 3);
+        setAdminGst(data.gst_amount || 0);
+        setAdminDelivery(data.delivery_fee || 0);
       } catch (error) {
         console.error('❌ Error fetching order:', error);
         handleSupabaseError(error, 'fetchOrder');
@@ -97,6 +103,41 @@ export default function OrderDetail() {
   const updateStatus = async (newStatus: string) => {
     console.log(`🔄 Attempting to update order ${id} status to: ${newStatus}`);
     try {
+      // If status is being changed to 'shipped', decrement stock if not already done
+      if (newStatus === 'shipped' && !order?.stock_decremented) {
+        console.log('📉 Decrementing stock for shipped order...');
+        for (const item of order?.order_items || []) {
+          // Fetch latest stock
+          const { data: product, error: fetchError } = await supabase
+            .from('products')
+            .select('stock')
+            .eq('id', item.product_id)
+            .single();
+          
+          if (fetchError) {
+            console.error(`Failed to fetch stock for ${item.title}:`, fetchError);
+            continue;
+          }
+
+          if (product) {
+            const { error: updateStockError } = await supabase
+              .from('products')
+              .update({ stock: product.stock - item.quantity })
+              .eq('id', item.product_id);
+            
+            if (updateStockError) {
+              console.error(`Failed to update stock for ${item.title}:`, updateStockError);
+            }
+          }
+        }
+        
+        // Mark as decremented
+        await supabase
+          .from('orders')
+          .update({ stock_decremented: true })
+          .eq('id', id);
+      }
+
       const { error, count } = await supabase
         .from('orders')
         .update({ status: newStatus }, { count: 'exact' })
@@ -242,6 +283,44 @@ export default function OrderDetail() {
       handleSupabaseError(error, 'assignDriver');
     } finally {
       setUpdatingDriver(false);
+    }
+  };
+
+  const handleUpdatePrices = async () => {
+    if (!id || id === 'undefined') return;
+
+    setUpdatingPrices(true);
+    try {
+      const subtotal = order?.subtotal || (order?.total_amount || 0);
+      const newTotal = subtotal + adminGst + adminDelivery;
+
+      const { error } = await supabase
+        .from('orders')
+        .update({ 
+          gst_amount: adminGst,
+          delivery_fee: adminDelivery,
+          total_amount: newTotal
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setOrder(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          gst_amount: adminGst,
+          delivery_fee: adminDelivery,
+          total_amount: newTotal
+        };
+      });
+
+      toast.success('Prices updated successfully');
+    } catch (error) {
+      console.error('Error updating prices:', error);
+      handleSupabaseError(error, 'updatePrices');
+    } finally {
+      setUpdatingPrices(false);
     }
   };
 
@@ -445,6 +524,40 @@ export default function OrderDetail() {
                   </p>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Price Assignment */}
+          <div className="bg-white rounded-2xl lg:rounded-3xl border border-gray-200 shadow-sm p-6 lg:p-8">
+            <h3 className="text-[10px] lg:text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 lg:mb-6 flex items-center gap-2">
+              <CreditCard size={14} /> Price Assignment
+            </h3>
+            <div className="space-y-4 lg:space-y-6">
+              <div className="space-y-2 lg:space-y-3">
+                <label className="text-xs lg:text-sm font-bold text-gray-700">GST Amount (₹)</label>
+                <input
+                  type="number"
+                  value={adminGst}
+                  onChange={(e) => setAdminGst(parseFloat(e.target.value) || 0)}
+                  className="w-full px-4 py-3 rounded-xl text-xs lg:text-sm border border-gray-200 focus:ring-2 focus:ring-brand-gold outline-none transition-all"
+                />
+              </div>
+              <div className="space-y-2 lg:space-y-3">
+                <label className="text-xs lg:text-sm font-bold text-gray-700">Delivery Fee (₹)</label>
+                <input
+                  type="number"
+                  value={adminDelivery}
+                  onChange={(e) => setAdminDelivery(parseFloat(e.target.value) || 0)}
+                  className="w-full px-4 py-3 rounded-xl text-xs lg:text-sm border border-gray-200 focus:ring-2 focus:ring-brand-gold outline-none transition-all"
+                />
+              </div>
+              <button
+                onClick={handleUpdatePrices}
+                disabled={updatingPrices}
+                className="w-full bg-brand-brown text-white py-3 rounded-xl font-bold text-xs lg:text-sm hover:bg-brand-charcoal transition-all disabled:opacity-50 uppercase tracking-widest"
+              >
+                {updatingPrices ? 'Updating...' : 'Update Prices'}
+              </button>
             </div>
           </div>
 

@@ -66,6 +66,7 @@
         "delivery_days": { "type": "integer", "description": "Estimated delivery time in days." },
         "delivery_fee": { "type": "number", "description": "The delivery fee for the order." },
         "gst_amount": { "type": "number", "description": "The GST amount for the order." },
+        "stock_decremented": { "type": "boolean", "description": "Whether the stock has been decremented for this order." },
         "created_at": { "type": "string", "format": "date-time", "description": "When the order was created." }
       },
       "required": ["id", "user_id", "total_amount", "status", "shipping_address", "created_at"]
