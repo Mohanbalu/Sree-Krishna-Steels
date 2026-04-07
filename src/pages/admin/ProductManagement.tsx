@@ -355,6 +355,26 @@ export default function ProductManagement() {
         
         if (productResult.error) throw productResult.error;
 
+        // Storage cleanup for removed images in background
+        const oldImages = [
+          editingProduct.image_url,
+          ...(editingProduct.product_images?.map((img: any) => img.image_url) || [])
+        ].filter(Boolean);
+        const newImages = [formData.image_url, ...formData.image_urls].filter(Boolean);
+        const removedImages = oldImages.filter(url => !newImages.includes(url));
+
+        if (removedImages.length > 0) {
+          const pathsToDelete = removedImages
+            .filter(url => url.includes('storage/v1/object/public/products/'))
+            .map(url => url.split('storage/v1/object/public/products/')[1]);
+
+          if (pathsToDelete.length > 0) {
+            supabase.storage.from('products').remove(pathsToDelete).catch(err => {
+              console.error('Error cleaning up orphaned images:', err);
+            });
+          }
+        }
+
         // Update local state and close modal immediately for better perceived speed
         const updatedProductWithImages = { 
           ...editingProduct, 
@@ -425,7 +445,36 @@ export default function ProductManagement() {
     }
 
     try {
-      // First delete associated images
+      // Find the product in state to get its images for storage cleanup
+      const product = products.find(p => p.id === productToDelete);
+      
+      if (product) {
+        // Collect all image URLs (main image + additional images)
+        const imageUrls = [
+          product.image_url,
+          ...(product.product_images?.map((img: any) => img.image_url) || [])
+        ].filter(Boolean);
+
+        // Extract paths for Supabase Storage
+        // Format: .../storage/v1/object/public/products/products/filename.jpg
+        const paths = imageUrls
+          .filter(url => url.includes('storage/v1/object/public/products/'))
+          .map(url => url.split('storage/v1/object/public/products/')[1]);
+
+        if (paths.length > 0) {
+          // Delete files from storage bucket
+          const { error: storageError } = await supabase.storage
+            .from('products')
+            .remove(paths);
+          
+          if (storageError) {
+            console.error('Storage deletion error:', storageError);
+            // We continue even if storage deletion fails, to ensure DB is cleaned up
+          }
+        }
+      }
+
+      // First delete associated images from DB
       await supabase
         .from('product_images')
         .delete()
@@ -440,6 +489,9 @@ export default function ProductManagement() {
       toast.success('Product deleted successfully!');
       setIsDeleteModalOpen(false);
       setProductToDelete(null);
+
+      // Update local state for immediate feedback
+      setProducts(prev => prev.filter(p => p.id !== productToDelete));
     } catch (error) {
       handleSupabaseError(error, 'deleteProduct');
     }
