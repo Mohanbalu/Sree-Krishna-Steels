@@ -12,6 +12,10 @@ if (!supabaseUrl || !supabaseAnonKey || isPlaceholder) {
 }
 
 // Only create the client if we have the required parameters and they aren't placeholders
+if (supabaseUrl && !isPlaceholder) {
+  console.log(`[Supabase] Connecting to: ${supabaseUrl.substring(0, 12)}...`);
+}
+
 export const supabase = (supabaseUrl && supabaseAnonKey && !isPlaceholder) 
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null as any;
