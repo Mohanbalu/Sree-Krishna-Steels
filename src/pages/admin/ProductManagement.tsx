@@ -28,6 +28,7 @@ export default function ProductManagement() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -104,28 +105,53 @@ export default function ProductManagement() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // 1. Instant Preview
+    const previewUrl = URL.createObjectURL(file);
+    setPreviewImage(previewUrl);
     setUploading(true);
     setUploadProgress(0);
-    const toastId = toast.loading('Optimizing & Uploading...');
     
+    const toastId = toast.loading('Processing image...');
+    const startTime = performance.now();
+    const originalSizeMB = file.size / (1024 * 1024);
+
     try {
-      // Compress image before upload
-      const options = {
-        maxSizeMB: 0.6, // Further reduced for speed
-        maxWidthOrHeight: 1600,
-        useWebWorker: true
-      };
-      
-      const compressedFile = await imageCompression(file, options);
-      
+      // 2. Adaptive Compression Strategy
+      let compressedFile: File | Blob = file;
+      let compressionTime = 0;
+      let usedStrategy = 'None (File < 1MB)';
+
+      if (originalSizeMB >= 1) {
+        const compStart = performance.now();
+        
+        // Strategy Selection
+        const options = originalSizeMB > 5 
+          ? { maxSizeMB: 0.8, maxWidthOrHeight: 1000, useWebWorker: true, fileType: 'image/webp' } // Strong
+          : { maxSizeMB: 1.2, maxWidthOrHeight: 1200, useWebWorker: true, fileType: 'image/webp' }; // Light
+        
+        usedStrategy = originalSizeMB > 5 ? 'Strong' : 'Light';
+        
+        compressedFile = await imageCompression(file, options as any);
+        compressionTime = performance.now() - compStart;
+      }
+
+      const finalSizeMB = compressedFile.size / (1024 * 1024);
+
+      // 3. Optimized Upload Flow
       const uploadFile = async (f: File | Blob) => {
-        const fileExt = file.name.split('.').pop() || 'jpg';
+        const fileExt = 'webp'; // We're converting to webp
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
         const filePath = `products/${fileName}`;
 
+        const uploadStart = performance.now();
         const { error: uploadError } = await supabase.storage
           .from('products')
-          .upload(filePath, f);
+          .upload(filePath, f, {
+            cacheControl: '3600',
+            upsert: false,
+            contentType: 'image/webp'
+          });
+        const uploadTime = performance.now() - uploadStart;
 
         if (uploadError) throw uploadError;
 
@@ -133,27 +159,42 @@ export default function ProductManagement() {
           .from('products')
           .getPublicUrl(filePath);
         
-        setUploadProgress(100);
-        return publicUrl;
+        return { publicUrl, uploadTime };
       };
 
-      const publicUrl = await uploadFile(compressedFile);
+      // Track progress manually for better UX
+      setUploadProgress(20); // Compression done
+      const { publicUrl, uploadTime } = await uploadFile(compressedFile);
+      setUploadProgress(100);
 
-      setFormData(prev => {
-        const newImageUrls = [...prev.image_urls, publicUrl];
-        return { 
-          ...prev, 
-          image_urls: newImageUrls,
-          image_url: prev.image_url || publicUrl
-        };
+      const totalTime = performance.now() - startTime;
+
+      // 4. Performance Logging
+      console.group('🖼️ Adaptive Image Upload');
+      console.log('Strategy:', usedStrategy);
+      console.log('Size:', `${originalSizeMB.toFixed(2)}MB -> ${finalSizeMB.toFixed(2)}MB (${(((originalSizeMB - finalSizeMB) / originalSizeMB) * 100).toFixed(1)}% reduction)`);
+      console.log('Timing:', {
+        compression: `${compressionTime.toFixed(2)}ms`,
+        upload: `${uploadTime.toFixed(2)}ms`,
+        total: `${totalTime.toFixed(2)}ms`
       });
+      console.groupEnd();
 
-      toast.success('Image optimized & uploaded!', { id: toastId });
+      setFormData(prev => ({
+        ...prev,
+        image_urls: [...prev.image_urls, publicUrl],
+        image_url: prev.image_url || publicUrl
+      }));
+
+      toast.success('Image uploaded successfully!', { id: toastId });
     } catch (error: any) {
+      console.error('Upload failed:', error);
       toast.error('Upload failed: ' + error.message, { id: toastId });
     } finally {
       setUploading(false);
+      setPreviewImage(null);
       setUploadProgress(0);
+      URL.revokeObjectURL(previewUrl);
     }
   };
 
@@ -921,6 +962,21 @@ export default function ProductManagement() {
                         )}
                       </div>
                     ))}
+
+                    {previewImage && (
+                      <div className="relative aspect-square rounded-2xl overflow-hidden border border-brand-gold/30 bg-brand-cream/10 animate-pulse">
+                        <img 
+                          src={previewImage} 
+                          alt="Preview" 
+                          className="w-full h-full object-cover opacity-50"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="bg-white/90 backdrop-blur-md px-3 py-1 rounded-full shadow-sm">
+                            <span className="text-[8px] font-bold text-brand-gold uppercase tracking-widest">Uploading...</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     
                     <label className={`aspect-square border-2 border-dashed rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer transition-all hover:border-brand-gold hover:bg-brand-gold/5 ${uploading ? 'opacity-50 cursor-not-allowed' : 'border-brand-brown/10'}`}>
                       <input

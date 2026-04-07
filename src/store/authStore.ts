@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { supabase } from '../lib/supabase';
+import { supabase, handleSupabaseError } from '../lib/supabase';
 import { User } from '@supabase/supabase-js';
 import { useCartStore } from './cartStore';
 
@@ -101,13 +101,9 @@ export const useAuthStore = create<AuthState>((set) => ({
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
-        if (sessionError.message.includes('Refresh Token Not Found') || sessionError.message.includes('Invalid Refresh Token')) {
-          console.warn('Stale session found, clearing...');
-          await supabase.auth.signOut();
-          set({ loading: false, initialized: true });
-          return;
-        }
-        throw sessionError;
+        handleSupabaseError(sessionError, 'getSession');
+        set({ loading: false, initialized: true });
+        return;
       }
       
       if (session?.user) {
@@ -133,7 +129,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         set({ user: null, profile: null, loading: false, initialized: true });
       }
     } catch (error) {
-      console.error('Auth initialization error:', error);
+      handleSupabaseError(error, 'authInitialize');
       set({ user: null, profile: null, loading: false, initialized: true });
     }
 

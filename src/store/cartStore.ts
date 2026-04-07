@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { supabase } from '../lib/supabase';
+import { supabase, handleSupabaseError } from '../lib/supabase';
 import { useAuthStore } from './authStore';
 
 export interface CartItem {
@@ -96,7 +96,7 @@ export const useCartStore = create<CartState>()(
             if (insertError) throw insertError;
           }
         } catch (error: any) {
-          console.error('Error syncing cart to Supabase:', error);
+          handleSupabaseError(error, 'syncCartToSupabase');
         }
       },
 
@@ -121,7 +121,7 @@ export const useCartStore = create<CartState>()(
             set({ items });
           }
         } catch (error: any) {
-          console.error('Error fetching cart from Supabase:', error);
+          handleSupabaseError(error, 'fetchCartFromSupabase');
         }
       }
     }),
