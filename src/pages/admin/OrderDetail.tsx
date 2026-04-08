@@ -584,7 +584,7 @@ export default function OrderDetail() {
                 </div>
                 <div className="flex items-center gap-3 text-xs lg:text-sm text-gray-600">
                   <CreditCard size={14} lg:size={16} className="text-brand-gold" />
-                  <span className="font-medium uppercase tracking-wider">{order.payment_method}</span>
+                  <span className="font-medium uppercase tracking-wider">{order.payment_method === 'cod' ? 'Cash on Delivery' : order.payment_method}</span>
                 </div>
               </div>
             </div>

@@ -8,7 +8,6 @@ export default function SettingsPage() {
 
   const tabs = [
     { id: 'business', label: 'Business Info', icon: Building2 },
-    { id: 'payments', label: 'Payments', icon: CreditCard },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'security', label: 'Security', icon: Shield },
   ];
@@ -133,56 +132,6 @@ export default function SettingsPage() {
                         className="w-full pl-12 pr-4 py-3.5 lg:py-4 bg-brand-cream/20 border border-brand-brown/5 rounded-xl lg:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:bg-white transition-all outline-none text-xs lg:text-sm font-medium resize-none" 
                       />
                     </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {activeTab === 'payments' && (
-              <motion.div 
-                key="payments"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="space-y-8 lg:space-y-10"
-              >
-                <div>
-                  <h2 className="text-2xl lg:text-3xl font-serif text-brand-brown mb-2">Financial Gateway</h2>
-                  <p className="text-brand-brown/40 text-xs lg:text-sm">Securely manage your transaction processing systems.</p>
-                </div>
-                
-                <div className="space-y-4 lg:space-y-6">
-                  <div className="group flex flex-col sm:flex-row sm:items-center justify-between p-6 lg:p-8 bg-brand-cream/10 rounded-2xl lg:rounded-[2rem] border border-brand-brown/5 hover:border-brand-gold/30 hover:shadow-xl hover:shadow-brand-brown/5 transition-all duration-500 gap-6">
-                    <div className="flex items-center gap-4 lg:gap-6">
-                      <div className="w-12 h-12 lg:w-16 lg:h-16 bg-blue-50 text-blue-600 rounded-xl lg:rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-500">
-                        <CreditCard size={24} lg:size={28} />
-                      </div>
-                      <div>
-                        <div className="font-serif text-lg lg:text-xl text-brand-brown">Stripe Integration</div>
-                        <div className="text-[10px] lg:text-xs text-brand-brown/40 font-medium flex items-center gap-2 mt-1">
-                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                          Authenticated & Active
-                        </div>
-                      </div>
-                    </div>
-                    <button className="w-full sm:w-auto px-6 py-2.5 bg-brand-brown text-white text-[9px] lg:text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-brand-gold transition-colors duration-300">
-                      Manage Account
-                    </button>
-                  </div>
-
-                  <div className="group flex flex-col sm:flex-row sm:items-center justify-between p-6 lg:p-8 bg-brand-cream/10 rounded-2xl lg:rounded-[2rem] border border-brand-brown/5 hover:border-brand-gold/30 hover:shadow-xl hover:shadow-brand-brown/5 transition-all duration-500 gap-6">
-                    <div className="flex items-center gap-4 lg:gap-6">
-                      <div className="w-12 h-12 lg:w-16 lg:h-16 bg-amber-50 text-amber-600 rounded-xl lg:rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-500 font-serif text-xl lg:text-2xl font-bold">
-                        P
-                      </div>
-                      <div>
-                        <div className="font-serif text-lg lg:text-xl text-brand-brown">PayPal Express</div>
-                        <div className="text-[10px] lg:text-xs text-brand-brown/40 font-medium mt-1">Awaiting Configuration</div>
-                      </div>
-                    </div>
-                    <button className="w-full sm:w-auto px-6 py-2.5 border border-brand-brown/10 text-brand-brown text-[9px] lg:text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-brand-brown hover:text-white transition-all duration-300">
-                      Connect Gateway
-                    </button>
                   </div>
                 </div>
               </motion.div>

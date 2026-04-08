@@ -27,7 +27,7 @@ export default function Checkout() {
     address: '',
     city: '',
     pincode: '',
-    paymentMethod: 'cod' as 'cod' | 'online',
+    paymentMethod: 'cod' as 'cod',
   });
 
   // Sync form data when profile loads
@@ -368,38 +368,15 @@ export default function Checkout() {
                 <CreditCard className="text-brand-gold" /> Payment Method
               </h2>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, paymentMethod: 'cod' })}
-                  className={cn(
-                    "p-6 rounded-2xl border-2 transition-all flex flex-col items-center gap-3",
-                    formData.paymentMethod === 'cod' 
-                      ? "border-brand-gold bg-brand-gold/5" 
-                      : "border-brand-gold/10 hover:border-brand-gold/30"
-                  )}
+              <div className="grid grid-cols-1 gap-4">
+                <div
+                  className="p-6 rounded-2xl border-2 border-brand-gold bg-brand-gold/5 flex flex-col items-center gap-3"
                 >
                   <div className="w-12 h-12 bg-brand-cream rounded-full flex items-center justify-center">
                     <Phone className="text-brand-gold" />
                   </div>
                   <span className="font-bold text-brand-brown">Cash on Delivery</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, paymentMethod: 'online' })}
-                  className={cn(
-                    "p-6 rounded-2xl border-2 transition-all flex flex-col items-center gap-3",
-                    formData.paymentMethod === 'online' 
-                      ? "border-brand-gold bg-brand-gold/5" 
-                      : "border-brand-gold/10 hover:border-brand-gold/30"
-                  )}
-                >
-                  <div className="w-12 h-12 bg-brand-cream rounded-full flex items-center justify-center">
-                    <CreditCard className="text-brand-gold" />
-                  </div>
-                  <span className="font-bold text-brand-brown">Online Payment</span>
-                </button>
+                </div>
               </div>
             </div>
           </div>

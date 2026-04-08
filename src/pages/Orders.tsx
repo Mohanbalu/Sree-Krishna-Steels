@@ -322,7 +322,7 @@ export default function Orders() {
                             <div className="space-y-3">
                               <div className="flex justify-between items-center">
                                 <span className="text-xs text-brand-charcoal/40 uppercase font-bold">Payment Method</span>
-                                <span className="text-sm font-bold text-brand-brown uppercase">{order.payment_method}</span>
+                                <span className="text-sm font-bold text-brand-brown uppercase">{order.payment_method === 'cod' ? 'Cash on Delivery' : order.payment_method}</span>
                               </div>
                               {order.driver_name && (
                                 <div className="flex justify-between items-center">

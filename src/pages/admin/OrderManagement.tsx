@@ -258,19 +258,6 @@ export default function OrderManagement() {
               <option value="cancelled">Cancelled</option>
             </select>
           </div>
-          <div className="flex items-center gap-3 bg-white rounded-xl lg:rounded-[1.5rem] px-4 lg:px-6 py-2 border border-brand-brown/5 shadow-sm flex-1 min-w-[140px]">
-            <CreditCard size={18} className="text-brand-brown/40" />
-            <select
-              className="bg-transparent border-none focus:ring-0 text-xs lg:text-sm font-bold text-brand-brown outline-none w-full cursor-pointer"
-              value={paymentFilter}
-              onChange={(e) => setPaymentFilter(e.target.value)}
-            >
-              <option value="all">Payment</option>
-              <option value="pending">Pending</option>
-              <option value="paid">Paid</option>
-              <option value="failed">Failed</option>
-            </select>
-          </div>
         </div>
       </div>
 
