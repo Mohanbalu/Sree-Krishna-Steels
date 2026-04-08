@@ -54,6 +54,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
 
     const fetchProfile = async (userId: string, userEmail?: string, userName?: string, userPhone?: string): Promise<UserProfile | null> => {
+      console.log(`[AuthStore] Fetching profile for ${userId}...`);
       try {
         const { data, error } = await supabase
           .from('profiles')
@@ -62,9 +63,11 @@ export const useAuthStore = create<AuthState>((set) => ({
           .single();
         
         if (error) {
+          console.error(`[AuthStore] Profile fetch error for ${userId}:`, error.code, error.message);
+          
           // If profile is missing (PGRST116), try to create it immediately
           if (error.code === 'PGRST116') {
-            console.log('Profile missing in DB, auto-creating...');
+            console.log('[AuthStore] Profile missing in DB, auto-creating...');
             const { data: newProfile, error: createError } = await supabase
               .from('profiles')
               .insert([
@@ -72,7 +75,7 @@ export const useAuthStore = create<AuthState>((set) => ({
                   id: userId, 
                   name: userName || 'User', 
                   email: userEmail,
-                  phone: userPhone,
+                  phone: userPhone || '',
                   role: (userEmail === 'support@sksfurniture.in' || userEmail === 'mohanbalu292@gmail.com') ? 'super_admin' : 'customer' 
                 }
               ])
@@ -80,18 +83,25 @@ export const useAuthStore = create<AuthState>((set) => ({
               .single();
               
             if (createError) {
-              console.error('Auto-create failed:', createError);
-              return { id: userId, role: 'customer', email: userEmail || '', name: userName || 'User', created_at: new Date().toISOString() } as UserProfile;
+              console.error('[AuthStore] Auto-create failed:', createError.code, createError.message);
+              // Return a mock profile so the app doesn't break, but log the failure
+              return { 
+                id: userId, 
+                role: (userEmail === 'support@sksfurniture.in' || userEmail === 'mohanbalu292@gmail.com') ? 'super_admin' : 'customer', 
+                email: userEmail || '', 
+                name: userName || 'User', 
+                created_at: new Date().toISOString() 
+              } as UserProfile;
             }
+            console.log('[AuthStore] Profile auto-created successfully');
             return newProfile as UserProfile;
           }
-
-          console.error('Error fetching profile:', error);
           return null;
         }
+        console.log(`[AuthStore] Profile found. Role: ${data.role}`);
         return data as UserProfile;
       } catch (err: any) {
-        console.error('fetchProfile error:', err);
+        console.error('[AuthStore] fetchProfile unexpected error:', err);
         return null;
       }
     };

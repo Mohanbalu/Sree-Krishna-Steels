@@ -370,6 +370,7 @@ export default function ProductManagement() {
     }
 
     setSubmitting(true);
+    console.time('⏱️ Total Save Time');
     try {
       const productData = {
         title: formData.title,
@@ -387,6 +388,8 @@ export default function ProductManagement() {
         weight: formData.weight,
       };
 
+      console.log('[ProductManagement] Saving product data:', productData);
+
       if (isAddingNewCategory && newCategory) {
         setCategories(prev => Array.from(new Set([...prev, newCategory])));
       }
@@ -396,73 +399,77 @@ export default function ProductManagement() {
           throw new Error('Invalid product ID for editing');
         }
 
-        // Run product update and image cleanup in parallel
-        const [productResult] = await Promise.all([
-          supabase
-            .from('products')
-            .update(productData)
-            .eq('id', editingProduct.id)
-            .select()
-            .single(),
-          supabase
-            .from('product_images')
-            .delete()
-            .eq('product_id', editingProduct.id)
-        ]);
+        console.log('[ProductManagement] Updating existing product:', editingProduct.id);
+        console.time('⏱️ DB Update Time');
+        // 1. Update the main product first
+        const { data: updatedProduct, error: productError } = await supabase
+          .from('products')
+          .update(productData)
+          .eq('id', editingProduct.id)
+          .select()
+          .single();
+        console.timeEnd('⏱️ DB Update Time');
         
-        if (productResult.error) throw productResult.error;
-
-        // Storage cleanup for removed images in background
-        const oldImages = [
-          editingProduct.image_url,
-          ...(editingProduct.product_images?.map((img: any) => img.image_url) || [])
-        ].filter(Boolean);
-        const newImages = [formData.image_url, ...formData.image_urls].filter(Boolean);
-        const removedImages = oldImages.filter(url => !newImages.includes(url));
-
-        if (removedImages.length > 0) {
-          const pathsToDelete = removedImages
-            .filter(url => url.includes('storage/v1/object/public/products/'))
-            .map(url => url.split('storage/v1/object/public/products/')[1]);
-
-          if (pathsToDelete.length > 0) {
-            supabase.storage.from('products').remove(pathsToDelete).catch(err => {
-              console.error('Error cleaning up orphaned images:', err);
-            });
-          }
+        if (productError) {
+          console.error('[ProductManagement] DB Update Error:', productError);
+          throw productError;
         }
 
-        // Update local state and close modal immediately for better perceived speed
+        // 2. Update local state and close modal IMMEDIATELY for instant feedback
         const updatedProductWithImages = { 
           ...editingProduct, 
-          ...productResult.data,
+          ...updatedProduct,
           product_images: formData.image_urls.map(url => ({ image_url: url }))
         };
         setProducts(prev => prev.map(p => p.id === editingProduct.id ? updatedProductWithImages : p));
         closeModal();
         toast.success('Product updated successfully!');
 
-        // Background: Insert new images if any
-        if (formData.image_urls.length > 0) {
-          await supabase
-            .from('product_images')
-            .insert(
-              formData.image_urls.map(url => ({
-                product_id: editingProduct.id,
-                image_url: url
-              }))
-            );
-        }
+        // 3. Handle images in the background (don't block the UI)
+        (async () => {
+          console.log('[ProductManagement] Starting background image updates...');
+          try {
+            // Delete old image references
+            await supabase
+              .from('product_images')
+              .delete()
+              .eq('product_id', editingProduct.id);
+
+            // Insert new image references
+            if (formData.image_urls.length > 0) {
+              await supabase
+                .from('product_images')
+                .insert(
+                  formData.image_urls.map(url => ({
+                    product_id: editingProduct.id,
+                    image_url: url
+                  }))
+                );
+            }
+            console.log('[ProductManagement] Background image updates complete');
+          } catch (err) {
+            console.error('[ProductManagement] Background image updates failed:', err);
+          }
+        })();
       } else {
+        console.log('[ProductManagement] Inserting new product...');
+        console.time('⏱️ DB Insert Time');
+        // 1. Insert the new product
         const { data: newProduct, error } = await supabase
           .from('products')
           .insert([productData])
           .select()
           .single();
+        console.timeEnd('⏱️ DB Insert Time');
 
-        if (error) throw error;
+        if (error) {
+          console.error('[ProductManagement] DB Insert Error:', error);
+          throw error;
+        }
 
-        // Update local state and close modal immediately
+        console.log('[ProductManagement] Product inserted successfully:', newProduct.id);
+
+        // 2. Update local state and close modal IMMEDIATELY
         const productWithImages = {
           ...newProduct,
           product_images: formData.image_urls.map(url => ({ image_url: url }))
@@ -471,24 +478,27 @@ export default function ProductManagement() {
         closeModal();
         toast.success('Product added successfully!');
 
-        // Background: Insert product_images in parallel if any
+        // 3. Insert product_images in the background
         if (formData.image_urls.length > 0) {
-          await supabase
+          console.log('[ProductManagement] Starting background image inserts...');
+          supabase
             .from('product_images')
             .insert(
               formData.image_urls.map(url => ({
                 product_id: newProduct.id,
                 image_url: url
               }))
-            );
+            )
+            .then(() => console.log('[ProductManagement] Background image inserts complete'))
+            .catch(err => console.error('[ProductManagement] Background image inserts failed:', err));
         }
       }
     } catch (error: any) {
-      console.error('Save Product Error:', error);
+      console.error('[ProductManagement] Save Product Error:', error);
       const errorMessage = error.message || error.details || 'Unknown error';
       toast.error(`Failed to save product: ${errorMessage}`);
-      if (error.hint) console.info('Hint:', error.hint);
     } finally {
+      console.timeEnd('⏱️ Total Save Time');
       setSubmitting(false);
     }
   };
