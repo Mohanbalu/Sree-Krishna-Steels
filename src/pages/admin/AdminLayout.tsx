@@ -218,7 +218,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
 
         {/* Page Content */}
-        <div className="p-4 lg:p-8 overflow-y-auto">
+        <div className="flex-grow p-4 lg:p-8 overflow-y-auto">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}

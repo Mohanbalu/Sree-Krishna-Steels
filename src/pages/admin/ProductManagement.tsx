@@ -690,7 +690,7 @@ export default function ProductManagement() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8 min-h-[200px]">
         <AnimatePresence mode="popLayout">
           {filteredProducts.length === 0 ? (
             <div className="col-span-full py-20 text-center space-y-4">
@@ -728,7 +728,7 @@ export default function ProductManagement() {
                 
                 <div className="absolute inset-0 bg-gradient-to-t from-brand-charcoal/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                <div className="absolute top-3 lg:top-4 right-3 lg:right-4 flex flex-col gap-2 translate-x-12 group-hover:translate-x-0 transition-transform duration-500">
+                <div className="absolute top-3 lg:top-4 right-3 lg:right-4 flex flex-col gap-2 lg:translate-x-12 lg:group-hover:translate-x-0 transition-transform duration-500">
                   <button
                     onClick={() => openModal(product)}
                     className="p-2.5 lg:p-3 bg-white/90 backdrop-blur-md rounded-xl lg:rounded-2xl text-brand-brown hover:bg-brand-gold hover:text-white transition-all shadow-xl"
