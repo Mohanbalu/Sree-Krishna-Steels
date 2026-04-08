@@ -127,6 +127,35 @@ export default function OrderManagement() {
 
   const handleConfirmCancel = async () => {
     if (orderToCancel) {
+      const order = orders.find(o => o.id === orderToCancel.id);
+      
+      // Restore stock
+      if (order && order.order_items) {
+        console.log('📈 Restoring stock for cancelled order...');
+        for (const item of order.order_items) {
+          const { error: restoreError } = await supabase.rpc('increment_stock', {
+            row_id: item.product_id,
+            count: item.quantity
+          });
+
+          if (restoreError) {
+            console.warn(`⚠️ RPC increment failed for ${item.product_id}, falling back to manual update:`, restoreError);
+            const { data: currentProduct } = await supabase
+              .from('products')
+              .select('stock')
+              .eq('id', item.product_id)
+              .single();
+            
+            if (currentProduct) {
+              await supabase
+                .from('products')
+                .update({ stock: currentProduct.stock + item.quantity })
+                .eq('id', item.product_id);
+            }
+          }
+        }
+      }
+
       await performStatusUpdate(orderToCancel.id, orderToCancel.status);
       setIsCancelModalOpen(false);
       setOrderToCancel(null);

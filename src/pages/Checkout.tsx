@@ -215,6 +215,34 @@ export default function Checkout() {
 
       console.log('✅ Order items created successfully');
       
+      // 3. Decrement stock
+      console.log('📉 Decrementing stock for each product...');
+      for (const item of items) {
+        const { error: updateError } = await supabase.rpc('decrement_stock', {
+          row_id: item.id,
+          count: item.quantity
+        });
+
+        if (updateError) {
+          console.warn(`⚠️ RPC decrement failed for ${item.id}, falling back to manual update:`, updateError);
+          // Fallback to manual update if RPC is missing
+          const { data: currentProduct } = await supabase
+            .from('products')
+            .select('stock')
+            .eq('id', item.id)
+            .single();
+          
+          if (currentProduct) {
+            await supabase
+              .from('products')
+              .update({ stock: Math.max(0, currentProduct.stock - item.quantity) })
+              .eq('id', item.id);
+          }
+        }
+      }
+
+      console.log('✅ Stock updated successfully');
+      
       // Send mock email
       console.log('📧 Sending confirmation email to:', formData.email);
       await emailService.sendOrderConfirmation({

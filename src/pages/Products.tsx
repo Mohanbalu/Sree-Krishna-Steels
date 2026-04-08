@@ -219,7 +219,10 @@ export default function Products() {
                   <img
                     src={product.image || product.images?.[0]}
                     alt={product.title || product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className={cn(
+                      "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500",
+                      product.stock <= 0 && "grayscale opacity-60"
+                    )}
                     referrerPolicy="no-referrer"
                   />
                   <div className="absolute inset-0 bg-brand-brown/0 group-hover:bg-brand-brown/10 transition-colors"></div>
@@ -237,8 +240,10 @@ export default function Products() {
                   )}
 
                   {product.stock <= 0 && (
-                    <div className="absolute top-4 right-4 bg-red-500 text-white p-2 px-4 rounded-xl shadow-lg text-[10px] font-bold uppercase tracking-widest z-10">
-                      Out of Stock
+                    <div className="absolute inset-0 flex items-center justify-center z-10">
+                      <div className="bg-red-600 text-white px-6 py-2 rounded-full shadow-2xl text-xs font-bold uppercase tracking-[0.2em] transform -rotate-12 border-2 border-white">
+                        Out of Stock
+                      </div>
                     </div>
                   )}
                 </div>
